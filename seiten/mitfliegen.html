@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mitfliegen &amp; Ausbildung – LSV Regensburg</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=Barlow+Condensed:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/stil.css">
+</head>
+<body class="artikel">
+
+<canvas id="sky" aria-hidden="true"></canvas>
+
+<header id="topbar">
+  <a class="brand" href="../index.html" aria-label="LSV Regensburg – zur Startseite">
+    <img src="../img/wappen-lsv-regensburg.jpg" alt="Wappen des LSV Regensburg" hidden
+         onload="this.hidden=false;this.nextElementSibling.setAttribute('hidden','')">
+    <svg class="shield" viewBox="0 0 44 52" aria-hidden="true">
+      <path d="M2 3h40v22c0 13-9 21-20 25C11 46 2 38 2 25Z" fill="#fff" stroke="#0f2c4c" stroke-width="2.5"/>
+      <path d="M22 4v45" stroke="#c8102e" stroke-width="2"/>
+      <text x="22" y="30" text-anchor="middle" font-family="Barlow Condensed" font-weight="700" font-size="11" fill="#0f2c4c">LSV</text>
+    </svg>
+    <span class="name">LSV Regensburg<small>Segelflug</small></span>
+  </a>
+  <button id="menu-btn" aria-label="Menü öffnen" aria-expanded="false" aria-controls="tabs">
+    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+  </button>
+  <!-- Reiter: Reihenfolge und Texte hier und in seiten.ps1 pflegen -->
+  <ul id="tabs">
+    <li><a href="mitfliegen.html" class="current" aria-current="page">Mitfliegen</a></li>
+    <li><a href="verein.html">Verein</a></li>
+    <li><a href="jugend.html">Jugend</a></li>
+    <li><a href="streckenflug.html">Streckenflug</a></li>
+    <li><a href="werkstatt.html">Werkstatt</a></li>
+    <li><a href="anflug.html">Anflug für Piloten</a></li>
+    <li><a href="webcams.html">Webcams</a></li>
+    <li><a href="flugvorbereitung.html">Flugvorbereitung</a></li>
+  </ul>
+</header>
+
+<main>
+  <article class="article">
+    <a class="back" href="../index.html">← Zur Startseite</a>
+    <div data-e="e26" class="date">Gastflüge · Ausbildung</div>
+    <h1 data-e="e1">Mitfliegen &amp; Ausbildung</h1>
+    <p data-e="e2">Du willst wissen, wie sich Fliegen anfühlt? In unseren doppelsitzigen Segelflugzeugen nehmen wir jeweils einen Gast mit. In den Motorflugzeugen sitzt du direkt neben dem Piloten.</p>
+
+    <h2 data-e="e3">Gastflüge</h2>
+    <p data-e="e4">Mitflüge sind meist von April bis Oktober möglich – an Wochenenden und Feiertagen, wenn das Wetter mitspielt. Am besten fragst du vorher kurz an.</p>
+    <table class="ad">
+      <tr><th data-e="e5">Anfrage &amp; Preise</th><td data-e="e6">mitflug@luftsportverein-regensburg.de</td></tr>
+      <tr><th data-e="e7">Flugleitung (Flugtag)</th><td data-e="e8">09453 7244</td></tr>
+      <tr><th data-e="e9">Gutscheine</th><td data-e="e10">Mitflug-Gutscheine zum Verschenken – ebenfalls über mitflug@luftsportverein-regensburg.de</td></tr>
+    </table>
+
+    <h2 data-e="e11">Segelflug-Ausbildung</h2>
+    <p data-e="e12">Die Ausbildung zum Segelflugpiloten beginnt mit 14 Jahren. Den Luftfahrerschein bekommst du zu deinem 16. Geburtstag ausgehändigt. Ein Schnupperflug ist auf Anfrage möglich.</p>
+    <table class="ad">
+      <tr><th data-e="e13">Mindestalter</th><td data-e="e14">14 Jahre</td></tr>
+      <tr><th data-e="e15">Voraussetzungen</th><td data-e="e16">Polizeiliches Führungszeugnis, Flugtauglichkeitsuntersuchung beim Fliegerarzt, Lehrgangsnachweise</td></tr>
+      <tr><th data-e="e17">Ausbildungsweg</th><td data-e="e18">ASK 13 → Ka 8 → ASK 21 → Discus</td></tr>
+      <tr><th data-e="e19">Kosten bis zum Schein</th><td data-e="e20">ca. 2.000 € (Erfahrungswert), Sondertarife für Jugendliche und Studenten</td></tr>
+      <tr><th data-e="e21">Kontakt</th><td data-e="e22">ausbildung@luftsportverein-regensburg.de</td></tr>
+    </table>
+
+    <h2 data-e="e23">Motorsegler</h2>
+    <p data-e="e24">Die Ausbildung auf unseren Motorseglern ist ab 17 Jahren möglich.</p>
+    <p data-e="e25" class="note">Inhalte übernommen von der bisherigen Vereinswebsite – bitte prüfen und ergänzen.</p>
+  </article>
+</main>
+
+<script src="../js/himmel.js"></script>
+<script>
+  const b = document.getElementById('menu-btn'), t = document.getElementById('tabs');
+  b.addEventListener('click', () => b.setAttribute('aria-expanded', t.classList.toggle('open')));
+</script>
+<script src="../js/editor-loader.js"></script>
+</body>
+</html>

@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Anflug für Piloten – LSV Regensburg</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=Barlow+Condensed:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/stil.css">
+</head>
+<body class="artikel">
+
+<canvas id="sky" aria-hidden="true"></canvas>
+
+<header id="topbar">
+  <a class="brand" href="../index.html" aria-label="LSV Regensburg – zur Startseite">
+    <img src="../img/wappen-lsv-regensburg.jpg" alt="Wappen des LSV Regensburg" hidden
+         onload="this.hidden=false;this.nextElementSibling.setAttribute('hidden','')">
+    <svg class="shield" viewBox="0 0 44 52" aria-hidden="true">
+      <path d="M2 3h40v22c0 13-9 21-20 25C11 46 2 38 2 25Z" fill="#fff" stroke="#0f2c4c" stroke-width="2.5"/>
+      <path d="M22 4v45" stroke="#c8102e" stroke-width="2"/>
+      <text x="22" y="30" text-anchor="middle" font-family="Barlow Condensed" font-weight="700" font-size="11" fill="#0f2c4c">LSV</text>
+    </svg>
+    <span class="name">LSV Regensburg<small>Segelflug</small></span>
+  </a>
+  <button id="menu-btn" aria-label="Menü öffnen" aria-expanded="false" aria-controls="tabs">
+    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+  </button>
+  <!-- Reiter: Reihenfolge und Texte hier und in seiten.ps1 pflegen -->
+  <ul id="tabs">
+    <li><a href="mitfliegen.html">Mitfliegen</a></li>
+    <li><a href="verein.html">Verein</a></li>
+    <li><a href="jugend.html">Jugend</a></li>
+    <li><a href="streckenflug.html">Streckenflug</a></li>
+    <li><a href="werkstatt.html">Werkstatt</a></li>
+    <li><a href="anflug.html" class="current" aria-current="page">Anflug für Piloten</a></li>
+    <li><a href="webcams.html">Webcams</a></li>
+    <li><a href="flugvorbereitung.html">Flugvorbereitung</a></li>
+  </ul>
+</header>
+
+<main>
+  <article class="article">
+    <a class="back" href="../index.html">← Zur Startseite</a>
+    <div data-e="e31" class="date">Flugplatz Oberhinkofen</div>
+    <h1 data-e="e1">Anflug für Piloten</h1>
+    <p data-e="e2" class="warn"><strong>Hinweis:</strong> Angaben laut bisheriger Vereinswebsite, ohne Gewähr. Vor jedem Flug die aktuellen Daten (AIP VFR, NOTAMs) prüfen und bei der Flugleitung nachfragen.</p>
+
+    <h2 data-e="e3">Platzdaten</h2>
+    <table class="ad">
+      <tr><th data-e="e4">Frequenz</th><td data-e="e5">133.260 MHz</td></tr>
+      <tr><th data-e="e6">Koordinaten</th><td data-e="e7">48° 57' 09,3" N / 12° 08' 54,2" E</td></tr>
+      <tr><th data-e="e8">Piste</th><td data-e="e9">05/23 · 600 m · Gras</td></tr>
+      <tr><th data-e="e10">Zugelassen für</th><td data-e="e11">Segelflugzeuge, Motorsegler, Ultraleicht</td></tr>
+      <tr><th data-e="e12">Platzrunde</th><td data-e="e13">Segelflugzeuge im Norden, Motorsegler im Süden, 2300 ft MSL</td></tr>
+      <tr><th data-e="e14">Startarten</th><td data-e="e15">F-Schlepp und Windenstart</td></tr>
+    </table>
+
+    <h2 data-e="e16">Betrieb</h2>
+    <p data-e="e17">Die Flugsaison geht von April bis Oktober. Geflogen wird vor allem an Wochenenden und Feiertagen bei gutem Wetter, manchmal auch unter der Woche. Der Flugbetrieb beginnt gegen 9 Uhr und endet gegen 18 Uhr.</p>
+
+    <h2 data-e="e18">Bitte beachten</h2>
+    <table class="ad">
+      <tr><th data-e="e19">Hindernis</th><td data-e="e20">Stromleitungen ca. 600 m vor Schwelle 05, etwa in Nord-Süd-Richtung</td></tr>
+      <tr><th data-e="e21">Lärmschutz</th><td data-e="e22">Umliegende Ortschaften nicht direkt überfliegen</td></tr>
+      <tr><th data-e="e23">Am Boden</th><td data-e="e24">Start-/Landebahn nicht betreten, Windenschleppstrecke nicht überqueren</td></tr>
+    </table>
+
+    <h2 data-e="e25">Kontakt</h2>
+    <table class="ad">
+      <tr><th data-e="e26">Flugleitung</th><td data-e="e27">09453 7244</td></tr>
+      <tr><th data-e="e28">Anfahrt (Navi)</th><td data-e="e29">Einthal, 93083 Obertraubling</td></tr>
+    </table>
+    <p data-e="e30" class="note">Inhalte übernommen von der bisherigen Vereinswebsite – bitte prüfen und ergänzen.</p>
+  </article>
+</main>
+
+<script src="../js/himmel.js"></script>
+<script>
+  const b = document.getElementById('menu-btn'), t = document.getElementById('tabs');
+  b.addEventListener('click', () => b.setAttribute('aria-expanded', t.classList.toggle('open')));
+</script>
+<script src="../js/editor-loader.js"></script>
+</body>
+</html>

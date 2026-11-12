@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Der Verein – LSV Regensburg</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=Barlow+Condensed:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/stil.css">
+</head>
+<body class="artikel">
+
+<canvas id="sky" aria-hidden="true"></canvas>
+
+<header id="topbar">
+  <a class="brand" href="../index.html" aria-label="LSV Regensburg – zur Startseite">
+    <img src="../img/wappen-lsv-regensburg.jpg" alt="Wappen des LSV Regensburg" hidden
+         onload="this.hidden=false;this.nextElementSibling.setAttribute('hidden','')">
+    <svg class="shield" viewBox="0 0 44 52" aria-hidden="true">
+      <path d="M2 3h40v22c0 13-9 21-20 25C11 46 2 38 2 25Z" fill="#fff" stroke="#0f2c4c" stroke-width="2.5"/>
+      <path d="M22 4v45" stroke="#c8102e" stroke-width="2"/>
+      <text x="22" y="30" text-anchor="middle" font-family="Barlow Condensed" font-weight="700" font-size="11" fill="#0f2c4c">LSV</text>
+    </svg>
+    <span class="name">LSV Regensburg<small>Segelflug</small></span>
+  </a>
+  <button id="menu-btn" aria-label="Menü öffnen" aria-expanded="false" aria-controls="tabs">
+    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+  </button>
+  <!-- Reiter: Reihenfolge und Texte hier und in seiten.ps1 pflegen -->
+  <ul id="tabs">
+    <li><a href="mitfliegen.html">Mitfliegen</a></li>
+    <li><a href="verein.html" class="current" aria-current="page">Verein</a></li>
+    <li><a href="jugend.html">Jugend</a></li>
+    <li><a href="streckenflug.html">Streckenflug</a></li>
+    <li><a href="werkstatt.html">Werkstatt</a></li>
+    <li><a href="anflug.html">Anflug für Piloten</a></li>
+    <li><a href="webcams.html">Webcams</a></li>
+    <li><a href="flugvorbereitung.html">Flugvorbereitung</a></li>
+  </ul>
+</header>
+
+<main>
+  <article class="article">
+    <a class="back" href="../index.html">← Zur Startseite</a>
+    <div data-e="e33" class="date">Luftsportverein Regensburg e. V.</div>
+    <h1 data-e="e1">Der Verein</h1>
+    <p data-e="e2">Seit 1950 fliegen wir vom Flugplatz Oberhinkofen, 8 km südlich von Regensburg. Im Luftsportverein Regensburg e.&nbsp;V. wird Segel- und Motorflug betrieben. Wir sind Ausbildungseinrichtung und stellen unseren Mitgliedern die Flugzeuge zur Verfügung.</p>
+    <p data-e="e3">Wartung, Windenfahren oder Rasenmähen erledigen wir weitgehend selbst – genau das macht Fliegen bei uns bezahlbar. Der Vorstand arbeitet ehrenamtlich.</p>
+
+    <h2 data-e="e4">Zahlen</h2>
+    <table class="ad">
+      <tr><th data-e="e5">Gegründet</th><td data-e="e6">1950</td></tr>
+      <tr><th data-e="e7">Mitglieder</th><td data-e="e8">über 130, davon ca. 70 aktive Pilotinnen und Piloten</td></tr>
+      <tr><th data-e="e9">Flugzeuge</th><td data-e="e10">10 – <a href="../index.html#flotte">zur Flotte</a></td></tr>
+      <tr><th data-e="e11">Flugplatz</th><td data-e="e12">Oberhinkofen (Navi: Einthal, 93083 Obertraubling)</td></tr>
+    </table>
+
+    <h2 data-e="e13">Vorstand</h2>
+    <p data-e="e14">Gewählt auf der Jahreshauptversammlung am 14. März 2025 für zwei Jahre.</p>
+    <table class="ad">
+      <tr><th data-e="e15">1. Vorsitzender</th><td data-e="e16">Dr. Martin Postner</td></tr>
+      <tr><th data-e="e17">2. Vorsitzender</th><td data-e="e18">Mick Scherrieble</td></tr>
+      <tr><th data-e="e19">Kassenverwalter</th><td data-e="e20">Dean Maximilian Schoke</td></tr>
+      <tr><th data-e="e21">Technischer Leiter</th><td data-e="e22">Roland Pschorn</td></tr>
+      <tr><th data-e="e23">Schriftführer</th><td data-e="e24">Florian Niklas Karow</td></tr>
+    </table>
+
+    <h2 data-e="e25">Kontakt</h2>
+    <table class="ad">
+      <tr><th data-e="e26">Anschrift</th><td data-e="e27">Luftsportverein Regensburg e.&nbsp;V., Postfach 1126, 93081 Obertraubling</td></tr>
+      <tr><th data-e="e28">E-Mail</th><td data-e="e29">info@luftsportverein-regensburg.de</td></tr>
+      <tr><th data-e="e30">Vereinsregister</th><td data-e="e31">VR 94, Amtsgericht Regensburg</td></tr>
+    </table>
+    <p data-e="e32" class="note">Inhalte übernommen von der bisherigen Vereinswebsite – bitte prüfen und ergänzen.</p>
+  </article>
+</main>
+
+<script src="../js/himmel.js"></script>
+<script>
+  const b = document.getElementById('menu-btn'), t = document.getElementById('tabs');
+  b.addEventListener('click', () => b.setAttribute('aria-expanded', t.classList.toggle('open')));
+</script>
+<script src="../js/editor-loader.js"></script>
+</body>
+</html>

@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Alle Meldungen – LSV Regensburg</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=Barlow+Condensed:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/stil.css">
+</head>
+<body class="artikel">
+
+<canvas id="sky" aria-hidden="true"></canvas>
+
+<header id="topbar">
+  <a class="brand" href="../index.html" aria-label="LSV Regensburg – zur Startseite">
+    <img src="../img/wappen-lsv-regensburg.jpg" alt="Wappen des LSV Regensburg" hidden
+         onload="this.hidden=false;this.nextElementSibling.setAttribute('hidden','')">
+    <svg class="shield" viewBox="0 0 44 52" aria-hidden="true">
+      <path d="M2 3h40v22c0 13-9 21-20 25C11 46 2 38 2 25Z" fill="#fff" stroke="#0f2c4c" stroke-width="2.5"/>
+      <path d="M22 4v45" stroke="#c8102e" stroke-width="2"/>
+      <text x="22" y="30" text-anchor="middle" font-family="Barlow Condensed" font-weight="700" font-size="11" fill="#0f2c4c">LSV</text>
+    </svg>
+    <span class="name">LSV Regensburg<small>Segelflug</small></span>
+  </a>
+  <button id="menu-btn" aria-label="Menü öffnen" aria-expanded="false" aria-controls="tabs">
+    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+  </button>
+  <!-- Reiter: Reihenfolge und Texte hier und in seiten.ps1 pflegen -->
+  <ul id="tabs">
+    <li><a href="../seiten/mitfliegen.html">Mitfliegen</a></li>
+    <li><a href="../seiten/verein.html">Verein</a></li>
+    <li><a href="../seiten/jugend.html">Jugend</a></li>
+    <li><a href="../seiten/streckenflug.html">Streckenflug</a></li>
+    <li><a href="../seiten/werkstatt.html">Werkstatt</a></li>
+    <li><a href="../seiten/anflug.html">Anflug für Piloten</a></li>
+    <li><a href="../seiten/webcams.html">Webcams</a></li>
+    <li><a href="../seiten/flugvorbereitung.html">Flugvorbereitung</a></li>
+  </ul>
+</header>
+
+<main>
+  <article class="article">
+    <a class="back" href="../index.html#aktuelles">← Zur Startseite</a>
+    <div data-e="e5" class="date">Aktuelles</div>
+    <h1 data-e="e2">Alle Meldungen</h1>
+    <div class="news">
+        <!-- ARCHIV:START -->
+        <a class="news-card" href="grunau-baby-treffen.html">
+          <div class="pic placeholder"><img data-e="e127" src="../img/aktuelles/grunau-baby-treffen.jpg" alt="" onerror="this.hidden=true" onload="this.parentElement.classList.remove('placeholder')"></div>
+          <div class="body">
+            <span data-e="e87" class="date">21.04.2025</span>
+            <h3 data-e="e7">43. Grunau Baby Treffen in Regensburg</h3>
+            <p data-e="e8">Vom 4. bis 11. Juni 2025 ist Oberhinkofen Gastgeber für das 43. Grunau Baby Treffen. Erwartet werden rund 15 der historischen Segelflugzeuge und etwa 35 Teilnehmende.</p>
+            <span class="more">Weiterlesen →</span>
+          </div>
+        </a>
+        <a class="news-card" href="neuer-vorstand.html">
+          <div class="pic placeholder"><img data-e="e128" src="../img/aktuelles/neuer-vorstand.jpg" alt="" onerror="this.hidden=true" onload="this.parentElement.classList.remove('placeholder')"></div>
+          <div class="body">
+            <span data-e="e88" class="date">19.03.2025</span>
+            <h3 data-e="e9">Der LSV Regensburg hat einen neuen Vorstand</h3>
+            <p data-e="e10">Auf der Jahreshauptversammlung am 14. März 2025 wurde der Vorstand für zwei Jahre neu gewählt. Zwei bisherige Vorstandsmitglieder sind dabei aus ihren Ämtern ausgeschieden.</p>
+            <span class="more">Weiterlesen →</span>
+          </div>
+        </a>
+        <a class="news-card" href="fruehfliegen.html">
+          <div class="pic placeholder"><img data-e="e129" src="../img/aktuelles/fruehfliegen.jpg" alt="" onerror="this.hidden=true" onload="this.parentElement.classList.remove('placeholder')"></div>
+          <div class="body">
+            <span data-e="e89" class="date">09.03.2025</span>
+            <h3 data-e="e11">Frühfliegen in Oberhinkofen</h3>
+            <p data-e="e12">Schon am 9. März ging es spontan in die Luft: Elf Piloten kamen auf 16 Starts im Flugzeugschlepp. Der offizielle Saisonstart folgte am 29. März.</p>
+            <span class="more">Weiterlesen →</span>
+          </div>
+        </a>
+                <!-- ARCHIV:END -->
+    </div>
+  </article>
+</main>
+
+<script src="../js/himmel.js"></script>
+<script>
+  const b = document.getElementById('menu-btn'), t = document.getElementById('tabs');
+  b.addEventListener('click', () => b.setAttribute('aria-expanded', t.classList.toggle('open')));
+</script>
+<script src="../js/editor-loader.js"></script>
+</body>
+</html>

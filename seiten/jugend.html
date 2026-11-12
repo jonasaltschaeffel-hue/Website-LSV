@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Jugend – LSV Regensburg</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=Barlow+Condensed:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/stil.css">
+</head>
+<body class="artikel">
+
+<canvas id="sky" aria-hidden="true"></canvas>
+
+<header id="topbar">
+  <a class="brand" href="../index.html" aria-label="LSV Regensburg – zur Startseite">
+    <img src="../img/wappen-lsv-regensburg.jpg" alt="Wappen des LSV Regensburg" hidden
+         onload="this.hidden=false;this.nextElementSibling.setAttribute('hidden','')">
+    <svg class="shield" viewBox="0 0 44 52" aria-hidden="true">
+      <path d="M2 3h40v22c0 13-9 21-20 25C11 46 2 38 2 25Z" fill="#fff" stroke="#0f2c4c" stroke-width="2.5"/>
+      <path d="M22 4v45" stroke="#c8102e" stroke-width="2"/>
+      <text x="22" y="30" text-anchor="middle" font-family="Barlow Condensed" font-weight="700" font-size="11" fill="#0f2c4c">LSV</text>
+    </svg>
+    <span class="name">LSV Regensburg<small>Segelflug</small></span>
+  </a>
+  <button id="menu-btn" aria-label="Menü öffnen" aria-expanded="false" aria-controls="tabs">
+    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+  </button>
+  <!-- Reiter: Reihenfolge und Texte hier und in seiten.ps1 pflegen -->
+  <ul id="tabs">
+    <li><a href="mitfliegen.html">Mitfliegen</a></li>
+    <li><a href="verein.html">Verein</a></li>
+    <li><a href="jugend.html" class="current" aria-current="page">Jugend</a></li>
+    <li><a href="streckenflug.html">Streckenflug</a></li>
+    <li><a href="werkstatt.html">Werkstatt</a></li>
+    <li><a href="anflug.html">Anflug für Piloten</a></li>
+    <li><a href="webcams.html">Webcams</a></li>
+    <li><a href="flugvorbereitung.html">Flugvorbereitung</a></li>
+  </ul>
+</header>
+
+<main>
+  <article class="article">
+    <a class="back" href="../index.html">← Zur Startseite</a>
+    <div data-e="e18" class="date">Für alle von 14 bis 27</div>
+    <h1 data-e="e1">Jugend</h1>
+    <p data-e="e2">Unsere Jugendgruppe ist für alle zwischen 14 und 27 Jahren. Mit 14 beginnt die Ausbildung, zum 16. Geburtstag gibt es den Luftfahrerschein.</p>
+    <div class="photos">
+      <div class="pic placeholder"><img data-e="e19" src="../img/jugend/bild-1.jpg" alt="Jugendgruppe des LSV Regensburg" onerror="this.hidden=true" onload="this.parentElement.classList.remove('placeholder')"></div>
+      <div class="pic placeholder"><img data-e="e20" src="../img/jugend/bild-2.jpg" alt="Jugendgruppe des LSV Regensburg" onerror="this.hidden=true" onload="this.parentElement.classList.remove('placeholder')"></div>
+    </div>
+    <h2 data-e="e3">Was wir machen</h2>
+    <table class="ad">
+      <tr><th data-e="e4">Wettbewerbe</th><td data-e="e5">Bezirks- und Bayerisches Jugendvergleichsfliegen, LIMA-Leistungslehrgang</td></tr>
+      <tr><th data-e="e6">Gemeinsam unterwegs</th><td data-e="e7">Landesjugendtreffen (LaJu), Partnerschaften mit Jugendgruppen in der Oberpfalz und in Niederbayern</td></tr>
+      <tr><th data-e="e8">Für den Ort</th><td data-e="e9">Betreuung der Kinder- und Jugendfreizeit Obertraubling</td></tr>
+    </table>
+
+    <h2 data-e="e10">Jugendleitung</h2>
+    <table class="ad">
+      <tr><th data-e="e11">1. Jugendleiter</th><td data-e="e12">Robert Zamora</td></tr>
+      <tr><th data-e="e13">2. Jugendleiter</th><td data-e="e14">Mick Scherrieble</td></tr>
+      <tr><th data-e="e15">Kontakt</th><td data-e="e16">jugend@luftsportverein-regensburg.de</td></tr>
+    </table>
+    <p data-e="e17" class="note">Inhalte übernommen von der bisherigen Vereinswebsite – bitte prüfen und ergänzen.</p>
+  </article>
+</main>
+
+<script src="../js/himmel.js"></script>
+<script>
+  const b = document.getElementById('menu-btn'), t = document.getElementById('tabs');
+  b.addEventListener('click', () => b.setAttribute('aria-expanded', t.classList.toggle('open')));
+</script>
+<script src="../js/editor-loader.js"></script>
+</body>
+</html>

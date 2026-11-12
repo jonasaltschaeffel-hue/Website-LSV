@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Werkstatt – LSV Regensburg</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=Barlow+Condensed:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/stil.css">
+</head>
+<body class="artikel">
+
+<canvas id="sky" aria-hidden="true"></canvas>
+
+<header id="topbar">
+  <a class="brand" href="../index.html" aria-label="LSV Regensburg – zur Startseite">
+    <img src="../img/wappen-lsv-regensburg.jpg" alt="Wappen des LSV Regensburg" hidden
+         onload="this.hidden=false;this.nextElementSibling.setAttribute('hidden','')">
+    <svg class="shield" viewBox="0 0 44 52" aria-hidden="true">
+      <path d="M2 3h40v22c0 13-9 21-20 25C11 46 2 38 2 25Z" fill="#fff" stroke="#0f2c4c" stroke-width="2.5"/>
+      <path d="M22 4v45" stroke="#c8102e" stroke-width="2"/>
+      <text x="22" y="30" text-anchor="middle" font-family="Barlow Condensed" font-weight="700" font-size="11" fill="#0f2c4c">LSV</text>
+    </svg>
+    <span class="name">LSV Regensburg<small>Segelflug</small></span>
+  </a>
+  <button id="menu-btn" aria-label="Menü öffnen" aria-expanded="false" aria-controls="tabs">
+    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+  </button>
+  <!-- Reiter: Reihenfolge und Texte hier und in seiten.ps1 pflegen -->
+  <ul id="tabs">
+    <li><a href="mitfliegen.html">Mitfliegen</a></li>
+    <li><a href="verein.html">Verein</a></li>
+    <li><a href="jugend.html">Jugend</a></li>
+    <li><a href="streckenflug.html">Streckenflug</a></li>
+    <li><a href="werkstatt.html" class="current" aria-current="page">Werkstatt</a></li>
+    <li><a href="anflug.html">Anflug für Piloten</a></li>
+    <li><a href="webcams.html">Webcams</a></li>
+    <li><a href="flugvorbereitung.html">Flugvorbereitung</a></li>
+  </ul>
+</header>
+
+<main>
+  <article class="article">
+    <a class="back" href="../index.html">← Zur Startseite</a>
+    <div data-e="e10" class="date">Winterarbeit</div>
+    <h1 data-e="e1">Werkstatt</h1>
+    <p data-e="e2">Wenn die Saison vorbei ist, machen wir unsere Flugzeuge selbst fit für das nächste Jahr – von der ASK 13 über die Ka 8 bis zur ASK 21. Wartung und Pflege erledigen wir als Verein weitgehend in Eigenleistung.</p>
+    <div class="photos">
+      <div class="pic placeholder"><img data-e="e11" src="../img/werkstatt/bild-1.jpg" alt="Werkstatt des LSV Regensburg" onerror="this.hidden=true" onload="this.parentElement.classList.remove('placeholder')"></div>
+      <div class="pic placeholder"><img data-e="e12" src="../img/werkstatt/bild-2.jpg" alt="Werkstatt des LSV Regensburg" onerror="this.hidden=true" onload="this.parentElement.classList.remove('placeholder')"></div>
+    </div>
+    <h2 data-e="e3">Mitanpacken</h2>
+    <p data-e="e4">Helfende Hände sind immer willkommen – und qualifizierte Werkstattleute ganz besonders. Wer mitarbeitet, lernt sein Flugzeug von innen kennen.</p>
+    <table class="ad">
+      <tr><th data-e="e5">Technischer Leiter</th><td data-e="e6">Roland Pschorn</td></tr>
+      <tr><th data-e="e7">Kontakt</th><td data-e="e8">info@luftsportverein-regensburg.de</td></tr>
+    </table>
+    <p data-e="e9" class="note">Inhalte übernommen von der bisherigen Vereinswebsite – bitte prüfen und ergänzen.</p>
+  </article>
+</main>
+
+<script src="../js/himmel.js"></script>
+<script>
+  const b = document.getElementById('menu-btn'), t = document.getElementById('tabs');
+  b.addEventListener('click', () => b.setAttribute('aria-expanded', t.classList.toggle('open')));
+</script>
+<script src="../js/editor-loader.js"></script>
+</body>
+</html>
