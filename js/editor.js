@@ -44,7 +44,12 @@
     document.body.appendChild(t);
     setTimeout(() => t.remove(), ms || (bad ? 7000 : 3500));
   };
-  const updateSave = () => { saveBtn.disabled = dirty.size === 0; saveBtn.textContent = dirty.size ? `Speichern (${dirty.size})` : 'Speichern'; };
+  const ops = [];                  // Formänderungen (einfügen, verschieben, entfernen, Linie an/aus)
+  const pendingImgs = [];          // neue Bilder, die beim Speichern mit hochgeladen werden
+  const updateSave = () => {
+    const n = dirty.size + ops.length;
+    saveBtn.disabled = n === 0; saveBtn.textContent = n ? `Speichern (${n})` : 'Speichern';
+  };
   const ONLINE = 'Gespeichert ✓ – in ca. 1 Minute online';
 
   /* ---------------- Bereinigung (wie früher auf dem Server) ---------------- */
@@ -104,7 +109,8 @@
 
   /* ---------------- Texte bearbeitbar machen ---------------- */
   const editables = [...document.querySelectorAll('main [data-e]:not(img)')];
-  editables.forEach(el => {
+  editables.forEach(setupEditable);
+  function setupEditable(el){
     original.set(el.dataset.e, {html: el.innerHTML, style: el.getAttribute('style') || ''});
     el.contentEditable = 'true';
     el.spellcheck = true;
@@ -117,7 +123,7 @@
       ev.preventDefault();
       document.execCommand('insertText', false, (ev.clipboardData || window.clipboardData).getData('text/plain'));
     });
-  });
+  }
   function markDirty(el){
     const o = original.get(el.dataset.e);
     if (el.innerHTML === o.html && (el.getAttribute('style') || '') === o.style) dirty.delete(el.dataset.e);
@@ -141,7 +147,7 @@
     const href = a.getAttribute('href') || '';
     if (!editable || href.startsWith('#') || href.startsWith('mailto:')) return;
     const go = document.createElement('button');
-    go.type = 'button'; go.className = 'lsv-go'; go.textContent = 'Öffnen ↗';
+    go.type = 'button'; go.className = 'lsv-go lsv-ui'; go.textContent = 'Öffnen ↗';
     go.title = 'Diese Seite öffnen';
     go.addEventListener('click', ev => { ev.preventDefault(); ev.stopPropagation(); location.href = a.href; });
     if (a.classList.contains('news-card')) { a.style.position = 'relative'; a.appendChild(go); }
@@ -196,7 +202,7 @@
 
   /* ---------------- Speichern ---------------- */
   saveBtn.addEventListener('click', async () => {
-    const changes = [...dirty.values()].map(el => {
+    const changes = [...dirty.values()].filter(el => el.isConnected).map(el => {
       const o = original.get(el.dataset.e), c = {id: el.dataset.e};
       if (el.innerHTML !== o.html) c.html = el.innerHTML;
       if ((el.getAttribute('style') || '') !== o.style) c.style = el.getAttribute('style') || '';
@@ -205,15 +211,150 @@
     saveBtn.disabled = true; saveBtn.textContent = 'Speichere …';
     try {
       let src = await gh.getText(rel);                 // immer die aktuelle Version aus GitHub
+      if (ops.length) src = applyOpsToSource(src);     // Formänderungen zuerst
       changes.forEach(ch => { src = applyChange(src, ch); });
-      await gh.commit([{path: rel, text: src}], `Website bearbeitet: ${rel}`);
+      const files = [...pendingImgs, {path: rel, text: src}];
+      await gh.commit(files, `Website bearbeitet: ${rel}`);
       dirty.forEach(el => original.set(el.dataset.e, {html: el.innerHTML, style: el.getAttribute('style') || ''}));
-      dirty.clear(); updateSave();
+      dirty.clear(); ops.length = 0; pendingImgs.length = 0; updateSave();
       toast(ONLINE);
     } catch (err){ toast('Nicht gespeichert: ' + err.message, true); updateSave(); }
   });
-  addEventListener('beforeunload', ev => { if (dirty.size){ ev.preventDefault(); ev.returnValue = ''; } });
-  addEventListener('keydown', ev => { if ((ev.ctrlKey || ev.metaKey) && ev.key === 's'){ ev.preventDefault(); if (dirty.size) saveBtn.click(); } });
+  const unsaved = () => dirty.size + ops.length > 0;
+  addEventListener('beforeunload', ev => { if (unsaved()){ ev.preventDefault(); ev.returnValue = ''; } });
+  addEventListener('keydown', ev => { if ((ev.ctrlKey || ev.metaKey) && ev.key === 's'){ ev.preventDefault(); if (unsaved()) saveBtn.click(); } });
+
+  /* ---------------- Form bearbeiten: Blöcke einfügen, verschieben, entfernen ---------------- */
+  // Bereiche: die Karten der Startseite (section > .card) und der Artikelbereich der Unterseiten
+  const containers = [...document.querySelectorAll('main section > .card, main article.article')];
+  const kids = el => [...el.children].filter(c => !c.classList.contains('lsv-ui'));
+  const containerSel = c => { const s = c.closest('section[id]'); return s ? `section#${s.id} > .card` : 'main article.article'; };
+  const nodeAt = (container, path) => path.reduce((n, i) => n && kids(n)[i], container);
+  const sib = (el, dir) => { let s = el; do { s = dir < 0 ? s.previousElementSibling : s.nextElementSibling; } while (s && s.classList.contains('lsv-ui')); return s; };
+  const nid = () => 'b' + Math.random().toString(36).slice(2, 8);
+  // geschützte Bereiche (für neue Artikel, Flotten-Auswahl, Formular, Zurück-Link)
+  const isProtected = b => b.matches('.news, .filter, form, a.back') || !!b.querySelector('#fleet, form');
+
+  /** gleiche Operation auf Live-Seite und auf den Quelltext anwenden */
+  function applyOp(container, op){
+    const t = nodeAt(container, op.path);
+    if (!t) throw new Error('Bereich nicht gefunden – bitte Seite neu laden.');
+    if (op.type === 'remove') t.remove();
+    else if (op.type === 'up'){ const p = sib(t, -1); if (p) p.before(t); }
+    else if (op.type === 'down'){ const n = sib(t, 1); if (n) n.after(t); }
+    else if (op.type === 'toggle') t.classList.toggle(op.cls);
+    else if (op.type === 'insert'){
+      const tpl = t.ownerDocument.createElement('template'); tpl.innerHTML = op.html;
+      const nodes = [...tpl.content.childNodes];
+      t.after(...nodes);
+      return nodes.find(n => n.nodeType === 1);
+    }
+  }
+  function applyOpsToSource(src){
+    const doc = new DOMParser().parseFromString(src, 'text/html');
+    ops.forEach(op => {
+      const c = doc.querySelector(op.sel);
+      if (!c) throw new Error('Bereich in der Datei nicht gefunden.');
+      applyOp(c, op.sourceOp || op);
+    });
+    const dt = /^\s*<!doctype[^>]*>/i.exec(src);
+    return (dt ? dt[0] : '<!doctype html>') + '\n' + doc.documentElement.outerHTML + '\n';
+  }
+  function doOp(info, op, liveOp){
+    const full = {...op, sel: containerSel(info.container)};
+    const created = applyOp(info.container, liveOp || op);
+    if (liveOp) full.sourceOp = op;
+    ops.push(full); updateSave();
+    // neue Texte sofort bearbeitbar machen (ihr Anfangstext ist Teil der Einfügung)
+    if (created) (created.matches('[data-e]:not(img)') ? [created] : []).concat([...created.querySelectorAll('[data-e]:not(img)')]).forEach(setupEditable);
+    hideBlockBar();
+  }
+
+  function blockInfo(el){
+    for (let b = el; b && b !== document.body; b = b.parentElement){
+      const p = b.parentElement;
+      if (!p || b.classList.contains('lsv-ui')) return null;
+      if (containers.includes(p)) return {block: b, container: p, path: [kids(p).indexOf(b)]};
+      if (p.classList.contains('grid') && containers.includes(p.parentElement))
+        return {block: b, container: p.parentElement, path: [kids(p.parentElement).indexOf(p), kids(p).indexOf(b)], inGrid: true};
+    }
+    return null;
+  }
+
+  const bb = document.createElement('div');
+  bb.className = 'lsv-blockbar lsv-ui';
+  bb.innerHTML = `
+    <button type="button" data-a="add" title="Darunter einfügen">＋</button>
+    <button type="button" data-a="up" title="Nach oben">↑</button>
+    <button type="button" data-a="down" title="Nach unten">↓</button>
+    <button type="button" data-a="line" title="Trennlinie an/aus">┄</button>
+    <button type="button" data-a="del" title="Entfernen">✕</button>`;
+  document.body.appendChild(bb);
+  const menu = document.createElement('div');
+  menu.className = 'lsv-addmenu lsv-ui';
+  document.body.appendChild(menu);
+  let cb = null;
+  function hideBlockBar(){ bb.style.display = 'none'; menu.style.display = 'none'; if (cb) cb.block.classList.remove('lsv-block-hover'); cb = null; }
+  function showBlockBar(info){
+    if (cb && cb.block === info.block) return;
+    if (cb) cb.block.classList.remove('lsv-block-hover');
+    cb = info; menu.style.display = 'none';
+    info.block.classList.add('lsv-block-hover');
+    const r = info.block.getBoundingClientRect();
+    bb.style.display = 'flex';
+    bb.style.top = (r.top + scrollY - 34) + 'px';
+    bb.style.left = Math.max(8, r.right + scrollX - bb.offsetWidth) + 'px';
+    bb.querySelector('[data-a="line"]').style.display = info.block.matches('.tile, table') ? '' : 'none';
+    bb.querySelector('[data-a="del"]').disabled = isProtected(info.block);
+    bb.querySelector('[data-a="up"]').disabled = !sib(info.block, -1) || isProtected(sib(info.block, -1));
+    bb.querySelector('[data-a="down"]').disabled = !sib(info.block, 1) || isProtected(sib(info.block, 1));
+  }
+  document.addEventListener('mouseover', ev => {
+    if (ev.target.closest('.lsv-blockbar, .lsv-addmenu, .lsv-format, .lsv-bar, .lsv-modal')) return;
+    const info = blockInfo(ev.target);
+    if (info) showBlockBar(info);
+  });
+  bb.addEventListener('mousedown', ev => ev.preventDefault());
+  bb.addEventListener('click', ev => {
+    const a = ev.target.closest('button'); if (!a || !cb) return;
+    const info = cb, act = a.dataset.a;
+    if (act === 'del'){ if (confirm('Diesen Bereich entfernen?')) doOp(info, {type: 'remove', path: info.path}); }
+    else if (act === 'up' || act === 'down') doOp(info, {type: act, path: info.path});
+    else if (act === 'line') doOp(info, {type: 'toggle', cls: 'ohne-linie', path: info.path});
+    else if (act === 'add') showAddMenu(info);
+  });
+
+  function showAddMenu(info){
+    const items = info.inGrid
+      ? [['tile', '▦ Kachel'], ['img', '🖼 Bild-Kachel']]
+      : [['img', '🖼 Bild'], ['hr', '— Trennstrich'], ['p', '¶ Absatz'], ['h', 'H Zwischenüberschrift']];
+    menu.innerHTML = items.map(([k, l]) => `<button type="button" data-k="${k}">${l}</button>`).join('');
+    const r = bb.getBoundingClientRect();
+    menu.style.display = 'flex';
+    menu.style.top = (r.bottom + scrollY + 4) + 'px';
+    menu.style.left = Math.max(8, r.right + scrollX - menu.offsetWidth) + 'px';
+    menu.onclick = async ev => {
+      const k = ev.target.closest('button') && ev.target.closest('button').dataset.k; if (!k) return;
+      menu.style.display = 'none';
+      const id = nid();
+      if (k === 'hr') doOp(info, {type: 'insert', path: info.path, html: '<hr class="trenner">'});
+      if (k === 'p') doOp(info, {type: 'insert', path: info.path, html: `<p data-e="${id}">Neuer Absatz – hier klicken und schreiben.</p>`});
+      if (k === 'h') doOp(info, {type: 'insert', path: info.path, html: `<h3 class="zwischen" data-e="${id}">Neue Zwischenüberschrift</h3>`});
+      if (k === 'tile') doOp(info, {type: 'insert', path: info.path, html: `<div class="tile"><h3 data-e="${id}-t">Neue Kachel</h3><p data-e="${id}-p">Text – hier klicken und schreiben.</p></div>`});
+      if (k === 'img'){
+        const file = await pickImage(); if (!file) return;
+        try {
+          const im = await prepareImage(file);
+          const path = `img/uploads/${rel.replace(/\.html$/, '').replace(/\//g, '-')}-${id}.${im.ext}`;
+          pendingImgs.push({path, bytes: im.bytes});
+          const html = src => info.inGrid
+            ? `<div class="tile bild-kachel"><div class="pic bild-block"><img data-e="${id}" src="${src}" alt=""></div><p data-e="${id}-c">Bildunterschrift</p></div>`
+            : `<div class="pic bild-block"><img data-e="${id}" src="${src}" alt=""></div>`;
+          doOp(info, {type: 'insert', path: info.path, html: html(toRoot + path)}, {type: 'insert', path: info.path, html: html(im.url)});
+        } catch (err){ toast(err.message, true); }
+      }
+    };
+  }
 
   /* ---------------- Bilder: verkleinern & hochladen ---------------- */
   async function prepareImage(file, maxW = 2000){

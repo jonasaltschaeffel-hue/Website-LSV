@@ -239,3 +239,30 @@ footer .credit{flex-basis:100%;font-size:12px;opacity:.8}
   #tabs a.cta{margin:6px 0 0}
 }
 #tabs a{white-space:nowrap}
+
+/* ---------- Bausteine aus dem Bearbeitungsmodus ---------- */
+hr.trenner{border:0;height:2px;background:rgba(255,255,255,.6);margin:26px 0;box-shadow:0 1px 4px rgba(6,28,58,.25)}
+h3.zwischen{font-size:clamp(24px,2.6vw,30px);margin:22px 0 10px}
+.tile.ohne-linie{border-top:0;padding-top:0}
+table.ad.ohne-linie th,table.ad.ohne-linie td{border-bottom:0}
+.bild-block{border-radius:18px;overflow:hidden;border:2px solid rgba(255,255,255,.75);margin:18px 0;box-shadow:0 14px 34px -18px rgba(6,28,58,.7);max-width:820px}
+.bild-block img{display:block;width:100%;height:auto}
+.bild-kachel .bild-block{margin:0 0 10px}
+
+/* ---------- Weicher Seitenaufbau ---------- */
+/* Grundhimmel als Farbverlauf, darüber blendet der gerenderte Wolkenhimmel ein */
+body{background:linear-gradient(180deg,#2a55a8 0%,#4378c8 40%,#8fb0d8 78%,#b9cde3 100%) fixed}
+#sky{opacity:0;transition:opacity 1.4s ease}
+#sky.ready{opacity:1}
+/* Flugzeug: erst einblenden, wenn das richtige Modell geladen ist */
+#glider-3d{opacity:0;transition:opacity 1.6s ease}
+#glider-3d.ready{opacity:1}
+#glider-photo{opacity:0;transition:opacity 1.2s ease}
+#glider-photo.show{opacity:.95}
+/* Inhalt sanft erscheinen lassen */
+@keyframes lsv-fade-in{from{opacity:0}to{opacity:1}}
+@keyframes lsv-rise-in{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+main .card,main .article{animation:lsv-rise-in .9s cubic-bezier(.2,.7,.2,1) both}
+#start .card{animation-delay:.1s}
+#timeline{animation:lsv-fade-in 1.2s ease .3s both}
+@media (prefers-reduced-motion:reduce){#sky,#glider-3d,#glider-photo{transition:none}main .card,main .article,#timeline{animation:none}}

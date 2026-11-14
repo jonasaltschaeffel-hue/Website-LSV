@@ -21,9 +21,13 @@
   const loadScript = src => new Promise((ok, fail) => {
     const el = document.createElement('script'); el.src = src; el.onload = ok; el.onerror = fail; document.head.appendChild(el);
   });
+  // Foto-Flugzeug nur als Notlösung zeigen (z. B. offline oder ohne WebGL)
+  const showPhoto = () => { const ph = document.getElementById('glider-photo'); if (ph) ph.classList.add('show'); };
+  // Das große ASK-21-Modell gleich parallel mitladen, damit es schneller bereit ist
+  const modelReady = loadScript('js/ask21-modell.js').catch(() => {});
   loadScript(CDN + 'build/three.min.js')
-    .then(() => { try { init(); } catch (e) { console.warn('3D-Segelflugzeug nicht verfügbar:', e); } })
-    .catch(() => {});   // offline: Foto-Flugzeug bleibt
+    .then(() => { try { init(); } catch (e) { console.warn('3D-Segelflugzeug nicht verfügbar:', e); showPhoto(); } })
+    .catch(showPhoto);
 
   function init(){
     const T = window.THREE;
@@ -320,7 +324,12 @@
     wheel(0.1, 0.06, 0.95, 0.02);   // Bugrad
     wheel(0.1, 0.06, 7.75, 0.0);    // Spornrad
 
+    // Die selbst gebaute DG 505 ist nur noch Notlösung, falls die ASK 21 nicht lädt.
+    // Bis dahin bleibt das Flugzeug unsichtbar – so taucht beim Laden nichts Falsches auf.
+    const fallbackParts = [...glider.children];
+    glider.clear();
     scene.add(glider);
+    const reveal = () => canvas.classList.add('ready');   // sanft einblenden (CSS)
 
     /* ================= ASK 21 (D-1463) aus dem Sketchfab-Modell =================
        Modell: "ASK 21 Mi" von helijah, CC BY 4.0 (js/ask21-modell.js).
@@ -338,11 +347,14 @@
       flag: [{x: 42, y: 818, w: 30, flipY: true}, {x: 998, y: 955, w: 30, flipY: true}],
     };
     api.livery = LIVERY;
-    loadAsk21().catch(e => console.warn('ASK 21 nicht geladen, DG 505 bleibt:', e));
+    loadAsk21()
+      .then(reveal)
+      .catch(e => { console.warn('ASK 21 nicht geladen, DG 505 als Ersatz:', e); glider.clear(); glider.add(...fallbackParts); reveal(); });
 
     async function loadAsk21(){
       await loadScript(CDN + 'examples/js/loaders/GLTFLoader.js');
-      if (!window.ASK21_GLB_B64) await loadScript('js/ask21-modell.js');
+      await modelReady;
+      if (!window.ASK21_GLB_B64) throw new Error('js/ask21-modell.js fehlt');
       const raw = atob(window.ASK21_GLB_B64);
       const buf = new Uint8Array(raw.length);
       for (let i = 0; i < raw.length; i++) buf[i] = raw.charCodeAt(i);
@@ -506,7 +518,7 @@
 
     const angDiff = (a, b) => Math.atan2(Math.sin(a - b), Math.cos(a - b));
 
-    // Foto-Version ausblenden – ab jetzt fliegt das 3D-Modell
+    // Foto-Version entfernen – ab jetzt fliegt das 3D-Modell
     const photo = document.getElementById('glider-photo');
     if (photo) photo.remove();
     const sky = document.getElementById('sky');

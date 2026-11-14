@@ -49,3 +49,13 @@
 .lsv-go:hover{background:#ffe17a}
 .news-card .lsv-go{position:absolute;top:10px;left:10px;margin:0;z-index:6}
 .more-btn + .lsv-go{margin-top:24px}
+
+/* Blockleiste (Form bearbeiten) */
+.lsv-edit .lsv-block-hover{outline:2px dashed rgba(255,211,77,.9);outline-offset:6px;border-radius:6px}
+.lsv-blockbar{position:absolute;z-index:9002;display:none;gap:4px;padding:4px;border-radius:10px;background:#0a2350;box-shadow:0 10px 24px -10px rgba(0,0,0,.6)}
+.lsv-blockbar button,.lsv-addmenu button{font:600 14px system-ui,sans-serif;min-width:30px;height:28px;border:0;border-radius:7px;background:#1c3a72;color:#fff;cursor:pointer;text-shadow:none}
+.lsv-blockbar button:hover:not(:disabled){background:#ffd34d;color:#0a2350}
+.lsv-blockbar button:disabled{opacity:.35;cursor:default}
+.lsv-addmenu{position:absolute;z-index:9003;display:none;flex-direction:column;gap:4px;padding:6px;border-radius:10px;background:#fff;box-shadow:0 12px 30px -10px rgba(0,0,0,.5)}
+.lsv-addmenu button{background:#f1f4f9;color:#0a2350;text-align:left;padding:0 12px;height:32px}
+.lsv-addmenu button:hover{background:#ffd34d}

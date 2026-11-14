@@ -194,6 +194,8 @@ void main(){
       gl.uniform1f(uScroll, sc / innerHeight);
       gl.uniform1f(uTime, reduceMotion ? 0 : t / 1000);
       gl.drawArrays(gl.TRIANGLES, 0, 3);
+      // nach dem ersten fertigen Bild weich einblenden (siehe #sky.ready in stil.css)
+      if (!canvas.classList.contains('ready')) requestAnimationFrame(() => canvas.classList.add('ready'));
     };
 
   const loop = (t) => { drawSky(t); requestAnimationFrame(loop); };
