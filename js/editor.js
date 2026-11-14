@@ -125,13 +125,28 @@
     updateSave();
   }
 
-  // Links im Bearbeitungsmodus nicht öffnen (außer mit Strg/Cmd)
+  // Links: Navigation (Reiter, Timeline, Zurück, „Weiterlesen“ …) funktioniert normal.
+  // Nur ein Klick auf einen bearbeitbaren Text innerhalb eines Links öffnet nicht die Seite,
+  // sondern setzt den Cursor zum Bearbeiten. Zum Öffnen solcher Links gibt es den Knopf „Öffnen ↗“.
   document.addEventListener('click', ev => {
     const a = ev.target.closest('a');
     if (!a || a.closest('.lsv-bar, .lsv-modal, .lsv-format')) return;
     if (ev.ctrlKey || ev.metaKey) return;
-    ev.preventDefault();
+    if (ev.target.closest('[contenteditable="true"]')) ev.preventDefault();
   }, true);
+
+  // „Öffnen ↗“-Knopf für Links, deren Text bearbeitbar ist (Karten, Buttons)
+  document.querySelectorAll('main a[href]').forEach(a => {
+    const editable = a.matches('[data-e]') || a.querySelector('[data-e]:not(img)');
+    const href = a.getAttribute('href') || '';
+    if (!editable || href.startsWith('#') || href.startsWith('mailto:')) return;
+    const go = document.createElement('button');
+    go.type = 'button'; go.className = 'lsv-go'; go.textContent = 'Öffnen ↗';
+    go.title = 'Diese Seite öffnen';
+    go.addEventListener('click', ev => { ev.preventDefault(); ev.stopPropagation(); location.href = a.href; });
+    if (a.classList.contains('news-card')) { a.style.position = 'relative'; a.appendChild(go); }
+    else a.after(go);
+  });
 
   /* ---------------- Formatleiste ---------------- */
   const FONTS = [

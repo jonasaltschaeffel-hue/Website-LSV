@@ -43,3 +43,9 @@
 /* Anmeldung */
 .lsv-dialog-small{width:min(380px,100%)}
 .lsv-login-msg{min-height:20px;margin-top:10px;color:#a3261a;font-size:14px}
+
+/* „Öffnen ↗“ für bearbeitbare Links */
+.lsv-go{font:600 12.5px system-ui,sans-serif;padding:6px 11px;border-radius:999px;border:0;background:#ffd34d;color:#0a2350;cursor:pointer;text-shadow:none;vertical-align:middle;margin-left:8px}
+.lsv-go:hover{background:#ffe17a}
+.news-card .lsv-go{position:absolute;top:10px;left:10px;margin:0;z-index:6}
+.more-btn + .lsv-go{margin-top:24px}
