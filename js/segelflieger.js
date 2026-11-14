@@ -101,8 +101,8 @@
     const scaleX = flip * Math.max(0.08, Math.abs(sx)) * s;
     el.style.transform =
       `translate3d(${(x - W / 2).toFixed(1)}px, ${(y - H / 2).toFixed(1)}px, 0) rotate(${roll.toFixed(2)}deg) scale(${scaleX.toFixed(3)}, ${s.toFixed(3)})`;
-    // weiter weg = etwas mehr Dunst
-    el.style.opacity = (0.93 + depth * 0.05).toFixed(3);
+    // weiter weg = etwas mehr Dunst (nur wenn das Foto als Notlösung sichtbar ist)
+    if (el.classList.contains('show')) el.style.opacity = (0.93 + depth * 0.05).toFixed(3);
 
     requestAnimationFrame(frame);
   }
