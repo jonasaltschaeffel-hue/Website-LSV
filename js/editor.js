@@ -26,16 +26,33 @@
   bar.className = 'lsv-bar';
   bar.innerHTML = `
     <span class="lsv-badge">✎ Bearbeitungsmodus</span>
-    <span class="lsv-hint">Text anklicken zum Ändern · Bilder: „Bild ändern“ · Links: Strg + Klick</span>
+    <button type="button" class="lsv-undo" title="Rückgängig (Strg+Z)" disabled>↶</button>
+    <button type="button" class="lsv-redo" title="Wiederholen (Strg+Y)" disabled>↷</button>
     <button type="button" class="lsv-save" disabled>Speichern</button>
     ${/^(index\.html|aktuelles\/)/.test(rel) ? '<button type="button" class="lsv-new">+ Neuer Artikel</button>' : ''}
+    <a class="lsv-admin" href="${base}admin/verwaltung.html">⚙ Verwaltung</a>
     <button type="button" class="lsv-logout">Abmelden</button>`;
   document.body.appendChild(bar);
   const saveBtn = bar.querySelector('.lsv-save');
   bar.querySelector('.lsv-logout').onclick = () => {
-    if (dirty.size && !confirm('Es gibt ungespeicherte Änderungen. Trotzdem abmelden?')) return;
-    dirty.clear(); LSVGit.session.clear(); location.reload();
+    if (unsaved() && !confirm('Es gibt ungespeicherte Änderungen. Trotzdem abmelden?')) return;
+    dirty.clear(); ops.length = 0; LSVGit.session.clear(); location.reload();
   };
+
+  /* ---------------- Rückgängig / Wiederholen ---------------- */
+  const undoStack = [], redoStack = [];
+  const undoBtn = bar.querySelector('.lsv-undo'), redoBtn = bar.querySelector('.lsv-redo');
+  const updateHist = () => { undoBtn.disabled = !undoStack.length; redoBtn.disabled = !redoStack.length; };
+  function pushHist(entry){ undoStack.push(entry); redoStack.length = 0; updateHist(); }
+  function undo(){ const e = undoStack.pop(); if (!e) return; e.undo(); redoStack.push(e); updateHist(); }
+  function redo(){ const e = redoStack.pop(); if (!e) return; e.redo(); undoStack.push(e); updateHist(); }
+  undoBtn.onclick = undo; redoBtn.onclick = redo;
+  addEventListener('keydown', ev => {
+    if (!(ev.ctrlKey || ev.metaKey)) return;
+    if (document.activeElement && document.activeElement.isContentEditable) return;   // im Text: Rückgängig des Browsers
+    if (ev.key === 'z' && !ev.shiftKey){ ev.preventDefault(); undo(); }
+    if (ev.key === 'y' || (ev.key === 'z' && ev.shiftKey)){ ev.preventDefault(); redo(); }
+  });
 
   const toast = (msg, bad = false, ms) => {
     const t = document.createElement('div');
@@ -103,19 +120,39 @@
       attrs = attrs.replace(/\sstyle="[^"]*"/, '');
       if (st) attrs += ' style="' + escAttr(st) + '"';
     }
+    if (ch.href !== undefined){
+      if (/^\s*(javascript|data|vbscript):/i.test(ch.href)) throw new Error('Ungültiges Linkziel');
+      attrs = attrs.replace(/\shref="[^"]*"/, '') + ' href="' + escAttr(ch.href.trim()) + '"';
+    }
     if (ch.html !== undefined) inner = sanitize(ch.html);
     return src.slice(0, m.index) + `<${tag}${attrs}>${inner}</${tag}>` + src.slice(m.index + whole.length);
   }
 
   /* ---------------- Texte bearbeitbar machen ---------------- */
-  const editables = [...document.querySelectorAll('main [data-e]:not(img)')];
+  // Artikelkarten (Startseite & Archiv) werden in der Verwaltung gepflegt – sonst liefen Startseite und Archiv auseinander
+  const isArticleCard = el => !!el.closest('.news') && !el.closest('#fleet');
+  const editables = [...document.querySelectorAll('main [data-e]:not(img)')].filter(el => !isArticleCard(el));
+  document.querySelectorAll('main .news:not(#fleet) a.news-card').forEach(a => a.title = 'Artikelkarten bearbeitest du unter ⚙ Verwaltung → Artikel');
+  const snap = el => ({html: el.innerHTML, style: el.getAttribute('style') || '', href: el.getAttribute('href')});
+  function restore(el, s){
+    el.innerHTML = s.html;
+    if (s.style) el.setAttribute('style', s.style); else el.removeAttribute('style');
+    if (s.href !== null && s.href !== undefined) el.setAttribute('href', s.href);
+    markDirty(el);
+  }
   editables.forEach(setupEditable);
   function setupEditable(el){
-    original.set(el.dataset.e, {html: el.innerHTML, style: el.getAttribute('style') || ''});
+    original.set(el.dataset.e, snap(el));
     el.contentEditable = 'true';
     el.spellcheck = true;
     el.addEventListener('input', () => markDirty(el));
-    el.addEventListener('focus', () => showFormat(el));
+    el.addEventListener('focus', () => { showFormat(el); el._before = snap(el); });
+    // Textänderung als ein Schritt im Verlauf (beim Verlassen des Feldes)
+    el.addEventListener('blur', () => {
+      const b = el._before, a = snap(el);
+      if (b && (b.html !== a.html || b.style !== a.style || b.href !== a.href)) pushHist({undo: () => restore(el, b), redo: () => restore(el, a)});
+      el._before = null;
+    });
     el.addEventListener('keydown', ev => {
       if (ev.key === 'Enter'){ ev.preventDefault(); document.execCommand('insertLineBreak'); }
     });
@@ -126,7 +163,7 @@
   }
   function markDirty(el){
     const o = original.get(el.dataset.e);
-    if (el.innerHTML === o.html && (el.getAttribute('style') || '') === o.style) dirty.delete(el.dataset.e);
+    if (el.innerHTML === o.html && (el.getAttribute('style') || '') === o.style && el.getAttribute('href') === o.href) dirty.delete(el.dataset.e);
     else dirty.set(el.dataset.e, el);
     updateSave();
   }
@@ -171,6 +208,7 @@
     <button type="button" class="f-i" title="Kursiv (Auswahl)"><i>I</i></button>
     <button type="button" class="f-al" title="Links">⯇</button>
     <button type="button" class="f-ac" title="Mittig">≡</button>
+    <button type="button" class="f-link" title="Link setzen oder ändern">🔗 Link</button>
     <button type="button" class="f-reset" title="Format zurücksetzen">Standard</button>`;
   document.body.appendChild(fmt);
   let cur = null;
@@ -200,12 +238,59 @@
   fmt.querySelector('.f-ac').addEventListener('click', () => setStyle('textAlign', 'center'));
   fmt.querySelector('.f-reset').addEventListener('click', () => { if (!cur) return; cur.removeAttribute('style'); markDirty(cur); showFormat(cur); });
 
+  /* ---------------- Links bearbeiten ---------------- */
+  let siteFiles = null;
+  async function pageList(){
+    if (!siteFiles){ try { siteFiles = (await gh.listFiles()).filter(f => /\.html$/.test(f) && !f.startsWith('admin/')); } catch { siteFiles = []; } }
+    return siteFiles;
+  }
+  const relLink = path => '../'.repeat(rel.split('/').length - 1) + path;     // Pfad von dieser Seite aus
+  async function linkDialog(current){
+    const files = await pageList();
+    return new Promise(resolve => {
+      const m = document.createElement('div'); m.className = 'lsv-modal';
+      m.innerHTML = `<form class="lsv-dialog lsv-dialog-small"><h2>Link</h2>
+        <label>Seite der Website<select name="page"><option value="">– auswählen –</option>${files.map(f => `<option value="${relLink(f)}">${f}</option>`).join('')}</select></label>
+        <label>oder Adresse<input name="url" value="${current ? escAttr(current) : ''}" placeholder="https://… oder mailto:…"></label>
+        <div class="lsv-dialog-btns">${current !== null ? '<button type="button" class="lsv-cancel" data-rm>Link entfernen</button>' : ''}<button type="button" class="lsv-cancel" data-x>Abbrechen</button><button class="lsv-ok">Übernehmen</button></div></form>`;
+      document.body.appendChild(m);
+      const f = m.querySelector('form');
+      f.page.onchange = () => { if (f.page.value) f.url.value = f.page.value; };
+      m.querySelector('[data-x]').onclick = () => { m.remove(); resolve(undefined); };
+      const rm = m.querySelector('[data-rm]'); if (rm) rm.onclick = () => { m.remove(); resolve(null); };
+      f.onsubmit = ev => { ev.preventDefault(); m.remove(); resolve(f.url.value.trim()); };
+    });
+  }
+  fmt.querySelector('.f-link').addEventListener('click', async () => {
+    if (!cur) return;
+    const el = cur, before = snap(el);
+    if (el.tagName === 'A'){                      // Button/Link selbst: Ziel ändern
+      const url = await linkDialog(el.getAttribute('href') || '');
+      if (!url) return;
+      el.setAttribute('href', url); markDirty(el);
+    } else {                                      // markierten Text verlinken
+      const sel = getSelection(), range = sel.rangeCount ? sel.getRangeAt(0).cloneRange() : null;
+      const inLink = range && (range.startContainer.parentElement || {}).closest && range.startContainer.parentElement.closest('a');
+      if (!inLink && (!range || range.collapsed)) return toast('Bitte zuerst den Text markieren, der verlinkt werden soll.', true);
+      const url = await linkDialog(inLink ? inLink.getAttribute('href') : null);
+      if (url === undefined) return;
+      el.focus(); sel.removeAllRanges(); sel.addRange(range);
+      if (url === null || url === ''){ if (inLink) inLink.replaceWith(...inLink.childNodes); }
+      else if (inLink) inLink.setAttribute('href', url);
+      else document.execCommand('createLink', false, url);
+      markDirty(el);
+    }
+    const after = snap(el);
+    pushHist({undo: () => restore(el, before), redo: () => restore(el, after)});
+  });
+
   /* ---------------- Speichern ---------------- */
   saveBtn.addEventListener('click', async () => {
     const changes = [...dirty.values()].filter(el => el.isConnected).map(el => {
       const o = original.get(el.dataset.e), c = {id: el.dataset.e};
       if (el.innerHTML !== o.html) c.html = el.innerHTML;
       if ((el.getAttribute('style') || '') !== o.style) c.style = el.getAttribute('style') || '';
+      if (el.getAttribute('href') !== o.href && el.hasAttribute('href')) c.href = el.getAttribute('href');
       return c;
     });
     saveBtn.disabled = true; saveBtn.textContent = 'Speichere …';
@@ -215,8 +300,9 @@
       changes.forEach(ch => { src = applyChange(src, ch); });
       const files = [...pendingImgs, {path: rel, text: src}];
       await gh.commit(files, `Website bearbeitet: ${rel}`);
-      dirty.forEach(el => original.set(el.dataset.e, {html: el.innerHTML, style: el.getAttribute('style') || ''}));
+      dirty.forEach(el => original.set(el.dataset.e, snap(el)));
       dirty.clear(); ops.length = 0; pendingImgs.length = 0; updateSave();
+      undoStack.length = 0; redoStack.length = 0; updateHist();   // nach dem Speichern beginnt der Verlauf neu
       toast(ONLINE);
     } catch (err){ toast('Nicht gespeichert: ' + err.message, true); updateSave(); }
   });
@@ -243,10 +329,11 @@
     else if (op.type === 'up'){ const p = sib(t, -1); if (p) p.before(t); }
     else if (op.type === 'down'){ const n = sib(t, 1); if (n) n.after(t); }
     else if (op.type === 'toggle') t.classList.toggle(op.cls);
-    else if (op.type === 'insert'){
+    else if (op.type === 'insert' || op.type === 'appendRow'){
       const tpl = t.ownerDocument.createElement('template'); tpl.innerHTML = op.html;
       const nodes = [...tpl.content.childNodes];
-      t.after(...nodes);
+      if (op.type === 'insert') t.after(...nodes);
+      else (t.tBodies && t.tBodies[0] || t).append(...nodes);     // Zeile ans Tabellenende
       return nodes.find(n => n.nodeType === 1);
     }
   }
@@ -262,12 +349,27 @@
   }
   function doOp(info, op, liveOp){
     const full = {...op, sel: containerSel(info.container)};
-    const created = applyOp(info.container, liveOp || op);
     if (liveOp) full.sourceOp = op;
+    const live = liveOp || op;
+    const target = nodeAt(info.container, op.path);
+    const pos = {parent: target.parentNode, next: target.nextSibling};
+    const register = el => { if (el) (el.matches('[data-e]:not(img)') ? [el] : []).concat([...el.querySelectorAll('[data-e]:not(img)')]).forEach(setupEditable); };
+    let created = applyOp(info.container, live);
     ops.push(full); updateSave();
-    // neue Texte sofort bearbeitbar machen (ihr Anfangstext ist Teil der Einfügung)
-    if (created) (created.matches('[data-e]:not(img)') ? [created] : []).concat([...created.querySelectorAll('[data-e]:not(img)')]).forEach(setupEditable);
+    register(created);              // neue Texte sofort bearbeitbar machen
     hideBlockBar();
+    pushHist({
+      undo(){
+        if (op.type === 'toggle') target.classList.toggle(op.cls);
+        else if (created) created.remove();
+        else pos.parent.insertBefore(target, pos.next);         // entfernen / verschieben rückgängig
+        ops.splice(ops.lastIndexOf(full), 1); updateSave();
+      },
+      redo(){
+        created = applyOp(info.container, live); register(created);
+        ops.push(full); updateSave();
+      }
+    });
   }
 
   function blockInfo(el){
@@ -277,6 +379,11 @@
       if (containers.includes(p)) return {block: b, container: p, path: [kids(p).indexOf(b)]};
       if (p.classList.contains('grid') && containers.includes(p.parentElement))
         return {block: b, container: p.parentElement, path: [kids(p.parentElement).indexOf(p), kids(p).indexOf(b)], inGrid: true};
+      // Tabellenzeilen (z. B. technische Daten): Zeile -> tbody -> Tabelle im Bereich
+      if (b.tagName === 'TR' && p.tagName === 'TBODY' && p.parentElement && containers.includes(p.parentElement.parentElement)){
+        const table = p.parentElement, c = table.parentElement;
+        return {block: b, container: c, path: [kids(c).indexOf(table), kids(table).indexOf(p), kids(p).indexOf(b)], inTable: true};
+      }
     }
     return null;
   }
@@ -325,9 +432,10 @@
   });
 
   function showAddMenu(info){
-    const items = info.inGrid
-      ? [['tile', '▦ Kachel'], ['img', '🖼 Bild-Kachel']]
-      : [['img', '🖼 Bild'], ['hr', '— Trennstrich'], ['p', '¶ Absatz'], ['h', 'H Zwischenüberschrift']];
+    const items = info.inTable ? [['row', '≡ Tabellenzeile darunter']]
+      : info.inGrid ? [['tile', '▦ Kachel'], ['img', '🖼 Bild-Kachel']]
+      : [['img', '🖼 Bild'], ['hr', '— Trennstrich'], ['p', '¶ Absatz'], ['h', 'H Zwischenüberschrift']]
+          .concat(info.block.tagName === 'TABLE' ? [['rowEnd', '≡ Tabellenzeile (am Ende)']] : []);
     menu.innerHTML = items.map(([k, l]) => `<button type="button" data-k="${k}">${l}</button>`).join('');
     const r = bb.getBoundingClientRect();
     menu.style.display = 'flex';
@@ -340,7 +448,10 @@
       if (k === 'hr') doOp(info, {type: 'insert', path: info.path, html: '<hr class="trenner">'});
       if (k === 'p') doOp(info, {type: 'insert', path: info.path, html: `<p data-e="${id}">Neuer Absatz – hier klicken und schreiben.</p>`});
       if (k === 'h') doOp(info, {type: 'insert', path: info.path, html: `<h3 class="zwischen" data-e="${id}">Neue Zwischenüberschrift</h3>`});
-      if (k === 'tile') doOp(info, {type: 'insert', path: info.path, html: `<div class="tile"><h3 data-e="${id}-t">Neue Kachel</h3><p data-e="${id}-p">Text – hier klicken und schreiben.</p></div>`});
+      const row = `<tr><th data-e="${id}-k">Bezeichnung</th><td data-e="${id}-v">Wert</td></tr>`;
+      if (k === 'row') doOp(info, {type: 'insert', path: info.path, html: row});
+      if (k === 'rowEnd') doOp(info, {type: 'appendRow', path: info.path, html: row});
+      if (k === 'tile') doOp(info,{type: 'insert', path: info.path, html: `<div class="tile"><h3 data-e="${id}-t">Neue Kachel</h3><p data-e="${id}-p">Text – hier klicken und schreiben.</p></div>`});
       if (k === 'img'){
         const file = await pickImage(); if (!file) return;
         try {
@@ -406,56 +517,10 @@
     });
   });
 
-  /* ---------------- Neuer Artikel ---------------- */
-  const slugify = t => (t.toLowerCase().replace(/ä/g, 'ae').replace(/ö/g, 'oe').replace(/ü/g, 'ue').replace(/ß/g, 'ss')
-    .replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 60)) || 'meldung';
-
+  /* ---------------- Neuer Artikel (gemeinsame Funktion aus js/lsv-cms.js) ---------------- */
   async function createArticle(fd){
-    const titel = (fd.get('titel') || '').trim(), datum = fd.get('datum') || '', kurz = (fd.get('kurztext') || '').trim(), text = (fd.get('text') || '').trim();
-    if (!titel || !kurz || !/^\d{4}-\d{2}-\d{2}$/.test(datum)) throw new Error('Bitte Titel, Datum und Kurztext ausfüllen.');
-    const [y, mo, d] = datum.split('-'); const datumDe = `${d}.${mo}.${y}`;
-    const id = 'n' + Math.random().toString(36).slice(2, 8);
-
-    // freien Dateinamen finden (Archiv kennt alle Artikel)
-    const archiv = await gh.getText('aktuelles/index.html');
-    let slug = slugify(titel), n = 2; const baseSlug = slug;
-    while (archiv.includes(`href="${slug}.html"`) || slug === 'index') slug = baseSlug + '-' + n++;
-
-    const files = [];
-    let bild = `img/aktuelles/${slug}.jpg`;
-    const file = fd.get('bild');
-    if (file && file.size){ const im = await prepareImage(file); bild = `img/aktuelles/${slug}.${im.ext}`; files.push({path: bild, bytes: im.bytes}); }
-
-    let body = '', k = 0;
-    text.split(/\r?\n\s*\r?\n/).map(p => p.trim()).filter(Boolean).forEach(p => {
-      k++;
-      body += p.startsWith('## ') ? `    <h2 data-e="${id}-h${k}">${esc(p.slice(3))}</h2>\n` : `    <p data-e="${id}-p${k}">${esc(p).replace(/\r?\n/g, '<br>')}</p>\n`;
-    });
-    if (!body) body = `    <p data-e="${id}-p1">${esc(kurz)}</p>\n`;
-    const pic = prefix => `<div class="pic placeholder"><img data-e="${id}-img" src="${prefix}${bild}" alt="" onerror="this.hidden=true" onload="this.parentElement.classList.remove('placeholder')"></div>`;
-
-    const tpl = await gh.getText('admin/vorlagen/artikel.html');
-    const page = tpl.split('{{TITEL_TEXT}}').join(esc(titel)).split('{{TITEL}}').join(esc(titel)).split('{{DATUM}}').join(esc(datumDe))
-      .split('{{ID}}').join(id).split('{{BILD}}').join(pic('../')).split('{{TEXT}}').join(body.trimEnd());
-    files.push({path: `aktuelles/${slug}.html`, text: page});
-
-    const card = (prefix, href) =>
-      `        <a class="news-card" href="${href}">\n          ${pic(prefix)}\n          <div class="body">\n` +
-      `            <span class="date" data-e="${id}-cd">${esc(datumDe)}</span>\n            <h3 data-e="${id}-ct">${esc(titel)}</h3>\n` +
-      `            <p data-e="${id}-ck">${esc(kurz)}</p>\n            <span class="more">Weiterlesen →</span>\n          </div>\n        </a>\n`;
-    const insert = (src, marker, c, keep) => {
-      const re = new RegExp('(<!-- ' + marker + ':START -->\\r?\\n?)([\\s\\S]*?)(\\s*<!-- ' + marker + ':END -->)');
-      const m = re.exec(src);
-      if (!m) throw new Error('Markierung ' + marker + ' fehlt.');
-      let inner = c + m[2];
-      if (keep) inner = (inner.match(/\s*<a class="news-card"[\s\S]*?<\/a>/g) || []).slice(0, keep).join('').replace(/^\s*/, '        ');
-      return src.slice(0, m.index) + m[1] + inner.trimEnd() + m[3] + src.slice(m.index + m[0].length);
-    };
-    const index = await gh.getText('index.html');
-    files.push({path: 'index.html', text: insert(index, 'NEWS', card('', `aktuelles/${slug}.html`), 3)});
-    files.push({path: 'aktuelles/index.html', text: insert(archiv, 'ARCHIV', card('../', `${slug}.html`), 0)});
-    await gh.commit(files, `Neuer Artikel: ${titel}`);
-    return `aktuelles/${slug}.html`;
+    const o = {}; for (const [k, v] of fd.entries()) o[k] = v;
+    return LSVCms.articles.create(gh, o);
   }
 
   const newBtn = bar.querySelector('.lsv-new');

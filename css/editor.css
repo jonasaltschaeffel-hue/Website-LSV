@@ -59,3 +59,9 @@
 .lsv-addmenu{position:absolute;z-index:9003;display:none;flex-direction:column;gap:4px;padding:6px;border-radius:10px;background:#fff;box-shadow:0 12px 30px -10px rgba(0,0,0,.5)}
 .lsv-addmenu button{background:#f1f4f9;color:#0a2350;text-align:left;padding:0 12px;height:32px}
 .lsv-addmenu button:hover{background:#ffd34d}
+
+/* Rückgängig/Wiederholen und Verwaltung in der Leiste */
+.lsv-undo,.lsv-redo{background:#1c3a72;color:#fff;min-width:36px;font-size:17px!important;padding:6px 10px!important}
+.lsv-undo:disabled,.lsv-redo:disabled{opacity:.4;cursor:default}
+.lsv-admin{background:transparent;color:#ffd34d;border:1px solid rgba(255,211,77,.6)!important}
+.lsv-dialog select{display:block;width:100%;margin-top:6px;font:inherit;padding:9px 11px;border:1px solid #c9d4e2;border-radius:10px;color:#0a2350;background:#fff}

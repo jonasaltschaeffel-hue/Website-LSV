@@ -81,12 +81,20 @@ window.LSVGit = (() => {
         const blob = await gh('/git/blobs/' + j.sha);      // große Dateien
         return b64ToText(blob.content);
       },
-      /** Mehrere Dateien in EINEM Commit speichern. files: [{path, text} | {path, bytes}] */
+      /** Alle Dateipfade der Website (relativ zur Website-Wurzel) */
+      async listFiles(){
+        const ref = await gh('/git/ref/heads/' + encodeURIComponent(branch));
+        const t = await gh('/git/trees/' + ref.object.sha + '?recursive=1');
+        return t.tree.filter(e => e.type === 'blob' && e.path.startsWith(prefix)).map(e => e.path.slice(prefix.length));
+      },
+      /** Mehrere Dateien in EINEM Commit speichern bzw. löschen.
+          files: [{path, text} | {path, bytes} | {path, remove: true}] */
       async commit(files, message){
         const ref = await gh('/git/ref/heads/' + encodeURIComponent(branch));
         const parent = await gh('/git/commits/' + ref.object.sha);
         const tree = [];
         for (const f of files){
+          if (f.remove){ tree.push({path: prefix + f.path, mode: '100644', type: 'blob', sha: null}); continue; }
           const content = f.bytes ? bytesToB64(f.bytes) : textToB64(f.text);
           const blob = await gh('/git/blobs', {method: 'POST', body: JSON.stringify({content, encoding: 'base64'})});
           tree.push({path: prefix + f.path, mode: '100644', type: 'blob', sha: blob.sha});

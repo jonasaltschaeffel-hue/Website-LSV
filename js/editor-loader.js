@@ -12,7 +12,7 @@
     el.onload = ok; el.onerror = fail;
     (css ? document.head : document.body).appendChild(el);
   });
-  const startEditor = () => Promise.all([load('css/editor.css', true), window.LSVGit ? 0 : load('js/lsv-github.js')]).then(() => load('js/editor.js'));
+  const startEditor = () => Promise.all([load('css/editor.css', true), window.LSVGit ? 0 : load('js/lsv-github.js'), window.LSVCms ? 0 : load('js/lsv-cms.js')]).then(() => load('js/editor.js'));
 
   // Schon angemeldet (in diesem Tab)?
   try { if (sessionStorage.getItem('lsv-edit-session')){ startEditor(); return; } } catch {}
