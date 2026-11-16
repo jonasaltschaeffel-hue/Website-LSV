@@ -68,7 +68,6 @@
             <h3 data-e="gs-p1-n" class="gs-name">Windenstart</h3>
             <p data-e="gs-p1-t" class="gs-text">Ca. 10 Minuten Segelflug – von 0 auf 100 in 3 Sekunden.</p>
             <div class="gs-aktion">
-              <button type="button" class="gs-waehlen">In den Warenkorb</button>
               <div class="gs-menge"><button type="button" class="gs-minus" aria-label="weniger">−</button><output>0</output><button type="button" class="gs-plus" aria-label="mehr">+</button></div>
             </div>
           </div>
@@ -80,7 +79,6 @@
             <h3 data-e="gs-p2-n" class="gs-name">F-Schlepp</h3>
             <p data-e="gs-p2-t" class="gs-text">Ca. 20 Minuten – mit dem Schleppflugzeug auf 1000 Meter.</p>
             <div class="gs-aktion">
-              <button type="button" class="gs-waehlen">In den Warenkorb</button>
               <div class="gs-menge"><button type="button" class="gs-minus" aria-label="weniger">−</button><output>0</output><button type="button" class="gs-plus" aria-label="mehr">+</button></div>
             </div>
           </div>
@@ -92,7 +90,6 @@
             <h3 data-e="gs-p3-n" class="gs-name">Kunstflug</h3>
             <p data-e="gs-p3-t" class="gs-text">F-Schlepp mit Kunstflugfiguren – für alle, die es spannend mögen.</p>
             <div class="gs-aktion">
-              <button type="button" class="gs-waehlen">In den Warenkorb</button>
               <div class="gs-menge"><button type="button" class="gs-minus" aria-label="weniger">−</button><output>0</output><button type="button" class="gs-plus" aria-label="mehr">+</button></div>
             </div>
           </div>
@@ -104,7 +101,6 @@
             <h3 data-e="gs-p4-n" class="gs-name">Rundflug</h3>
             <p data-e="gs-p4-t" class="gs-text">Ca. 20 Minuten Rundflug über Regensburg und Umgebung.</p>
             <div class="gs-aktion">
-              <button type="button" class="gs-waehlen">In den Warenkorb</button>
               <div class="gs-menge"><button type="button" class="gs-minus" aria-label="weniger">−</button><output>0</output><button type="button" class="gs-plus" aria-label="mehr">+</button></div>
             </div>
           </div>
@@ -116,7 +112,6 @@
             <h3 data-e="gs-p5-n" class="gs-name">Burgenrundflug</h3>
             <p data-e="gs-p5-t" class="gs-text">Ca. 60 Minuten zu den Burgen und Schlössern der Region.</p>
             <div class="gs-aktion">
-              <button type="button" class="gs-waehlen">In den Warenkorb</button>
               <div class="gs-menge"><button type="button" class="gs-minus" aria-label="weniger">−</button><output>0</output><button type="button" class="gs-plus" aria-label="mehr">+</button></div>
             </div>
           </div>
@@ -129,7 +124,7 @@
             <p data-e="gs-w-t" class="gs-text">Du bestimmst den Betrag – einlösbar für alle Flüge.</p>
             <div class="gs-aktion">
               <label class="gs-betrag"><input type="number" min="10" max="1000" step="5" value="50" inputmode="numeric" aria-label="Betrag in Euro"><span>€</span></label>
-              <button type="button" class="gs-waehlen gs-add">Hinzufügen</button>
+              <button type="button" class="gs-add" aria-label="Wertgutschein hinzufügen" title="Hinzufügen">+</button>
             </div>
           </div>
         </div>
@@ -137,7 +132,6 @@
 
       <div class="gs-kasse" id="gs-kasse">
         <div class="gs-kopf">
-          <svg class="gs-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 7h12l-1 13H7L6 7Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M9 9V6a3 3 0 0 1 6 0v3" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
           <h3 data-e="gs-k-h">Deine Bestellung</h3>
           <span class="gs-anzahl" hidden>0</span>
         </div>
@@ -160,16 +154,20 @@
           <label class="gs-adresse" hidden>Postanschrift *<textarea name="adresse" rows="3" autocomplete="street-address"></textarea></label>
           <label>Nachricht an uns<textarea name="msg" rows="3" placeholder="z. B. Wunschtermin, Widmung für den Gutschein …"></textarea></label>
           <label class="gs-check"><input type="checkbox" name="ok" required> Ich bezahle per Überweisung. Den Gutschein bekomme ich nach Zahlungseingang.</label>
+          <input type="text" name="_honey" class="gs-honig" tabindex="-1" autocomplete="off" aria-hidden="true">
           <p class="gs-fehler" role="alert"></p>
-          <button class="gs-senden" type="submit">Bestellung absenden <span class="gs-senden-summe"></span></button>
+          <button class="gs-senden" type="submit">
+            <span class="gs-senden-text">Jetzt bestellen</span>
+            <span class="gs-senden-summe"></span>
+            <svg class="gs-senden-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3.4 20.4 21 12 3.4 3.6 3.4 10l12.6 2-12.6 2z" fill="currentColor"/></svg>
+          </button>
         </form>
 
         <div class="gs-danke" hidden>
+          <div class="gs-danke-haken" aria-hidden="true">✓</div>
           <h3>Danke für deine Bestellung!</h3>
-          <p>Dein E-Mail-Programm hat sich mit der fertigen Bestellung geöffnet – bitte dort noch auf <strong>Senden</strong> klicken. Wir melden uns dann mit der Bankverbindung.</p>
-          <p>Falls sich kein E-Mail-Programm geöffnet hat, kopiere die Bestellung und schicke sie an <a class="gs-mail-link" href="mailto:jonas.altschaeffel@gmail.com">jonas.altschaeffel@gmail.com</a>.</p>
-          <textarea class="gs-text-kopie" rows="8" readonly></textarea>
-          <div class="btns"><button type="button" class="btn primary gs-kopieren">Bestellung kopieren</button><button type="button" class="btn ghost gs-neu">Neue Bestellung</button></div>
+          <p>Deine Bestellung ist bei uns angekommen. Du bekommst gleich eine Bestätigung per E-Mail – wir melden uns dann mit der Bankverbindung. Nach Zahlungseingang schicken wir dir den Gutschein.</p>
+          <button type="button" class="btn ghost gs-neu">Neue Bestellung</button>
         </div>
       </div>
       <a class="gs-leiste" href="#gs-kasse" hidden><span class="gs-leiste-text"></span><span>Zur Kasse →</span></a>
