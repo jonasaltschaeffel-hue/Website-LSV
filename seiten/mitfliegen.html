@@ -51,8 +51,95 @@
     <table class="ad">
       <tbody><tr><th data-e="e5">Anfrage &amp; Preise</th><td data-e="e6">mitflug@luftsportverein-regensburg.de</td></tr>
       <tr><th data-e="e7">Flugleitung (Flugtag)</th><td data-e="e8">09453 7244</td></tr>
-      <tr><th data-e="e9">Gutscheine</th><td data-e="e10">Mitflug-Gutscheine zum Verschenken – ebenfalls über mitflug@luftsportverein-regensburg.de</td></tr>
+      <tr><th data-e="e9">Gutscheine</th><td data-e="e10">Mitflug-Gutscheine zum Verschenken – direkt hier auf der Seite bestellen</td></tr>
     </tbody></table>
+
+    <!-- Gutschein-Shop: Namen, Texte und Preise sind im Bearbeitungsmodus änderbar.
+         Der Preis wird direkt aus dem Preistext gelesen (z. B. „80 €“). Logik in js/gutscheine.js -->
+    <div id="gutscheine" class="gs-shop">
+      <h2 data-e="gs-h">Gutscheine verschenken</h2>
+      <p data-e="gs-intro">Ein Flug über Regensburg ist ein Geschenk, das man nicht vergisst. Wähle einen oder mehrere Gutscheine aus, gib deine Daten ein und schick uns die Bestellung. Du bekommst von uns eine Bestätigung mit der Bankverbindung – nach Zahlungseingang schicken wir dir den Gutschein zu.</p>
+
+      <div class="gs-grid">
+        <div class="gs-produkt">
+          <div data-e="gs-p1-m" class="gs-meta">Segelflug</div>
+          <h3 data-e="gs-p1-n" class="gs-name">Windenstart</h3>
+          <p data-e="gs-p1-t" class="gs-text">Ca. 10 Minuten Segelflug – von 0 auf 100 in 3 Sekunden.</p>
+          <div data-e="gs-p1-p" class="gs-preis">20 €</div>
+          <div class="gs-menge"><button type="button" class="gs-minus" aria-label="weniger">−</button><output>0</output><button type="button" class="gs-plus" aria-label="mehr">+</button></div>
+        </div>
+        <div class="gs-produkt">
+          <div data-e="gs-p2-m" class="gs-meta">Segelflug</div>
+          <h3 data-e="gs-p2-n" class="gs-name">F-Schlepp</h3>
+          <p data-e="gs-p2-t" class="gs-text">Ca. 20 Minuten – mit dem Schleppflugzeug auf 1000 Meter.</p>
+          <div data-e="gs-p2-p" class="gs-preis">80 €</div>
+          <div class="gs-menge"><button type="button" class="gs-minus" aria-label="weniger">−</button><output>0</output><button type="button" class="gs-plus" aria-label="mehr">+</button></div>
+        </div>
+        <div class="gs-produkt">
+          <div data-e="gs-p3-m" class="gs-meta">Segelflug</div>
+          <h3 data-e="gs-p3-n" class="gs-name">Kunstflug</h3>
+          <p data-e="gs-p3-t" class="gs-text">F-Schlepp mit Kunstflugfiguren – für alle, die es spannend mögen.</p>
+          <div data-e="gs-p3-p" class="gs-preis">90 €</div>
+          <div class="gs-menge"><button type="button" class="gs-minus" aria-label="weniger">−</button><output>0</output><button type="button" class="gs-plus" aria-label="mehr">+</button></div>
+        </div>
+        <div class="gs-produkt">
+          <div data-e="gs-p4-m" class="gs-meta">Motorsegler / Ultraleicht</div>
+          <h3 data-e="gs-p4-n" class="gs-name">Rundflug</h3>
+          <p data-e="gs-p4-t" class="gs-text">Ca. 20 Minuten Rundflug über Regensburg und Umgebung.</p>
+          <div data-e="gs-p4-p" class="gs-preis">50 €</div>
+          <div class="gs-menge"><button type="button" class="gs-minus" aria-label="weniger">−</button><output>0</output><button type="button" class="gs-plus" aria-label="mehr">+</button></div>
+        </div>
+        <div class="gs-produkt">
+          <div data-e="gs-p5-m" class="gs-meta">Motorsegler / Ultraleicht</div>
+          <h3 data-e="gs-p5-n" class="gs-name">Burgenrundflug</h3>
+          <p data-e="gs-p5-t" class="gs-text">Ca. 60 Minuten zu den Burgen und Schlössern der Region.</p>
+          <div data-e="gs-p5-p" class="gs-preis">150 €</div>
+          <div class="gs-menge"><button type="button" class="gs-minus" aria-label="weniger">−</button><output>0</output><button type="button" class="gs-plus" aria-label="mehr">+</button></div>
+        </div>
+        <div class="gs-produkt gs-wert">
+          <div data-e="gs-w-m" class="gs-meta">Frei wählbar</div>
+          <h3 data-e="gs-w-n" class="gs-name">Wertgutschein</h3>
+          <p data-e="gs-w-t" class="gs-text">Du bestimmst den Betrag – einlösbar für alle Flüge.</p>
+          <label class="gs-betrag"><input type="number" min="10" max="1000" step="5" value="50" inputmode="numeric" aria-label="Betrag in Euro"><span>€</span></label>
+          <button type="button" class="btn ghost gs-add">In den Warenkorb</button>
+        </div>
+      </div>
+
+      <div class="gs-kasse">
+        <h3 data-e="gs-k-h">Deine Bestellung</h3>
+        <ul class="gs-liste"></ul>
+        <p class="gs-leer">Noch keine Gutscheine ausgewählt.</p>
+        <div class="gs-summe"><span>Gesamt</span><strong>0,00 €</strong></div>
+
+        <form class="gs-form" novalidate>
+          <div class="gs-felder">
+            <label>Dein Name *<input name="name" autocomplete="name" required></label>
+            <label>E-Mail *<input name="mail" type="email" autocomplete="email" required></label>
+            <label>Telefon<input name="tel" type="tel" autocomplete="tel"></label>
+            <label>Für wen ist der Gutschein?<input name="fuer" placeholder="Name auf dem Gutschein (optional)"></label>
+          </div>
+          <fieldset class="gs-versand">
+            <legend>Wie möchtest du den Gutschein bekommen?</legend>
+            <label><input type="radio" name="versand" value="E-Mail (PDF zum Ausdrucken)" checked> Per E-Mail zum Ausdrucken</label>
+            <label><input type="radio" name="versand" value="Post"> Per Post</label>
+          </fieldset>
+          <label class="gs-adresse" hidden>Postanschrift *<textarea name="adresse" rows="3" autocomplete="street-address"></textarea></label>
+          <label>Nachricht an uns<textarea name="msg" rows="3" placeholder="z. B. Wunschtermin, Widmung für den Gutschein …"></textarea></label>
+          <label class="gs-check"><input type="checkbox" name="ok" required> Ich bezahle per Überweisung. Den Gutschein bekomme ich nach Zahlungseingang.</label>
+          <p class="gs-fehler" role="alert"></p>
+          <button class="btn primary" type="submit">Bestellung absenden</button>
+        </form>
+
+        <div class="gs-danke" hidden>
+          <h3>Danke für deine Bestellung!</h3>
+          <p>Dein E-Mail-Programm hat sich mit der fertigen Bestellung geöffnet – bitte dort noch auf <strong>Senden</strong> klicken. Wir melden uns dann mit der Bankverbindung.</p>
+          <p>Falls sich kein E-Mail-Programm geöffnet hat, kopiere die Bestellung und schicke sie an <a class="gs-mail-link" href="mailto:mitflug@luftsportverein-regensburg.de">mitflug@luftsportverein-regensburg.de</a>.</p>
+          <textarea class="gs-text-kopie" rows="8" readonly></textarea>
+          <div class="btns"><button type="button" class="btn primary gs-kopieren">Bestellung kopieren</button><button type="button" class="btn ghost gs-neu">Neue Bestellung</button></div>
+        </div>
+      </div>
+      <p data-e="gs-hinweis" class="note">Flüge finden bei geeignetem Wetter von April bis Oktober statt – Termin bitte vorher absprechen.</p>
+    </div>
 
     
     <p data-e="e12"><br></p>
@@ -71,6 +158,7 @@
 </main>
 
 <script src="../js/himmel.js"></script>
+<script src="../js/gutscheine.js"></script>
 <script>
   const b = document.getElementById('menu-btn'), t = document.getElementById('tabs');
   b.addEventListener('click', () => b.setAttribute('aria-expanded', t.classList.toggle('open')));
