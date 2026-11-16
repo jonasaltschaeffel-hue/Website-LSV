@@ -1,10 +1,13 @@
 /* Gutschein-Shop auf der Mitfliegen-Seite.
    Produkte, Texte und Preise stehen im HTML (im Bearbeitungsmodus änderbar).
-   Die Bestellung wird als E-Mail an MAIL vorbereitet; bezahlt wird per Überweisung. */
+   Die Bestellung wird über FormSubmit (formsubmit.co) direkt per E-Mail an MAIL geschickt;
+   bezahlt wird per Überweisung. Beim allerersten Absenden schickt FormSubmit eine
+   Aktivierungs-Mail an MAIL – dort einmal auf „Activate Form“ klicken. */
 (() => {
   const shop = document.getElementById('gutscheine');
   if (!shop) return;
   const MAIL = 'jonas.altschaeffel@gmail.com';
+  const ENDPUNKT = 'https://formsubmit.co/ajax/' + MAIL;
   const $ = (s, r = shop) => r.querySelector(s);
   const euro = n => n.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' €';
   const preisAus = el => {
@@ -12,12 +15,17 @@
     return m ? parseFloat(m[0].replace(',', '.')) : 0;
   };
   const text = el => (el?.textContent || '').trim();
+  const esc = s => s.replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 
   const mengen = new Map();   // Produkt-Element -> Anzahl
   let wert = [];              // Beträge der Wertgutscheine
 
   const liste = $('.gs-liste'), leer = $('.gs-leer'), summeEl = $('.gs-summe strong');
   const form = $('.gs-form'), fehler = $('.gs-fehler'), danke = $('.gs-danke');
+  const anzahlEl = $('.gs-anzahl'), sendenSumme = $('.gs-senden-summe'), senden = $('.gs-senden');
+  const leiste = $('.gs-leiste'), leisteText = $('.gs-leiste-text'), kasse = $('.gs-kasse');
+  let kasseSichtbar = false, anzahl = 0;
+  document.body.appendChild(leiste);   // außerhalb des animierten Artikels, sonst klebt sie nicht am Bildschirmrand
 
   function positionen(){
     const p = [];
@@ -26,14 +34,8 @@
     return p;
   }
 
-  const anzahlEl = $('.gs-anzahl'), sendenSumme = $('.gs-senden-summe');
-  const leiste = $('.gs-leiste'), leisteText = $('.gs-leiste-text'), kasse = $('.gs-kasse');
-  const esc = s => s.replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
-  let kasseSichtbar = false, anzahl = 0;
-  document.body.appendChild(leiste);   // außerhalb des animierten Artikels, sonst klebt sie nicht am Bildschirmrand
-
   function leisteZeigen(){
-    leiste.hidden = !(anzahl > 0 && !kasseSichtbar && !document.body.classList.contains('lsv-edit'));
+    leiste.hidden = !(anzahl > 0 && !kasseSichtbar && danke.hidden && !document.body.classList.contains('lsv-edit'));
   }
   if ('IntersectionObserver' in window){
     new IntersectionObserver(e => { kasseSichtbar = e[0].isIntersecting; leisteZeigen(); }).observe(kasse);
@@ -58,7 +60,7 @@
     leer.hidden = p.length > 0;
     summeEl.textContent = euro(summe);
     anzahlEl.textContent = anzahl; anzahlEl.hidden = anzahl === 0;
-    sendenSumme.textContent = summe ? '· ' + euro(summe) : '';
+    sendenSumme.textContent = summe ? euro(summe) : '';
     leisteText.textContent = `${anzahl} ${anzahl === 1 ? 'Gutschein' : 'Gutscheine'} · ${euro(summe)}`;
     shop.classList.toggle('gs-voll', p.length > 0);
     leisteZeigen();
@@ -79,23 +81,24 @@
 
   shop.querySelectorAll('.gs-produkt:not(.gs-wert)').forEach(el => {
     mengen.set(el, 0);
-    $('.gs-waehlen', el).addEventListener('click', () => { setze(el, 1); $('.gs-plus', el).focus(); });
     $('.gs-plus', el).addEventListener('click', () => setze(el, mengen.get(el) + 1));
     $('.gs-minus', el).addEventListener('click', () => setze(el, mengen.get(el) - 1));
   });
 
-  const betrag = $('.gs-wert input');
-  $('.gs-add').addEventListener('click', () => {
+  const betrag = $('.gs-wert input'), add = $('.gs-add');
+  add.addEventListener('click', () => {
     const b = Math.round(parseFloat(betrag.value));
     if (!(b >= 10 && b <= 1000)){ betrag.focus(); betrag.setCustomValidity('Bitte einen Betrag zwischen 10 und 1000 € eingeben.'); betrag.reportValidity(); return; }
     betrag.setCustomValidity('');
     wert.push(b);
     zeichnen();
     stupsen(anzahlEl);
-    const knopf = $('.gs-add'); knopf.textContent = 'Hinzugefügt ✓';
-    setTimeout(() => knopf.textContent = 'Hinzufügen', 1500);
+    const karte = add.closest('.gs-produkt');
+    karte.classList.add('gs-aktiv'); add.textContent = '✓';
+    setTimeout(() => { karte.classList.remove('gs-aktiv'); add.textContent = '+'; }, 1200);
   });
   betrag.addEventListener('input', () => betrag.setCustomValidity(''));
+  betrag.addEventListener('keydown', e => { if (e.key === 'Enter'){ e.preventDefault(); add.click(); } });
 
   // Postanschrift nur bei Versand per Post
   const adresse = $('.gs-adresse');
@@ -103,7 +106,11 @@
     adresse.hidden = form.versand.value !== 'Post';
   }));
 
-  form.addEventListener('submit', e => {
+  function fehlerZeigen(msg, mitMailLink){
+    fehler.innerHTML = esc(msg) + (mitMailLink ? ` Du kannst uns die Bestellung auch an <a href="mailto:${MAIL}">${MAIL}</a> schicken.` : '');
+  }
+
+  form.addEventListener('submit', async e => {
     e.preventDefault();
     const p = positionen(), f = form;
     let msg = '';
@@ -112,41 +119,46 @@
     else if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(f.mail.value.trim())) msg = 'Bitte gib eine gültige E-Mail-Adresse ein.';
     else if (f.versand.value === 'Post' && !f.adresse.value.trim()) msg = 'Bitte gib die Postanschrift ein.';
     else if (!f.ok.checked) msg = 'Bitte bestätige die Zahlung per Überweisung.';
-    fehler.textContent = msg;
+    fehlerZeigen(msg);
     if (msg) return;
+    if (f._honey.value) return;   // Spam-Schutz: nur Roboter füllen dieses unsichtbare Feld aus
 
     const summe = p.reduce((s, x) => s + x.n * x.preis, 0);
-    const zeilen = [
-      'Gutschein-Bestellung über die Website',
-      '',
-      ...p.map(x => `${x.n} × ${x.name} à ${euro(x.preis)} = ${euro(x.n * x.preis)}`),
-      '',
-      `Gesamt: ${euro(summe)}`,
-      '',
-      `Name: ${f.name.value.trim()}`,
-      `E-Mail: ${f.mail.value.trim()}`,
-      f.tel.value.trim() ? `Telefon: ${f.tel.value.trim()}` : null,
-      f.fuer.value.trim() ? `Gutschein für: ${f.fuer.value.trim()}` : null,
-      `Zustellung: ${f.versand.value}`,
-      f.versand.value === 'Post' ? `Anschrift:\n${f.adresse.value.trim()}` : null,
-      f.msg.value.trim() ? `\nNachricht:\n${f.msg.value.trim()}` : null,
-      '',
-      'Zahlung per Überweisung – bitte schickt mir die Bankverbindung.'
-    ].filter(z => z !== null);
-    const body = zeilen.join('\n');
-    const subject = `Gutschein-Bestellung (${euro(summe)}) – ${f.name.value.trim()}`;
+    const name = f.name.value.trim();
+    const daten = {
+      _subject: `Gutschein-Bestellung (${euro(summe)}) – ${name}`,
+      _template: 'table',
+      _captcha: 'false',
+      _autoresponse: `Hallo ${name}, danke für deine Gutschein-Bestellung beim LSV Regensburg über ${euro(summe)}! Wir melden uns in Kürze mit der Bankverbindung. Nach Zahlungseingang schicken wir dir den Gutschein. Viele Grüße vom Flugplatz Oberhinkofen`,
+      Bestellung: p.map(x => `${x.n} × ${x.name} à ${euro(x.preis)} = ${euro(x.n * x.preis)}`).join('\n'),
+      Gesamt: euro(summe),
+      Name: name,
+      email: f.mail.value.trim(),
+      Telefon: f.tel.value.trim() || '–',
+      'Gutschein für': f.fuer.value.trim() || '–',
+      Zustellung: f.versand.value,
+      Anschrift: f.versand.value === 'Post' ? f.adresse.value.trim() : '–',
+      Nachricht: f.msg.value.trim() || '–',
+      Zahlung: 'Überweisung'
+    };
 
-    $('.gs-text-kopie').value = `An: ${MAIL}\nBetreff: ${subject}\n\n${body}`;
-    $('.gs-mail-link').href = `mailto:${MAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-    form.hidden = true; danke.hidden = false;
-    location.href = $('.gs-mail-link').href;
-  });
-
-  $('.gs-kopieren').addEventListener('click', async e => {
-    const ta = $('.gs-text-kopie');
-    try { await navigator.clipboard.writeText(ta.value); } catch { ta.select(); document.execCommand('copy'); }
-    e.target.textContent = 'Kopiert ✓';
-    setTimeout(() => e.target.textContent = 'Bestellung kopieren', 2000);
+    senden.disabled = true; senden.classList.add('gs-laedt');
+    try {
+      const r = await fetch(ENDPUNKT, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+        body: JSON.stringify(daten)
+      });
+      const antwort = await r.json().catch(() => ({}));
+      if (!r.ok || String(antwort.success) !== 'true') throw new Error(antwort.message || 'Fehler');
+      form.hidden = true; danke.hidden = false;
+      leisteZeigen();
+      kasse.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    } catch (err) {
+      fehlerZeigen('Die Bestellung konnte gerade nicht gesendet werden. Bitte versuche es in ein paar Minuten noch einmal.', true);
+    } finally {
+      senden.disabled = false; senden.classList.remove('gs-laedt');
+    }
   });
 
   $('.gs-neu').addEventListener('click', () => {
