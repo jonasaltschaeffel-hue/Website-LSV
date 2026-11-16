@@ -310,3 +310,50 @@ body.artikel hr.trenner{background:rgba(15,44,76,.22);box-shadow:none}
 body.artikel table.ad th,body.artikel table.ad td{border-bottom-color:rgba(15,44,76,.15)}
 body.artikel .article .pic,body.artikel .photos .pic,body.artikel .bild-block{border-color:#fff;box-shadow:0 14px 34px -20px rgba(6,28,58,.45)}
 body.artikel .soon{background:rgba(10,35,80,.08);border-color:rgba(10,35,80,.25)}
+
+/* ================= Gutschein-Shop (seiten/mitfliegen.html) ================= */
+.gs-shop{margin:34px 0 10px}
+.gs-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px;margin:18px 0 26px}
+.gs-produkt{display:flex;flex-direction:column;gap:6px;padding:18px;border-radius:18px;background:rgba(255,255,255,.72);border:2px solid rgba(255,255,255,.95);box-shadow:0 14px 34px -22px rgba(6,28,58,.5);transition:border-color .2s,transform .2s}
+.gs-produkt.gs-aktiv{border-color:var(--blue-text)}
+.gs-meta{font:600 13px "Barlow Condensed",sans-serif;letter-spacing:.12em;text-transform:uppercase;color:var(--accent-dark)}
+.gs-name{font:700 24px/1.1 "Barlow Condensed",sans-serif;margin:0}
+.gs-text{font-size:15px;line-height:1.45;flex:1;margin:0}
+.gs-preis{font:700 30px "Barlow Condensed",sans-serif;color:var(--blue-text);margin-top:4px}
+.gs-menge{display:flex;align-items:center;gap:10px;margin-top:4px}
+.gs-menge button,.gs-weg{width:38px;height:38px;border-radius:50%;border:2px solid var(--blue-text);background:#fff;color:var(--blue-text);font:700 20px/1 system-ui,sans-serif;cursor:pointer}
+.gs-menge button:hover{background:var(--blue-text);color:#fff}
+.gs-menge output{min-width:24px;text-align:center;font:700 20px "Barlow Condensed",sans-serif}
+.gs-betrag{display:flex;align-items:center;gap:8px;margin-top:4px;font:700 24px "Barlow Condensed",sans-serif;color:var(--blue-text)}
+.gs-betrag input{width:110px;padding:8px 12px;font:700 22px "Barlow Condensed",sans-serif;border:2px solid rgba(10,35,80,.25)}
+.gs-wert .btn{align-self:flex-start;margin-top:6px;cursor:pointer;font-size:15px;padding:10px 18px}
+.gs-kasse{padding:22px;border-radius:20px;background:rgba(255,255,255,.82);border:2px solid #fff;box-shadow:0 18px 40px -24px rgba(6,28,58,.55)}
+.gs-kasse h3{font:700 26px "Barlow Condensed",sans-serif;margin:0 0 10px}
+.gs-liste{list-style:none;margin:0;padding:0}
+.gs-liste li{display:flex;align-items:center;gap:12px;padding:9px 0;border-bottom:1px solid rgba(15,44,76,.12)}
+.gs-liste li span:first-child{flex:1}
+.gs-liste li span:nth-child(2){font-weight:600;white-space:nowrap}
+.gs-weg{width:30px;height:30px;font-size:17px;border-width:1px;flex:none}
+.gs-weg:hover{background:#a3261a;border-color:#a3261a;color:#fff}
+.gs-leer{color:var(--navy-soft);font-style:italic;margin:4px 0 0}
+.gs-summe{display:flex;justify-content:space-between;align-items:baseline;margin:12px 0 18px;padding-top:10px;border-top:2px solid var(--blue-text);font:700 22px "Barlow Condensed",sans-serif}
+.gs-summe strong{font-size:30px;color:var(--blue-text)}
+.gs-form{display:grid;gap:14px}
+.gs-felder{display:grid;grid-template-columns:1fr 1fr;gap:12px 16px}
+.gs-form label{display:grid;gap:5px;font-weight:600;font-size:15px}
+.gs-form input,.gs-form textarea{border:1px solid rgba(10,35,80,.25);background:#fff;font-weight:400}
+.gs-versand{border:0;display:flex;flex-wrap:wrap;gap:8px 22px}
+.gs-versand legend{font-weight:600;font-size:15px;margin-bottom:6px;width:100%}
+.gs-versand label,.gs-check{display:flex!important;align-items:flex-start;gap:9px;font-weight:500!important}
+.gs-versand input,.gs-check input{width:18px;height:18px;margin-top:2px;flex:none;accent-color:var(--blue-text)}
+.gs-fehler{color:#a3261a;font-weight:600;min-height:0;margin:0}
+.gs-fehler:empty{display:none}
+.gs-form .btn{justify-self:start;cursor:pointer}
+.gs-danke p{margin:0 0 10px}
+.gs-danke textarea{width:100%;font:13px/1.45 ui-monospace,Consolas,monospace;border:1px solid rgba(10,35,80,.25);background:#f6f9fc;margin:4px 0 12px}
+.gs-danke .btns button{cursor:pointer}
+.gs-shop [hidden]{display:none!important}
+@media (max-width:640px){
+  .gs-felder{grid-template-columns:1fr}
+  .gs-kasse{padding:16px}
+}
