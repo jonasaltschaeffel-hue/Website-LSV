@@ -4,7 +4,7 @@
 (() => {
   const shop = document.getElementById('gutscheine');
   if (!shop) return;
-  const MAIL = 'mitflug@luftsportverein-regensburg.de';
+  const MAIL = 'jonas.altschaeffel@gmail.com';
   const $ = (s, r = shop) => r.querySelector(s);
   const euro = n => n.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' €';
   const preisAus = el => {
