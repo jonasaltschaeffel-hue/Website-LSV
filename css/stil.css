@@ -340,29 +340,24 @@ body.artikel .soon{background:rgba(10,35,80,.08);border-color:rgba(10,35,80,.25)
 
 /* Auswahl-Knöpfe */
 .gs-aktion{display:flex;align-items:center;gap:8px;min-height:40px}
-.gs-waehlen{flex:1;height:40px;border:0;border-radius:999px;background:var(--gs-blau);color:#fff;cursor:pointer;
-  font:600 14px "Barlow",sans-serif;display:flex;align-items:center;justify-content:center;gap:6px;transition:background .2s,transform .1s}
-.gs-waehlen::before{content:"+";font-size:18px;line-height:1}
-.gs-waehlen:hover{background:#1a3f80}
-.gs-waehlen:active{transform:scale(.97)}
-.gs-menge{display:none;flex:1;height:40px;align-items:center;justify-content:space-between;border-radius:999px;background:#eef3fa;padding:3px}
-.gs-aktiv .gs-waehlen{display:none}
-.gs-aktiv .gs-menge{display:flex}
+.gs-add{width:40px;height:40px;flex:none;border:0;border-radius:50%;background:var(--gs-blau);color:#fff;cursor:pointer;
+  font:700 22px/1 system-ui,sans-serif;display:grid;place-items:center;transition:background .2s,transform .1s;box-shadow:0 4px 10px -4px rgba(6,28,58,.5)}
+.gs-add:hover{background:#1a3f80}
+.gs-add:active{transform:scale(.92)}
+.gs-menge{display:flex;flex:1;height:40px;align-items:center;justify-content:space-between;border-radius:999px;background:#eef3fa;padding:3px}
 .gs-menge button{width:34px;height:34px;border:0;border-radius:50%;background:#fff;color:var(--gs-blau);cursor:pointer;
   font:700 19px/1 system-ui,sans-serif;box-shadow:0 2px 6px -2px rgba(6,28,58,.35);transition:background .2s,color .2s}
 .gs-menge button:hover{background:var(--gs-blau);color:#fff}
 .gs-menge output{font:700 19px "Barlow Condensed",sans-serif;color:var(--gs-blau)}
-.gs-betrag{display:flex;align-items:center;height:40px;border-radius:999px;background:#eef3fa;padding:0 12px 0 4px;
+.gs-betrag{display:flex;flex:1;align-items:center;justify-content:flex-end;height:40px;border-radius:999px;background:#eef3fa;padding:0 12px 0 4px;
   font:700 18px "Barlow Condensed",sans-serif;color:var(--gs-blau)}
 .gs-betrag input{width:62px;border:0;background:transparent;padding:4px 6px;text-align:right;font:700 20px "Barlow Condensed",sans-serif;color:var(--gs-blau)}
 .gs-betrag input:focus{outline:none}
 .gs-betrag:focus-within{box-shadow:0 0 0 2px var(--gs-blau)}
-.gs-wert .gs-waehlen::before{content:none}
 
 /* Warenkorb */
 .gs-kasse{padding:22px 24px 24px;border-radius:22px;background:#fff;box-shadow:0 22px 50px -26px rgba(6,28,58,.6);scroll-margin-top:90px}
 .gs-kopf{display:flex;align-items:center;gap:10px;margin-bottom:8px}
-.gs-icon{width:30px;height:30px;color:var(--gs-blau)}
 .article .gs-kopf h3{font:700 26px "Barlow Condensed",sans-serif;margin:0}
 .gs-anzahl{min-width:26px;height:26px;padding:0 8px;border-radius:999px;background:var(--gs-orange);color:#fff;display:grid;place-items:center;font:700 14px/1 "Barlow",sans-serif}
 .gs-stups{animation:gs-stups .35s ease}
@@ -399,15 +394,26 @@ body.artikel .soon{background:rgba(10,35,80,.08);border-color:rgba(10,35,80,.25)
 .gs-check input{width:20px;height:20px;margin-top:1px;flex:none;accent-color:var(--gs-blau)}
 .gs-fehler{color:#a3261a;font-weight:600;margin:0;padding:10px 14px;border-radius:10px;background:#fdecea}
 .gs-fehler:empty{display:none}
-.gs-senden{width:100%;height:54px;border:0;border-radius:999px;cursor:pointer;background:linear-gradient(135deg,#f08a24,#c96a0e);color:#fff;
-  font:700 18px "Barlow",sans-serif;box-shadow:0 12px 24px -12px rgba(201,106,14,.8);transition:transform .15s,box-shadow .2s}
-.gs-senden:hover{transform:translateY(-2px);box-shadow:0 16px 28px -12px rgba(201,106,14,.9)}
-.gs-senden-summe{opacity:.9;font-weight:600}
+.gs-honig{position:absolute!important;left:-9999px;width:1px;height:1px;opacity:0}
+.gs-senden{position:relative;display:flex;align-items:center;gap:12px;width:100%;min-height:60px;padding:8px 8px 8px 26px;border:0;border-radius:18px;cursor:pointer;
+  background:linear-gradient(120deg,#0a2350 0%,#1d4a8f 100%);color:#fff;text-align:left;overflow:hidden;
+  box-shadow:0 16px 30px -16px rgba(10,35,80,.9);transition:transform .15s,box-shadow .2s}
+.gs-senden::before{content:"";position:absolute;inset:0;background:linear-gradient(100deg,transparent 30%,rgba(255,255,255,.18) 50%,transparent 70%);transform:translateX(-100%);transition:transform .7s}
+.gs-senden:hover{transform:translateY(-2px);box-shadow:0 22px 36px -16px rgba(10,35,80,.95)}
+.gs-senden:hover::before{transform:translateX(100%)}
+.gs-senden-text{flex:1;font:700 20px "Barlow Condensed",sans-serif;letter-spacing:.04em;text-transform:uppercase}
+.gs-senden-summe{font:700 20px "Barlow Condensed",sans-serif;color:#ffc27f}
+.gs-senden-summe:empty{display:none}
+.gs-senden-icon{width:44px;height:44px;padding:11px;border-radius:13px;background:var(--gs-orange);color:#fff;flex:none;transition:transform .3s}
+.gs-senden:hover .gs-senden-icon{transform:translateX(3px) rotate(-8deg)}
+.gs-senden:disabled{cursor:wait;opacity:.85}
+.gs-laedt .gs-senden-icon{animation:gs-flieg .9s ease-in-out infinite}
+@keyframes gs-flieg{50%{transform:translate(4px,-4px) rotate(-12deg)}}
+.gs-danke-haken{width:64px;height:64px;margin:6px auto 10px;border-radius:50%;display:grid;place-items:center;background:#1d7a3a;color:#fff;font:700 32px/1 system-ui,sans-serif;animation:gs-stups .5s ease}
 .gs-danke{text-align:center}
+.article .gs-danke h3{font:700 28px "Barlow Condensed",sans-serif;margin:0 0 6px}
 .gs-danke p{margin:0 auto 10px}
-.gs-danke textarea{width:100%;font:13px/1.45 ui-monospace,Consolas,monospace;border:1px solid rgba(10,35,80,.25);background:#f6f9fc;margin:4px 0 12px;text-align:left}
-.gs-danke .btns{justify-content:center}
-.gs-danke .btns button{cursor:pointer}
+.gs-danke .btn{cursor:pointer;margin-top:6px}
 
 /* schwebende Leiste „Zur Kasse“ */
 .gs-leiste{position:fixed;left:50%;bottom:16px;transform:translateX(-50%);z-index:50;display:flex;align-items:center;gap:16px;
