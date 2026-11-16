@@ -33,6 +33,7 @@
   <!-- Reiter: Reihenfolge und Texte hier und in seiten.ps1 pflegen -->
   <ul id="tabs">
     <li><a href="seiten/mitfliegen.html">Mitfliegen</a></li>
+    <li><a href="seiten/pilot-werden.html">Pilot werden</a></li>
     <li><a href="seiten/verein.html">Verein</a></li>
     <li><a href="seiten/jugend.html">Jugend</a></li>
     <li><a href="seiten/streckenflug.html">Streckenflug</a></li>
@@ -149,8 +150,9 @@
       <div class="filter" role="group" aria-label="Flugzeugart wählen">
         <button type="button" data-kind="segel" aria-pressed="true">Segelflugzeuge</button>
         <button type="button" data-kind="motor" aria-pressed="false">Motorflugzeuge</button>
+        <button type="button" data-kind="ehemalig" aria-pressed="false">Ehemalige</button>
       </div>
-      <!-- Flugzeug-Karten: data-kind="segel" oder "motor". Bilder unter img/flotte/ ablegen (Querformat, ca. 1200×750 px). -->
+      <!-- Flugzeug-Karten: data-kind="segel", "motor" oder "ehemalig". Bilder unter img/flotte/ ablegen (Querformat, ca. 1200×750 px). -->
       <div class="news" id="fleet">
         <a class="news-card" data-kind="segel" href="flotte/ask13.html">
           <div class="pic placeholder"><img data-e="e130" src="img/uploads/index-e130-mwhzls2r.jpg" alt="" onerror="this.hidden=true" onload="this.parentElement.classList.remove('placeholder')"></div>
@@ -233,6 +235,51 @@
             <span class="more">Mehr erfahren →</span>
           </div>
         </a>
+        <a class="news-card" data-kind="ehemalig" href="flotte/sf25c.html">
+          <div class="pic placeholder"><img data-e="e136" src="img/flotte/sf25c.jpg" alt="" onerror="this.hidden=true" onload="this.parentElement.classList.remove('placeholder')"></div>
+          <div class="body">
+            <span data-e="e110" class="date">Motorsegler · ehemals Umschulung</span>
+            <h3 data-e="e39">Scheibe SF25C Falke (D-KLEX)</h3>
+            <p data-e="e40">Der Motorsegler für die Umschulung zum Motorseglerpiloten. Er startet selbstständig und kann im Flug auch segeln.</p>
+            <span class="more">Mehr erfahren →</span>
+          </div>
+        </a>
+        <a class="news-card" data-kind="ehemalig" href="flotte/asw19.html">
+          <div class="pic placeholder"><img data-e="xasw19-ci" src="img/flotte/asw19.jpg" alt="" onerror="this.hidden=true" onload="this.parentElement.classList.remove('placeholder')"></div>
+          <div class="body">
+            <span class="date" data-e="xasw19-cm">Einsitzer · ehemals Segelflugzeug</span>
+            <h3 data-e="xasw19-cn">ASW 19</h3>
+            <p data-e="xasw19-ck">Der Einsitzer für Thermik- und Überlandflüge. Mit einer Gleitzahl von rund 39 kam man aus 1.000 m Höhe etwa 39 km weit.</p>
+            <span class="more">Mehr erfahren →</span>
+          </div>
+        </a>
+        <a class="news-card" data-kind="ehemalig" href="flotte/taifun17e.html">
+          <div class="pic placeholder"><img data-e="xtaifun17e-ci" src="img/flotte/taifun17e.jpg" alt="" onerror="this.hidden=true" onload="this.parentElement.classList.remove('placeholder')"></div>
+          <div class="body">
+            <span class="date" data-e="xtaifun17e-cm">Motorsegler · ehemals Reise</span>
+            <h3 data-e="xtaifun17e-cn">Valentin Taifun 17E</h3>
+            <p data-e="xtaifun17e-ck">Schneller Reisemotorsegler mit Einziehfahrwerk, Verstellpropeller und Wölbklappen – einer der schnellsten seiner Art.</p>
+            <span class="more">Mehr erfahren →</span>
+          </div>
+        </a>
+        <a class="news-card" data-kind="ehemalig" href="flotte/rallye180td.html">
+          <div class="pic placeholder"><img data-e="xrallye180td-ci" src="img/flotte/rallye180td.jpg" alt="" onerror="this.hidden=true" onload="this.parentElement.classList.remove('placeholder')"></div>
+          <div class="body">
+            <span class="date" data-e="xrallye180td-cm">Motorflugzeug · ehemals Schlepp &amp; Reise</span>
+            <h3 data-e="xrallye180td-cn">Morane Rallye 180TD</h3>
+            <p data-e="xrallye180td-ck">Viersitziges Motorflugzeug für Reisen, Schlepp und Rundflüge – gutmütig und sehr kurzstartfähig.</p>
+            <span class="more">Mehr erfahren →</span>
+          </div>
+        </a>
+        <a class="news-card" data-kind="ehemalig" href="flotte/sf25c-kddf.html">
+          <div class="pic placeholder"><img data-e="xsf25ckddf-ci" src="img/flotte/sf25c-kddf.jpg" alt="" onerror="this.hidden=true" onload="this.parentElement.classList.remove('placeholder')"></div>
+          <div class="body">
+            <span class="date" data-e="xsf25ckddf-cm">Motorsegler · ehemals Umschulung</span>
+            <h3 data-e="xsf25ckddf-cn">Scheibe SF25C Falke (D-KDDF)</h3>
+            <p data-e="xsf25ckddf-ck">Der erste C-Falke des Vereins. Mit ihm schulten Segelflieger auf den Motorsegler um.</p>
+            <span class="more">Mehr erfahren →</span>
+          </div>
+        </a>
       </div>
       
     </div>
@@ -252,9 +299,26 @@
     </div>
   </section>
 
+  <section id="pilot-werden" data-title="Pilot werden">
+    <div class="card">
+      <div data-e="pw-e1" class="eyebrow">07 · Pilot werden</div>
+      <h2 data-e="pw-e2">Dein Weg zur Segelfluglizenz</h2>
+      <p data-e="pw-e3" class="lead">Bei uns lernst du das Segelfliegen von ehrenamtlichen Fluglehrern – im Verein und damit günstiger, als die meisten denken. Gefragt sind vor allem Zeit und Engagement.</p>
+      <div class="grid">
+        <div class="tile"><div data-e="pw-e4" class="meta">Ab 14 Jahren</div><h3 data-e="pw-e5">Früh starten</h3><p data-e="pw-e6">Mit 14 beginnt die Ausbildung, zum 16. Geburtstag gibt es den Luftfahrerschein.</p></div>
+        <div class="tile"><div data-e="pw-e7" class="meta">Ausbildungsweg</div><h3 data-e="pw-e8">ASK 13 → Ka 8 → ASK 21 → Discus</h3><p data-e="pw-e9">Erst mit Fluglehrer, nach rund 50 Starts der erste Alleinflug.</p></div>
+        <div class="tile"><div data-e="pw-e10" class="meta">Theorie &amp; Prüfung</div><h3 data-e="pw-e11">Im Winter lernen</h3><p data-e="pw-e12">Theorie in den Wintermonaten, danach Prüfung beim Luftamt und praktische Prüfung.</p></div>
+      </div>
+      <div class="btns more-btn">
+        <a data-e="pw-e13" class="btn ghost" href="seiten/pilot-werden.html">Alles zum Pilot werden →</a>
+        <a data-e="pw-e14" class="btn primary datei" href="dokumente/aufnahmeantrag.pdf" download>Aufnahmeantrag (PDF)</a>
+      </div>
+    </div>
+  </section>
+
   <section id="streckenflug" data-title="Streckenflug">
     <div class="card">
-      <div data-e="e116" class="eyebrow">07 · Streckenflug</div>
+      <div data-e="e116" class="eyebrow">08 · Streckenflug</div>
       <h2 data-e="e49">Hunderte Kilometer ohne Motor</h2>
       <p data-e="e50" class="lead">Von Aufwind zu Aufwind, unter Wolkenstraßen entlang, Streckenflüge sind die Königsdisziplin des Segelflugs.</p>
       <div class="grid">
@@ -268,7 +332,7 @@
 
   <section id="werkstatt" data-title="Werkstatt">
     <div class="card">
-      <div data-e="e122" class="eyebrow">08 · Werkstatt</div>
+      <div data-e="e122" class="eyebrow">09 · Werkstatt</div>
       <h2 data-e="e56">Winterarbeit - ein Teil der Fliegerei</h2>
       <p data-e="e57" class="lead">Wenn die Saison vorbei ist, steht die Jährliche Winterwartung unserer Flugzeuge an. Von der ASK 13 über ASK 21 bishin zum Ventus. Als Verein erledigen wir Wartung und Pflege unserer Flugzeuge sowie Fahrzeuge selbt.</p>
       <!-- Zwei Bilder: img/werkstatt/bild-1.jpg und img/werkstatt/bild-2.jpg (Querformat) -->
@@ -282,7 +346,7 @@
 
   <section id="anflug" data-title="Anflug">
     <div class="card">
-      <div data-e="e124" class="eyebrow">09 · Anflug für Piloten</div>
+      <div data-e="e124" class="eyebrow">10 · Anflug für Piloten</div>
       <h2 data-e="e58">Flugplatz Oberhinkofen</h2>
       <p data-e="e59" class="warn"><strong>Hinweis:</strong> Angaben laut bisheriger Vereinswebsite, ohne Gewähr. Vor jedem Flug die aktuellen Daten (AIP VFR, NOTAMs) prüfen und bei der Flugleitung nachfragen.</p>
       <table class="ad">
@@ -302,7 +366,7 @@
 
   <section id="kontakt" data-title="Kontakt">
     <div class="card">
-      <div data-e="e126" class="eyebrow">10 · Kontakt</div>
+      <div data-e="e126" class="eyebrow">11 · Kontakt</div>
       <h2 data-e="e78">Interesse geweckt?</h2>
       <div class="grid" style="align-items:start">
         <div>
@@ -318,7 +382,13 @@
           <button class="btn primary" type="submit" style="cursor:pointer;justify-self:start">Nachricht senden</button>
         </form>
       </div>
-      <footer><span>© 2026 Luftsportverein Regensburg e.&nbsp;V.</span><a href="#">Impressum</a><a href="#">Datenschutz</a><a href="#bearbeiten" rel="nofollow">Bearbeiten</a><span class="credit">3D-Modell basiert auf <a href="https://sketchfab.com/3d-models/ask-21-mi-b69f1e3209ba40dcbb07a662d32736dd">„ASK 21 Mi“</a> von <a href="https://sketchfab.com/helijah">helijah</a>, <a href="http://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a> (verändert)</span></footer>
+      <!-- Eigene Karte des Flugplatzes (img/karte-flugplatz.svg, Daten: OpenStreetMap) -->
+      <h3 data-e="map-h" class="zwischen">So findest du zu uns</h3>
+      <div class="karte">
+        <img src="img/karte-flugplatz.svg" width="1200" height="806" loading="lazy"
+             alt="Karte: Der Flugplatz Oberhinkofen liegt zwischen Oberhinkofen, Piesenkofen und Egglfing südlich von Obertraubling. Navi-Adresse: Einthal, 93083 Obertraubling.">
+      </div>
+      <footer><span>© 2026 Luftsportverein Regensburg e.&nbsp;V.</span><a href="seiten/impressum.html">Impressum</a><a href="#">Datenschutz</a><a href="#bearbeiten" rel="nofollow">Bearbeiten</a></footer>
     </div>
   </section>
 </main>
@@ -452,8 +522,8 @@
     document.querySelectorAll('#fleet .news-card').forEach(c => { c.hidden = c.dataset.kind !== kind; });
   };
   filterBtns.forEach(b => b.addEventListener('click', () => showKind(b.dataset.kind)));
-  // Rückkehr von einer Detailseite (#flotte-segel / #flotte-motor): passende Auswahl zeigen
-  const m = location.hash.match(/^#flotte-(segel|motor)$/);
+  // Rückkehr von einer Detailseite (#flotte-segel / #flotte-motor / #flotte-ehemalig): passende Auswahl zeigen
+  const m = location.hash.match(/^#flotte-(segel|motor|ehemalig)$/);
   showKind(m ? m[1] : 'segel');
   if (m) requestAnimationFrame(() => document.getElementById('flotte').scrollIntoView());
 
