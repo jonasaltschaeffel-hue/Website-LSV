@@ -142,22 +142,30 @@
       Zahlung: 'Überweisung'
     };
 
+    // als Formulardaten senden (keine Vorab-Anfrage nötig) und nach 20 Sekunden aufgeben
+    const fd = new FormData();
+    Object.entries(daten).forEach(([k, v]) => fd.append(k, v));
+    const abbruch = new AbortController();
+    const uhr = setTimeout(() => abbruch.abort(), 20000);
     senden.disabled = true; senden.classList.add('gs-laedt');
+    $('.gs-senden-text').textContent = 'Wird gesendet …';
     try {
-      const r = await fetch(ENDPUNKT, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-        body: JSON.stringify(daten)
-      });
+      const r = await fetch(ENDPUNKT, { method: 'POST', headers: { Accept: 'application/json' }, body: fd, signal: abbruch.signal });
       const antwort = await r.json().catch(() => ({}));
       if (!r.ok || String(antwort.success) !== 'true') throw new Error(antwort.message || 'Fehler');
       form.hidden = true; danke.hidden = false;
       leisteZeigen();
       kasse.scrollIntoView({ behavior: 'smooth', block: 'start' });
     } catch (err) {
-      fehlerZeigen('Die Bestellung konnte gerade nicht gesendet werden. Bitte versuche es in ein paar Minuten noch einmal.', true);
+      // Ausweg: Bestellung fertig vorbereitet per E-Mail-Programm senden
+      const text = Object.entries(daten).filter(([k]) => !k.startsWith('_')).map(([k, v]) => `${k === 'email' ? 'E-Mail' : k}: ${v}`).join('\n');
+      const href = `mailto:${MAIL}?subject=${encodeURIComponent(daten._subject)}&body=${encodeURIComponent(text)}`;
+      fehler.innerHTML = 'Das Senden über die Website klappt gerade nicht. Du kannst die fertige Bestellung stattdessen per E-Mail schicken:'
+        + ` <a class="gs-mail-knopf" href="${esc(href)}">✉️ Bestellung per E-Mail senden</a>`;
     } finally {
+      clearTimeout(uhr);
       senden.disabled = false; senden.classList.remove('gs-laedt');
+      $('.gs-senden-text').textContent = 'Jetzt bestellen';
     }
   });
 
