@@ -26,23 +26,46 @@
     return p;
   }
 
+  const anzahlEl = $('.gs-anzahl'), sendenSumme = $('.gs-senden-summe');
+  const leiste = $('.gs-leiste'), leisteText = $('.gs-leiste-text'), kasse = $('.gs-kasse');
+  const esc = s => s.replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  let kasseSichtbar = false, anzahl = 0;
+  document.body.appendChild(leiste);   // außerhalb des animierten Artikels, sonst klebt sie nicht am Bildschirmrand
+
+  function leisteZeigen(){
+    leiste.hidden = !(anzahl > 0 && !kasseSichtbar && !document.body.classList.contains('lsv-edit'));
+  }
+  if ('IntersectionObserver' in window){
+    new IntersectionObserver(e => { kasseSichtbar = e[0].isIntersecting; leisteZeigen(); }).observe(kasse);
+  }
+
   function zeichnen(){
     const p = positionen();
     liste.innerHTML = '';
     let summe = 0;
+    anzahl = 0;
     p.forEach(pos => {
       summe += pos.n * pos.preis;
+      anzahl += pos.n;
       const li = document.createElement('li');
-      li.innerHTML = `<span>${pos.n}× ${pos.name}</span><span>${euro(pos.n * pos.preis)}</span>`;
+      li.innerHTML = `<span class="gs-pos-n">${pos.n}×</span><span class="gs-pos-name">${esc(pos.name)}<small>je ${euro(pos.preis)}</small></span><span class="gs-pos-preis">${euro(pos.n * pos.preis)}</span>`;
       const x = document.createElement('button');
-      x.type = 'button'; x.className = 'gs-weg'; x.setAttribute('aria-label', 'Entfernen'); x.textContent = '×';
+      x.type = 'button'; x.className = 'gs-weg'; x.setAttribute('aria-label', 'Entfernen'); x.title = 'Entfernen'; x.textContent = '×';
       x.onclick = () => { if (pos.el) setze(pos.el, 0); else { wert.splice(pos.wert, 1); zeichnen(); } };
       li.appendChild(x);
       liste.appendChild(li);
     });
     leer.hidden = p.length > 0;
     summeEl.textContent = euro(summe);
+    anzahlEl.textContent = anzahl; anzahlEl.hidden = anzahl === 0;
+    sendenSumme.textContent = summe ? '· ' + euro(summe) : '';
+    leisteText.textContent = `${anzahl} ${anzahl === 1 ? 'Gutschein' : 'Gutscheine'} · ${euro(summe)}`;
     shop.classList.toggle('gs-voll', p.length > 0);
+    leisteZeigen();
+  }
+
+  function stupsen(el){
+    el.classList.remove('gs-stups'); void el.offsetWidth; el.classList.add('gs-stups');
   }
 
   function setze(el, n){
@@ -51,10 +74,12 @@
     $('output', el).textContent = n;
     el.classList.toggle('gs-aktiv', n > 0);
     zeichnen();
+    stupsen(anzahlEl);
   }
 
   shop.querySelectorAll('.gs-produkt:not(.gs-wert)').forEach(el => {
     mengen.set(el, 0);
+    $('.gs-waehlen', el).addEventListener('click', () => { setze(el, 1); $('.gs-plus', el).focus(); });
     $('.gs-plus', el).addEventListener('click', () => setze(el, mengen.get(el) + 1));
     $('.gs-minus', el).addEventListener('click', () => setze(el, mengen.get(el) - 1));
   });
@@ -66,6 +91,9 @@
     betrag.setCustomValidity('');
     wert.push(b);
     zeichnen();
+    stupsen(anzahlEl);
+    const knopf = $('.gs-add'); knopf.textContent = 'Hinzugefügt ✓';
+    setTimeout(() => knopf.textContent = 'Hinzufügen', 1500);
   });
   betrag.addEventListener('input', () => betrag.setCustomValidity(''));
 
