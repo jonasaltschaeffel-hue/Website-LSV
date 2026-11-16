@@ -320,6 +320,12 @@
   const nid = () => 'b' + Math.random().toString(36).slice(2, 8);
   // geschützte Bereiche (für neue Artikel, Flotten-Auswahl, Formular, Zurück-Link)
   const isProtected = b => b.matches('.news, .filter, form, a.back') || !!b.querySelector('#fleet, form');
+  // Bild-Werkzeug: Größen und Bildreihen (nebeneinander)
+  const SIZES = ['bild-s', 'bild-m', 'bild-l'];
+  const isRow = el => !!el && el.classList.contains('bild-reihe');
+  const isImgBlock = el => !!el && (el.classList.contains('bild-block') || isRow(el));
+  const sizeOf = el => SIZES.find(c => el.classList.contains(c)) || '';
+  const canJoin = b => { const n = sib(b, 1); return isImgBlock(b) && isImgBlock(n) && !(isRow(b) && isRow(n)); };
 
   /** gleiche Operation auf Live-Seite und auf den Quelltext anwenden */
   function applyOp(container, op){
@@ -329,6 +335,25 @@
     else if (op.type === 'up'){ const p = sib(t, -1); if (p) p.before(t); }
     else if (op.type === 'down'){ const n = sib(t, 1); if (n) n.after(t); }
     else if (op.type === 'toggle') t.classList.toggle(op.cls);
+    else if (op.type === 'size'){ SIZES.forEach(c => t.classList.remove(c)); if (op.cls) t.classList.add(op.cls); }
+    else if (op.type === 'join'){
+      // Bild mit dem nächsten Bild nebeneinander stellen (Bildreihe)
+      const n = sib(t, 1); if (!n) return;
+      if (!isRow(t) && !isRow(n)){
+        const r = t.ownerDocument.createElement('div'); r.className = 'bild-reihe';
+        [...t.classList].filter(c => SIZES.includes(c)).forEach(c => { t.classList.remove(c); r.classList.add(c); });
+        SIZES.forEach(c => n.classList.remove(c));
+        t.before(r); r.append(t, n);
+      }
+      else if (isRow(t) && !isRow(n)){ SIZES.forEach(c => n.classList.remove(c)); t.append(n); }
+      else if (!isRow(t) && isRow(n)){ SIZES.forEach(c => t.classList.remove(c)); n.prepend(t); }
+    }
+    else if (op.type === 'split'){
+      // Bildreihe auflösen: Bilder wieder untereinander
+      const items = kids(t), s = sizeOf(t);
+      if (s) items.forEach(i => i.classList.add(s));   // Größe der Reihe bleibt für die einzelnen Bilder
+      t.before(...items); t.remove();
+    }
     else if (op.type === 'insert' || op.type === 'appendRow'){
       const tpl = t.ownerDocument.createElement('template'); tpl.innerHTML = op.html;
       const nodes = [...tpl.content.childNodes];
@@ -354,13 +379,28 @@
     const target = nodeAt(info.container, op.path);
     const pos = {parent: target.parentNode, next: target.nextSibling};
     const register = el => { if (el) (el.matches('[data-e]:not(img)') ? [el] : []).concat([...el.querySelectorAll('[data-e]:not(img)')]).forEach(setupEditable); };
+    // Zustand für das Rückgängigmachen der Bild-Werkzeuge merken
+    const nextEl = sib(target, 1);
+    const prevSize = sizeOf(target), nextSize = nextEl ? sizeOf(nextEl) : '';
+    const joinCase = op.type === 'join' ? (isRow(target) ? 'append' : isRow(nextEl) ? 'prepend' : 'wrap') : '';
+    const splitItems = op.type === 'split' ? kids(target) : [];
     let created = applyOp(info.container, live);
     ops.push(full); updateSave();
     register(created);              // neue Texte sofort bearbeitbar machen
     hideBlockBar();
     pushHist({
       undo(){
-        if (op.type === 'toggle') target.classList.toggle(op.cls);
+        if (op.type === 'size') applyOp(info.container, {type: 'size', path: op.path, cls: prevSize});
+        else if (op.type === 'join'){
+          const r = joinCase === 'prepend' ? nextEl : joinCase === 'append' ? target : target.parentNode;   // die Bildreihe
+          if (joinCase === 'wrap'){ r.before(target, nextEl); r.remove(); if (prevSize) target.classList.add(prevSize); }
+          else if (joinCase === 'append') r.after(nextEl);
+          else r.before(target);
+          if (prevSize && joinCase === 'prepend') target.classList.add(prevSize);
+          if (nextSize && joinCase !== 'prepend') nextEl.classList.add(nextSize);
+        }
+        else if (op.type === 'split'){ splitItems.forEach(i => SIZES.forEach(c => i.classList.remove(c))); splitItems[0].before(target); target.append(...splitItems); }
+        else if (op.type === 'toggle') target.classList.toggle(op.cls);
         else if (created) created.remove();
         else pos.parent.insertBefore(target, pos.next);         // entfernen / verschieben rückgängig
         ops.splice(ops.lastIndexOf(full), 1); updateSave();
@@ -395,6 +435,16 @@
     <button type="button" data-a="up" title="Nach oben">↑</button>
     <button type="button" data-a="down" title="Nach unten">↓</button>
     <button type="button" data-a="line" title="Trennlinie an/aus">┄</button>
+    <span class="lsv-imgtools">
+      <span class="lsv-sep"></span>
+      <button type="button" data-a="size" data-c="bild-s" title="Bild klein">S</button>
+      <button type="button" data-a="size" data-c="bild-m" title="Bild mittel">M</button>
+      <button type="button" data-a="size" data-c="bild-l" title="Bild groß">L</button>
+      <button type="button" data-a="size" data-c="" title="Volle Breite">▭</button>
+      <button type="button" data-a="join" title="Mit dem nächsten Bild nebeneinander stellen">⇆ nebeneinander</button>
+      <button type="button" data-a="split" title="Bilder wieder untereinander">⇅ untereinander</button>
+      <span class="lsv-sep"></span>
+    </span>
     <button type="button" data-a="del" title="Entfernen">✕</button>`;
   document.body.appendChild(bb);
   const menu = document.createElement('div');
@@ -407,6 +457,15 @@
     if (cb) cb.block.classList.remove('lsv-block-hover');
     cb = info; menu.style.display = 'none';
     info.block.classList.add('lsv-block-hover');
+    // Bild-Werkzeug nur bei Bildern und Bildreihen
+    const img = isImgBlock(info.block) && !info.inGrid;
+    bb.querySelector('.lsv-imgtools').style.display = img ? 'contents' : 'none';
+    if (img){
+      const cur = sizeOf(info.block);
+      bb.querySelectorAll('[data-a="size"]').forEach(b => b.classList.toggle('lsv-on', b.dataset.c === cur));
+      bb.querySelector('[data-a="join"]').style.display = canJoin(info.block) ? '' : 'none';
+      bb.querySelector('[data-a="split"]').style.display = isRow(info.block) ? '' : 'none';
+    }
     const r = info.block.getBoundingClientRect();
     bb.style.display = 'flex';
     bb.style.top = (r.top + scrollY - 34) + 'px';
@@ -429,12 +488,15 @@
     else if (act === 'up' || act === 'down') doOp(info, {type: act, path: info.path});
     else if (act === 'line') doOp(info, {type: 'toggle', cls: 'ohne-linie', path: info.path});
     else if (act === 'add') showAddMenu(info);
+    else if (act === 'size'){ if (a.dataset.c !== sizeOf(info.block)) doOp(info, {type: 'size', cls: a.dataset.c, path: info.path}); }
+    else if (act === 'join'){ if (canJoin(info.block)) doOp(info, {type: 'join', path: info.path}); }
+    else if (act === 'split'){ if (isRow(info.block)) doOp(info, {type: 'split', path: info.path}); }
   });
 
   function showAddMenu(info){
     const items = info.inTable ? [['row', '≡ Tabellenzeile darunter']]
       : info.inGrid ? [['tile', '▦ Kachel'], ['img', '🖼 Bild-Kachel']]
-      : [['img', '🖼 Bild'], ['hr', '— Trennstrich'], ['p', '¶ Absatz'], ['h', 'H Zwischenüberschrift']]
+      : [['img', '🖼 Bild'], ['file', '📎 Datei zum Herunterladen'], ['hr', '— Trennstrich'], ['p', '¶ Absatz'], ['h', 'H Zwischenüberschrift']]
           .concat(info.block.tagName === 'TABLE' ? [['rowEnd', '≡ Tabellenzeile (am Ende)']] : []);
     menu.innerHTML = items.map(([k, l]) => `<button type="button" data-k="${k}">${l}</button>`).join('');
     const r = bb.getBoundingClientRect();
@@ -464,8 +526,79 @@
           doOp(info, {type: 'insert', path: info.path, html: html(toRoot + path)}, {type: 'insert', path: info.path, html: html(im.url)});
         } catch (err){ toast(err.message, true); }
       }
+      if (k === 'file'){
+        const file = await pickFile(); if (!file) return;
+        try {
+          const f = await prepareFile(file);
+          const path = `dokumente/${f.slug}-${id}.${f.ext}`;
+          pendingImgs.push({path, bytes: f.bytes});          // wird beim Speichern mit hochgeladen
+          const html = href => `<div class="downloads"><a data-e="${id}" class="btn primary datei" href="${href}" download>${LSVCms.esc(f.label)}</a></div>`;
+          doOp(info, {type: 'insert', path: info.path, html: html(toRoot + path)}, {type: 'insert', path: info.path, html: html(f.url)});
+          toast('Datei eingefügt – zum Hochladen bitte „Speichern“ klicken');
+        } catch (err){ toast(err.message, true); }
+      }
     };
   }
+
+  /* ---------------- Dateien (PDF, Word …) anhängen & ersetzen ---------------- */
+  const FILE_TYPES = {pdf: 'PDF', doc: 'Word', docx: 'Word', odt: 'Text', xls: 'Excel', xlsx: 'Excel', ods: 'Tabelle', txt: 'Text'};
+  async function prepareFile(file){
+    const m = /\.([a-z0-9]+)$/i.exec(file.name), ext = m ? m[1].toLowerCase() : '';
+    if (!FILE_TYPES[ext]) throw new Error('Erlaubt sind PDF-, Word-, Excel-, OpenOffice- und Textdateien.');
+    if (file.size > 20 * 1024 * 1024) throw new Error('Die Datei ist größer als 20 MB.');
+    const base = file.name.replace(/\.[^.]+$/, '').replace(/[_-]+/g, ' ').trim() || 'Datei';
+    return {
+      bytes: new Uint8Array(await file.arrayBuffer()), ext,
+      slug: LSVCms.slugify(base).slice(0, 50) || 'datei',
+      label: `${base} (${FILE_TYPES[ext]})`,
+      url: URL.createObjectURL(file)
+    };
+  }
+  const pickFile = () => new Promise(res => {
+    const input = document.createElement('input');
+    input.type = 'file'; input.accept = Object.keys(FILE_TYPES).map(e => '.' + e).join(',');
+    input.onchange = () => res(input.files[0] || null);
+    input.click();
+  });
+  // Pfad im Repository zu einem Link der Seite (z. B. "../dokumente/x.pdf" -> "dokumente/x.pdf")
+  const repoPath = href => {
+    const root = new URL(toRoot || './', location.href).pathname;
+    const p = decodeURIComponent(new URL(href, location.href).pathname);
+    return p.startsWith(root) ? p.slice(root.length) : null;
+  };
+  document.querySelectorAll('main a.datei[data-e]').forEach(a => {
+    const btn = document.createElement('button');
+    btn.type = 'button'; btn.className = 'lsv-go lsv-file-btn lsv-ui'; btn.textContent = '📎 Datei ersetzen';
+    btn.title = 'Neue Version dieser Datei hochladen';
+    (a.nextElementSibling && a.nextElementSibling.classList.contains('lsv-go') ? a.nextElementSibling : a).after(btn);
+    btn.addEventListener('click', async ev => {
+      ev.preventDefault(); ev.stopPropagation();
+      const file = await pickFile(); if (!file) return;
+      btn.textContent = 'Lade hoch …';
+      try {
+        const f = await prepareFile(file);
+        const old = repoPath(a.getAttribute('href'));
+        if (!old || !old.startsWith('dokumente/')) throw new Error('Diese Datei liegt nicht im Ordner „dokumente“.');
+        const oldExt = (/\.([a-z0-9]+)$/i.exec(old) || [])[1];
+        if (oldExt && oldExt.toLowerCase() === f.ext){
+          // gleicher Dateityp: einfach unter demselben Namen ersetzen – alle Links bleiben gültig
+          await gh.commit([{path: old, bytes: f.bytes}], `Datei ersetzt: ${old}`);
+          toast('Datei gespeichert ✓ – in ca. 1 Minute online');
+        } else {
+          const neu = old.replace(/\.[^./]+$/, '') + '.' + f.ext;
+          let src = await gh.getText(rel);
+          const re = new RegExp('<a\\b[^>]*\\sdata-e="' + a.dataset.e + '"[^>]*>');
+          const m = re.exec(src); if (!m) throw new Error('Link wurde in der Datei nicht gefunden.');
+          const tag = m[0].replace(/\shref="[^"]*"/, ' href="' + toRoot + neu + '"');
+          src = src.slice(0, m.index) + tag + src.slice(m.index + m[0].length);
+          await gh.commit([{path: neu, bytes: f.bytes}, {path: rel, text: src}], `Datei ersetzt: ${neu}`);
+          a.setAttribute('href', toRoot + neu);
+          toast(`Datei gespeichert ✓ – der Link zeigt jetzt auf „${neu}“. Verweisen andere Seiten auf „${old}“, bitte dort ebenfalls ersetzen.`, false, 9000);
+        }
+      } catch (err){ toast('Datei nicht gespeichert: ' + err.message, true); }
+      btn.textContent = '📎 Datei ersetzen';
+    });
+  });
 
   /* ---------------- Bilder: verkleinern & hochladen ---------------- */
   async function prepareImage(file, maxW = 2000){

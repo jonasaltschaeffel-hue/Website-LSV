@@ -173,7 +173,7 @@ window.LSVCms = (() => {
       const name = (f.name || '').trim(); if (!name) throw new Error('Bitte einen Namen angeben.');
       const st = await this.load(gh);
       const slug = unique(slugify(name), st.planes.map(p => p.slug));
-      const kind = f.kind === 'motor' ? 'motor' : 'segel', files = [];
+      const kind = ['segel', 'motor', 'ehemalig'].includes(f.kind) ? f.kind : 'segel', files = [];
       let img = `img/flotte/${slug}.jpg`;
       if (f.bild && f.bild.size){ const im = await prepareImage(f.bild); img = `img/flotte/${slug}.${im.ext}`; files.push({path: img, bytes: im.bytes}); }
       // Detailseite aus einer bestehenden Flugzeugseite als Vorlage

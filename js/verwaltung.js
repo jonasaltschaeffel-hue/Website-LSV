@@ -113,14 +113,14 @@
   /* ---------------- Flotte ---------------- */
   async function renderFleet(panel){
     const st = await LSVCms.fleet.load(gh);
-    panel.innerHTML = `<h2>Flotte</h2><p class="hint">Reihenfolge wie auf der Startseite. Texte und technische Daten bearbeitest du direkt auf der Website im Bearbeitungsmodus.</p>
+    panel.innerHTML = `<h2>Flotte</h2><p class="hint">Reihenfolge wie auf der Startseite. Verkaufte Flugzeuge einfach auf „Ehemalig“ stellen. Texte und technische Daten bearbeitest du direkt auf der Website im Bearbeitungsmodus.</p>
       <p><button class="b main" id="new">+ Flugzeug hinzufügen</button></p><div id="list"></div>`;
     const list = $('#list', panel);
     st.planes.forEach((p, i) => {
       const r = document.createElement('div'); r.className = 'row';
       r.innerHTML = `<img src="${img(p.img)}" alt="" onerror="this.style.visibility='hidden'">
         <div class="info"><div class="t">${p.name}</div><div class="s">${p.meta}</div></div>
-        <select data-a="kind" title="Art"><option value="segel"${p.kind === 'segel' ? ' selected' : ''}>Segelflugzeug</option><option value="motor"${p.kind === 'motor' ? ' selected' : ''}>Motorflugzeug</option></select>
+        <select data-a="kind" title="Art"><option value="segel"${p.kind === 'segel' ? ' selected' : ''}>Segelflugzeug</option><option value="motor"${p.kind === 'motor' ? ' selected' : ''}>Motorflugzeug</option><option value="ehemalig"${p.kind === 'ehemalig' ? ' selected' : ''}>Ehemalig</option></select>
         <div class="btns"><button class="b" data-a="up" ${i === 0 ? 'disabled' : ''}>↑</button><button class="b" data-a="down" ${i === st.planes.length - 1 ? 'disabled' : ''}>↓</button>
         <a class="b" href="../${p.href}" target="_blank">Öffnen</a><button class="b del" data-a="del">Löschen</button></div>`;
       $('select', r).onchange = e => run(() => LSVCms.fleet.setKind(gh, p.slug, e.target.value), 'Art geändert');
@@ -134,7 +134,7 @@
     $('#new', panel).onclick = async () => {
       const fd = await dialog('Flugzeug hinzufügen', `
         <label>Name<input name="name" required placeholder="z. B. ASK 21"></label>
-        <label>Art<select name="kind"><option value="segel">Segelflugzeug</option><option value="motor">Motorflugzeug</option></select></label>
+        <label>Art<select name="kind"><option value="segel">Segelflugzeug</option><option value="motor">Motorflugzeug</option><option value="ehemalig">Ehemaliges Flugzeug</option></select></label>
         <label>Zeile über dem Namen<input name="meta" placeholder="z. B. Doppelsitzer · Schulung"></label>
         <label>Kurztext für die Karte<textarea name="kurz" rows="2"></textarea></label>
         <label>Beschreibung<small>Leerzeile = neuer Absatz</small><textarea name="text" rows="4"></textarea></label>

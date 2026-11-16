@@ -37,24 +37,54 @@ float billow(vec2 p){
 
 // Dichte einer Cumulus-Schicht. p.y = Höhe über der Wolkenbasis.
 // hq = 1.0 für den sichtbaren Punkt (mit Feindetail), 0.0 für Schattenproben.
+// Einzelne, kompakte Quellwolken: pro Zelle höchstens eine Wolke mit zufälliger Lage,
+// Breite und Höhe. Jede Wolke besteht aus einem Hauptturm und zwei Nebentürmen (Kuppeln),
+// dazwischen bleibt freier blauer Himmel – keine langen, zusammenhängenden Bänder.
+const float CW = 2.3;   // Zellbreite (mittlerer Abstand der Wolken)
+float dome(float x, float c, float w, float h){
+  float t = (x - c) / w;
+  return h * sqrt(max(0.0, 1.0 - t * t));
+}
+float cloudHeight(float x, float seed){
+  float cell = floor(x / CW);
+  float H = 0.0;
+  for (int k = -1; k <= 1; k++){
+    float id = cell + float(k);
+    vec2 s = vec2(id, seed);
+    if (hash(s + 0.17) < 0.30) continue;                 // hier steht keine Wolke
+    float wv = CW * (0.20 + 0.17 * hash(s + 1.3));         // halbe Breite
+    float c  = (id + 0.5 + (hash(s + 2.9) - 0.5) * 0.45) * CW;
+    float h  = wv * (0.55 + 0.30 * hash(s + 4.1));         // Höhe: etwa ein Drittel der Breite
+    H = max(H, dome(x, c, wv, h));
+    // Nebentürme seitlich, etwas niedriger
+    float c1 = c - wv * (0.35 + 0.30 * hash(s + 5.7));
+    float c2 = c + wv * (0.35 + 0.30 * hash(s + 6.3));
+    H = max(H, dome(x, c1, wv * (0.45 + 0.15 * hash(s + 7.1)), h * (0.55 + 0.25 * hash(s + 8.9))));
+    H = max(H, dome(x, c2, wv * (0.45 + 0.15 * hash(s + 9.4)), h * (0.60 + 0.30 * hash(s + 3.6))));
+  }
+  return H;
+}
+
 float cloud(vec2 p, float seed, float hq){
   // wo stehen Wolken und wie hoch sind sie (günstig, vorab)
-  float x  = p.x + (noise(p * 0.9 + seed) - 0.5) * 0.5;
-  float n  = noise(vec2(x * 0.55 + seed * 1.7, seed));
-  float n2 = noise(vec2(x * 1.30 + seed * 3.1, 2.7 + seed));
-  float H  = max(0.0, n - 0.40) * 3.0 + max(0.0, n2 - 0.55) * 1.1;
-  H = 1.3 * (1.0 - exp(-H / 1.3));   // Wolkenhöhe weich begrenzen
+  float x  = p.x + (noise(p * 0.9 + seed) - 0.5) * 0.25;
+  float H  = cloudHeight(x, seed);
   // freier Himmel: teure Berechnung überspringen
   if (p.y > H + 0.6) return 0.0;
 
   vec2 w = vec2(fbm(p * 0.9 + seed), fbm(p * 0.9 + seed + 7.3)) - 0.5;
   vec2 q = p + w * 0.55;
   float d  = (H - q.y) * 2.2;
-  d += (billow(q * 2.6 + seed) - 0.35) * 0.9;
+  d += (billow(q * 3.2 + seed) - 0.35) * 1.0;   // Blumenkohl-Quellungen an der Oberseite
   if (hq > 0.5) d += (fbm(q * 7.0 - seed) - 0.5) * 0.25;
-  // glatte, flache Wolkenbasis (Kondensationsniveau) – typische Segelflieger-Cumuli
-  float baseY = p.y + (noise(vec2(p.x * 1.5, seed)) - 0.5) * 0.025;
-  d *= smoothstep(0.0, 0.045, baseY);
+  // Wolkenbasis (Kondensationsniveau): im Großen flach, aber nicht wie mit dem Lineal gezogen –
+  // sanfte, großzügige Wellen, eine feine ruhige Struktur und an den Rändern weich nach oben gezogen.
+  float wave   = (noise(vec2(p.x * 0.9, seed + 2.0)) - 0.5) * 0.09      // lange, flache Wellen
+               + (noise(vec2(p.x * 3.2, seed + 7.0)) - 0.5) * 0.035;    // feinere, ruhige Struktur
+  float lift   = (1.0 - smoothstep(0.02, 0.35, H)) * 0.10;              // Ränder biegen nach oben
+  float bumps  = (billow(vec2(p.x * 5.0, p.y * 2.0 + seed)) - 0.35) * 0.03; // leichte Unregelmäßigkeit
+  float baseY = p.y - wave - lift - bumps;
+  d *= smoothstep(0.0, 0.085, baseY);
   // keine dünnen Ausläufer entlang der Basis: nur wo eine echte Quellung steht
   d *= smoothstep(0.0, 0.14, H);
   return clamp(d, 0.0, 1.0);
@@ -109,11 +139,13 @@ void layer(inout vec3 col, vec2 uv, float aspect, float scale, float base, float
   float nearS = exp(-length(uv - s) * 1.5);            // Nähe zur Sonne
   float light = clamp(1.0 - occl * 1.15, 0.0, 1.0);
 
-  vec3 dark = vec3(0.41, 0.44, 0.52);   // dicker Wolkenkern im Gegenlicht
-  vec3 mid  = vec3(0.68, 0.70, 0.77);
+  vec3 dark = vec3(0.50, 0.53, 0.61);   // dicker Wolkenkern im Schatten
+  vec3 mid  = vec3(0.76, 0.78, 0.84);
   vec3 lit  = vec3(0.98, 0.98, 0.99);
   vec3 c = mix(dark, mid, light);
-  c = mix(c, lit, clamp(light * light * 0.9 + thin * 0.5, 0.0, 1.0));
+  // Oberseite sonnenbeschienen weiß, nach unten hin grauer
+  float top = smoothstep(0.15, 0.7, p.y);
+  c = mix(c, lit, clamp(light * light * 0.9 + thin * 0.5 + top * 0.35, 0.0, 1.0));
   // Silberrand – je näher an der Sonne, desto heller
   c += vec3(1.0, 0.99, 0.96) * thin * (0.12 + nearS * 0.55);
   // dunklere, leicht bläuliche Wolkenbasis
@@ -145,6 +177,8 @@ void main(){
   const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
   const canvas = document.getElementById('sky');
   if (!canvas) return;
+  // Info-Unterseiten (body.artikel) zeigen statt Wolken einen ruhigen hellblauen Verlauf
+  if (document.body.classList.contains('artikel')) return;
   const gl = canvas.getContext('webgl', {antialias: false, alpha: false, premultipliedAlpha: false});
   if (!gl) return; // Fallback: CSS-Farbverlauf des Canvas bleibt sichtbar
     const sh = (type, src) => {
