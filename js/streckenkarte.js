@@ -33,6 +33,12 @@
     }
     return out;
   };
+  // Ländergrenzen (Natural Earth, gemeinfrei) aus daten/laender.json
+  let laender = null;
+  fetch(new URL('../daten/laender.json', document.currentScript.src).href)
+    .then(r => r.json())
+    .then(j => { laender = j.laender.flatMap(l => l.r.map(r => ({de: l.n === 'DE', pts: dekodieren(r)}))); if (!anim) zeichnen(); })
+    .catch(() => {});
   const datum = d => d ? d.split('-').reverse().join('.') : '';
   const zahl = n => n.toLocaleString('de-DE');
 
@@ -60,6 +66,19 @@
     ctx.strokeStyle = 'rgba(255,255,255,.05)'; ctx.lineWidth = 1;
     for (let g = 0; g < W; g += 48){ ctx.beginPath(); ctx.moveTo(g + .5, 0); ctx.lineTo(g + .5, H); ctx.stroke(); }
     for (let g = 0; g < H; g += 48){ ctx.beginPath(); ctx.moveTo(0, g + .5); ctx.lineTo(W, g + .5); ctx.stroke(); }
+
+    // Ländergrenzen
+    if (laender){
+      ctx.lineWidth = 1; ctx.lineJoin = 'round';
+      laender.forEach(l => {
+        ctx.beginPath();
+        l.pts.forEach((p, j) => { const [x, y] = P(p); j ? ctx.lineTo(x, y) : ctx.moveTo(x, y); });
+        ctx.closePath();
+        ctx.fillStyle = l.de ? 'rgba(255,255,255,.055)' : 'rgba(255,255,255,.025)';
+        ctx.strokeStyle = 'rgba(170,200,235,.38)';
+        ctx.fill(); ctx.stroke();
+      });
+    }
 
     // Orte zur Orientierung
     ctx.font = '500 11px Barlow, sans-serif'; ctx.textBaseline = 'middle';
@@ -96,8 +115,8 @@
 
     // Maßstab
     const km100 = P([HEIM.lng + 100 / (111.32 * Math.cos(HEIM.lat * Math.PI / 180)), HEIM.lat])[0] - hx;
-    let km = 100, len = km100;
-    if (len > W * .3){ km = 50; len /= 2; } else if (len < 40){ km = 200; len *= 2; }
+    const proKm = km100 / 100;
+    const km = [500, 200, 100, 50, 20, 10, 5, 2, 1].find(k => k * proKm <= W * .25) || 1, len = km * proKm;
     ctx.strokeStyle = 'rgba(232,241,251,.7)'; ctx.lineWidth = 2;
     ctx.beginPath(); ctx.moveTo(W - 16 - len, H - 18); ctx.lineTo(W - 16, H - 18); ctx.stroke();
     ctx.beginPath(); ctx.moveTo(W - 16 - len, H - 23); ctx.lineTo(W - 16 - len, H - 13); ctx.moveTo(W - 16, H - 23); ctx.lineTo(W - 16, H - 13); ctx.stroke();
@@ -111,7 +130,7 @@
     const schritt = t => {
       const p = dauer ? Math.min(1, (t - t0) / dauer) : 1;
       zeichnen(1 - Math.pow(1 - p, 3));
-      if (p < 1) anim = requestAnimationFrame(schritt);
+      anim = p < 1 ? requestAnimationFrame(schritt) : 0;
     };
     anim = requestAnimationFrame(schritt);
   }
@@ -159,16 +178,105 @@
   cv.addEventListener('pointerleave', () => { if (gewaehlt >= 0){ gewaehlt = -1; info.classList.remove('an'); zeichnen(); } });
   new ResizeObserver(() => { cancelAnimationFrame(anim); zeichnen(); }).observe(karte);
 
+  function aufbauen(idx){
+    const liste = [...idx.saisons].sort((a, b) => b - a);
+    jahre.innerHTML = liste.map(j => `<button type="button" role="tab" data-jahr="${j}">${j}</button>`).join('');
+    jahre.querySelectorAll('button').forEach(b => b.addEventListener('click', () => saison(+b.dataset.jahr)));
+    standEl.textContent = idx.stand ? 'Stand: ' + datum(idx.stand) : '';
+    saison(liste[0]);
+  }
   (async () => {
-    try {
-      const idx = await (await fetch(DATEN + 'index.json', {cache: 'no-cache'})).json();
-      const liste = [...idx.saisons].sort((a, b) => b - a);
-      jahre.innerHTML = liste.map(j => `<button type="button" role="tab" data-jahr="${j}">${j}</button>`).join('');
-      jahre.querySelectorAll('button').forEach(b => b.addEventListener('click', () => saison(+b.dataset.jahr)));
-      if (idx.stand) standEl.textContent = 'Stand: ' + datum(idx.stand);
-      saison(liste[0]);
-    } catch {
-      leer.textContent = 'Die Strecken werden gerade vorbereitet und erscheinen in Kürze.';
-    }
+    try { aufbauen(await (await fetch(DATEN + 'index.json', {cache: 'no-cache'})).json()); }
+    catch { leer.textContent = 'Die Strecken werden gerade vorbereitet und erscheinen in Kürze.'; }
   })();
+
+  /* ---------- Bearbeitungsmodus: Strecken aktualisieren ----------
+     Die Daten holt das Lesezeichen „LSV-Strecken holen“ auf www.weglide.org (js/strecken-holen.js)
+     und schickt sie hierher; gespeichert wird wie alles andere über GitHub (js/lsv-github.js). */
+  let angemeldet = false;
+  try { angemeldet = !!sessionStorage.getItem('lsv-edit-session'); } catch {}
+  if (!angemeldet) return;
+
+  const HOLEN = new URL('strecken-holen.js', document.currentScript.src).href;
+  const WEGLIDE = 'https://www.weglide.org/club/145';
+  const stil = document.createElement('style');
+  stil.textContent = `
+    .sf-admin{margin:-14px 0 30px;padding:16px 18px;border:2px dashed #f08a24;border-radius:14px;background:rgba(255,255,255,.75);font-size:15px;line-height:1.45}
+    .sf-admin-kopf{color:#b25d0b}
+    .sf-admin-knoepfe{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0 8px}
+    .sf-admin .sf-akt,.sf-admin .sf-datei{font:600 15px/1 Barlow,sans-serif;padding:10px 16px;border-radius:999px;cursor:pointer;border:1.5px solid #0d2440}
+    .sf-admin .sf-akt{background:#0d2440;color:#fff}
+    .sf-admin .sf-datei{background:#fff;color:#0d2440}
+    .sf-admin .sf-schritte{margin:4px 0 8px 22px}
+    .sf-admin details{margin-top:6px}
+    .sf-admin summary{cursor:pointer;font-weight:600}
+    .sf-admin details p{margin:8px 0}
+    #sf-box ~ .sf-admin a.sf-lesezeichen{display:inline-block;padding:9px 16px;border-radius:999px;background:#ffc72c;color:#0d2440;font-weight:700;text-decoration:none;cursor:grab;box-shadow:0 4px 12px rgba(0,0,0,.15)}
+    .sf-admin .sf-hinweis{font-size:13px;opacity:.75}
+    .sf-admin .sf-status:not(:empty){margin-top:10px;padding:8px 12px;border-radius:10px;background:#eef4fb}
+    .sf-admin .sf-status[data-art="ok"]{background:#e3f6ea;color:#17602f}
+    .sf-admin .sf-status[data-art="warn"]{background:#fff4dc;color:#7a4a00}
+    .sf-admin .sf-status[data-art="fehler"]{background:#fde6e9;color:#8a1426}`;
+  document.head.appendChild(stil);
+  const admin = document.createElement('div');
+  admin.className = 'sf-admin';
+  admin.innerHTML = `
+    <div class="sf-admin-kopf"><b>Bearbeitungsmodus</b> · Strecken von WeGlide aktualisieren</div>
+    <div class="sf-admin-knoepfe">
+      <button type="button" class="sf-akt">✈️ Strecken aktualisieren</button>
+      <label class="sf-datei">Datei hochladen<input type="file" accept=".json,application/json" hidden></label>
+    </div>
+    <ol class="sf-schritte">
+      <li>„Strecken aktualisieren“ klicken – WeGlide öffnet sich in einem neuen Tab.</li>
+      <li>Dort in der Lesezeichenleiste auf <b>„LSV-Strecken holen“</b> klicken.</li>
+      <li>Warten, bis „Fertig“ erscheint – die Karte hier wird dann automatisch gespeichert.</li>
+    </ol>
+    <details class="sf-einrichten"><summary>Einmalig einrichten: Lesezeichen anlegen</summary>
+      <p>Zieh diesen Knopf mit der Maus in deine Lesezeichenleiste (Chrome/Edge: Lesezeichenleiste mit Strg+Umschalt+B einblenden):</p>
+      <p><a class="sf-lesezeichen" title="In die Lesezeichenleiste ziehen">⭐ LSV-Strecken holen</a></p>
+      <p class="sf-hinweis">Das Lesezeichen funktioniert nur auf www.weglide.org. Es liest die öffentlichen Flugdaten des Vereins und übergibt sie an diese Seite.</p>
+    </details>
+    <div class="sf-status" aria-live="polite"></div>`;
+  box.after(admin);
+  const lz = admin.querySelector('.sf-lesezeichen');
+  lz.setAttribute('href', `javascript:(()=>{const s=document.createElement('script');s.src='${HOLEN}?'+Date.now();document.body.appendChild(s)})()`);
+  lz.addEventListener('click', ev => { ev.preventDefault(); status('Den Knopf bitte nicht anklicken, sondern in die Lesezeichenleiste <b>ziehen</b>.', 'warn'); });
+  const statusEl = admin.querySelector('.sf-status');
+  const status = (html, art) => { statusEl.innerHTML = html; statusEl.dataset.art = art || ''; };
+
+  const laden = src => new Promise((ok, fail) => { const s = document.createElement('script'); s.src = src; s.onload = ok; s.onerror = fail; document.head.appendChild(s); });
+  async function speichern(paket){
+    if (!paket || paket.typ !== 'lsv-strecken' || !paket.dateien) throw new Error('Das sind keine Streckendaten.');
+    const files = [];
+    for (const [path, text] of Object.entries(paket.dateien)){
+      if (!/^daten\/strecken\/(\d{4}|index)\.json$/.test(path) || typeof text !== 'string') throw new Error('Unerwartete Datei: ' + path);
+      JSON.parse(text);                                         // muss gültiges JSON sein
+      files.push({path, text});
+    }
+    if (!window.LSVGit) await laden(new URL('lsv-github.js', document.currentScript?.src || HOLEN).href);
+    const s = LSVGit.session.get();
+    if (!s) throw new Error('Nicht mehr angemeldet – bitte neu im Bearbeitungsmodus anmelden.');
+    status('Speichere bei GitHub …');
+    await LSVGit.client(s.cfg, s.token).commit(files, `Streckenflüge von WeGlide aktualisiert (${paket.neu || 0} neue Flüge)`);
+    // Karte sofort mit den neuen Daten zeigen (die Website selbst ist nach ca. 1 Minute aktuell)
+    for (const [path, text] of Object.entries(paket.dateien)){ const m = path.match(/(\d{4})\.json$/); if (m) cache[+m[1]] = JSON.parse(text); }
+    aufbauen(JSON.parse(paket.dateien['daten/strecken/index.json']));
+    status(`<b>Gespeichert.</b> ${paket.neu ? paket.neu + ' neue Flüge' : 'Keine neuen Flüge'} · Saisons ${paket.saisons.join(', ')}. Für Besucher ist die Karte in etwa einer Minute aktuell.`, 'ok');
+  }
+
+  admin.querySelector('.sf-akt').addEventListener('click', () => {
+    const w = window.open(WEGLIDE, 'lsv-weglide');
+    status(w ? 'WeGlide ist geöffnet. Klicke dort jetzt in der Lesezeichenleiste auf <b>„LSV-Strecken holen“</b>.'
+             : 'Der Browser hat das Öffnen blockiert – bitte Pop-ups für diese Seite erlauben.', w ? '' : 'warn');
+  });
+  addEventListener('message', async ev => {
+    if (!/^https:\/\/(www\.)?weglide\.org$/.test(ev.origin) || ev.data?.typ !== 'lsv-strecken') return;
+    try { ev.source?.postMessage({typ: 'lsv-strecken-ok'}, ev.origin); } catch {}
+    try { await speichern(ev.data); } catch (e){ status('Speichern fehlgeschlagen: ' + String(e.message || e).replace(/[<>&]/g, ''), 'fehler'); }
+  });
+  admin.querySelector('.sf-datei input').addEventListener('change', async ev => {
+    const f = ev.target.files[0]; ev.target.value = '';
+    if (!f) return;
+    try { await speichern(JSON.parse(await f.text())); } catch (e){ status('Datei konnte nicht übernommen werden: ' + String(e.message || e).replace(/[<>&]/g, ''), 'fehler'); }
+  });
 })();
