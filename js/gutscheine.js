@@ -1,13 +1,19 @@
 /* Gutschein-Shop auf der Mitfliegen-Seite.
    Produkte, Texte und Preise stehen im HTML (im Bearbeitungsmodus änderbar).
-   Die Bestellung wird über FormSubmit (formsubmit.co) direkt per E-Mail an MAIL geschickt;
-   bezahlt wird per Überweisung. Beim allerersten Absenden schickt FormSubmit eine
-   Aktivierungs-Mail an MAIL – dort einmal auf „Activate Form“ klicken. */
+   Versand über EmailJS (emailjs.com): eine Mail mit der Bestellung an MAIL und eine
+   Bestätigung mit Zahlungsaufforderung an den Käufer. Bezahlt wird per Überweisung.
+   EmailJS-Vorlage „LSV Gutscheine“: Betreff {{subject}}, Inhalt {{message}},
+   Empfänger {{to_email}}, Antwort an {{reply_to}}. */
 (() => {
   const shop = document.getElementById('gutscheine');
   if (!shop) return;
-  const MAIL = 'jonas.altschaeffel@gmail.com';
-  const ENDPUNKT = 'https://formsubmit.co/ajax/' + MAIL;
+  const MAIL = 'jonas.altschaeffel@gmail.com';            // Empfänger der Bestellungen
+  const EMAILJS = {
+    url: 'https://api.emailjs.com/api/v1.0/email/send',
+    service: 'service_44wtzmn',
+    template: 'template_2lt9yef',
+    key: 'KxP5KF0h5VquyA2IX'                               // öffentlicher Schlüssel (kein Passwort)
+  };
   const $ = (s, r = shop) => r.querySelector(s);
   const euro = n => n.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' €';
   const preisAus = el => {
@@ -160,42 +166,53 @@
     const nummer = `GS-${zwei(jetzt.getFullYear() % 100)}${zwei(jetzt.getMonth() + 1)}${zwei(jetzt.getDate())}-${zwei(jetzt.getHours())}${zwei(jetzt.getMinutes())}`;
     const frist = new Date(jetzt.getTime() + 14 * 864e5).toLocaleDateString('de-DE');
     const posten = p.map(x => `${x.n} × ${x.name} à ${euro(x.preis)} = ${euro(x.n * x.preis)}`).join('\n');
-    const daten = {
-      _subject: `Gutschein-Bestellung ${nummer} (${euro(summe)}) – ${name}`,
-      _template: 'table',
-      _captcha: 'false',
-      // kurze automatische Bestätigung an den Käufer (eine Zeile – lange Texte verschickt FormSubmit offenbar nicht)
-      _autoresponse: `Hallo ${name}, danke für deine Gutschein-Bestellung ${nummer} beim LSV Regensburg über ${euro(summe)}. `
-        + `Bitte überweise den Betrag bis zum ${frist}: ${[bankZeile('.gs-bank-empf'), bankZeile('.gs-bank-iban'), bankZeile('.gs-bank-bic')].join(', ')}, `
-        + `Verwendungszweck: ${nummer} ${name}. Nach Zahlungseingang schicken wir dir den Gutschein. Viele Grüße vom Flugplatz Oberhinkofen!`,
-      // zusätzlich: Kopie der Bestell-Mail an den Käufer, inklusive Zahlungsaufforderung
-      _cc: f.mail.value.trim(),
-      Zahlungsaufforderung: bestaetigung({ name, nummer, frist, posten, summe, versand: f.versand.value }),
-      Bestellnummer: nummer,
-      Bestellung: posten,
-      Gesamt: euro(summe),
-      Name: name,
-      email: f.mail.value.trim(),
-      Telefon: f.tel.value.trim() || '–',
-      'Gutschein für': f.fuer.value.trim() || '–',
-      Zustellung: f.versand.value,
-      Anschrift: f.versand.value === 'Post' ? f.adresse.value.trim() : '–',
-      Nachricht: f.msg.value.trim() || '–',
-      Zahlung: 'Überweisung',
-      _honey: f._honey.value   // Spam-Schutz: FormSubmit verwirft Anfragen, bei denen dieses unsichtbare Feld ausgefüllt ist
-    };
+    const kaeufer = f.mail.value.trim();
+    const zustellung = f.versand.value;
+    const zeile = (k, v) => `${k}: ${v}`;
 
-    // als Formulardaten senden (keine Vorab-Anfrage nötig) und nach 90 Sekunden aufgeben
-    const fd = new FormData();
-    Object.entries(daten).forEach(([k, v]) => fd.append(k, v));
+    // 1) Bestellung an den Verein
+    const bestellText = [
+      'Neue Gutschein-Bestellung über die Website',
+      '',
+      zeile('Bestellnummer', nummer),
+      posten,
+      zeile('Gesamt', euro(summe)),
+      '',
+      zeile('Name', name),
+      zeile('E-Mail', kaeufer),
+      zeile('Telefon', f.tel.value.trim() || '–'),
+      zeile('Gutschein für', f.fuer.value.trim() || '–'),
+      zeile('Zustellung', zustellung),
+      zustellung === 'Post' ? zeile('Anschrift', f.adresse.value.trim()) : null,
+      zeile('Nachricht', f.msg.value.trim() || '–'),
+      zeile('Zahlung', 'Überweisung, fällig bis ' + frist),
+      '',
+      'Der Käufer hat automatisch eine Bestätigung mit der Zahlungsaufforderung bekommen.',
+      'Auf diese Mail antworten = Antwort direkt an den Käufer.'
+    ].filter(z => z !== null).join('\n');
+
+    // 2) Bestätigung mit Zahlungsaufforderung an den Käufer
+    const bestaetigungText = bestaetigung({ name, nummer, frist, posten, summe, versand: zustellung });
+
+    const senden1 = params => fetch(EMAILJS.url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ service_id: EMAILJS.service, template_id: EMAILJS.template, user_id: EMAILJS.key, template_params: params }),
+      signal: abbruch.signal
+    }).then(async r => { if (!r.ok) throw new Error((await r.text()) || ('Status ' + r.status)); });
+
     const abbruch = new AbortController();
-    const uhr = setTimeout(() => abbruch.abort(), 90000);
+    const uhr = setTimeout(() => abbruch.abort(), 30000);
     senden.disabled = true; senden.classList.add('gs-laedt');
-    $('.gs-senden-text').textContent = 'Wird gesendet … (kann bis zu 1 Minute dauern)';
+    $('.gs-senden-text').textContent = 'Wird gesendet …';
     try {
-      const r = await fetch(ENDPUNKT, { method: 'POST', headers: { Accept: 'application/json' }, body: fd, signal: abbruch.signal });
-      const antwort = await r.json().catch(() => ({}));
-      if (!r.ok || String(antwort.success) !== 'true') throw new Error(antwort.message || 'Fehler');
+      // Spam-Schutz: nur Roboter füllen das unsichtbare Feld aus – dann so tun, als ob alles geklappt hätte
+      if (!f._honey.value){
+        await senden1({ to_email: MAIL, reply_to: kaeufer, subject: `Gutschein-Bestellung ${nummer} (${euro(summe)}) – ${name}`, message: bestellText });
+        try {
+          await senden1({ to_email: kaeufer, reply_to: MAIL, subject: `Deine Gutschein-Bestellung ${nummer} beim LSV Regensburg`, message: bestaetigungText });
+        } catch (err) { /* Bestellung ist angekommen; Bestätigung notfalls von Hand nachschicken */ }
+      }
       form.hidden = true; danke.hidden = false;
       leisteZeigen();
       kasse.scrollIntoView({ behavior: 'smooth', block: 'start' });
