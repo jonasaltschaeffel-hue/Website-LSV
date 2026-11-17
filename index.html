@@ -7,6 +7,35 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
 <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&amp;family=Barlow+Condensed:wght@500;600;700&amp;display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/stil.css">
+<style>
+  /* Abflugtafel im Startbereich (Daten: Vereinsflieger-Anzeigetafel), rechts neben dem Text */
+  @media (min-width:1101px){
+    #start .card{display:grid;grid-template-columns:minmax(0,1fr) auto;column-gap:clamp(28px,4vw,64px);align-items:center;max-width:1240px}
+    #start .card>*{grid-column:1}
+    #start .abflug{grid-column:2;grid-row:1/span 6;width:clamp(360px,34vw,500px)}
+    #start h1{font-size:clamp(52px,6vw,100px)}
+  }
+  .abflug-gehaeuse{background:linear-gradient(#1b1d21,#0d0e10);border-radius:16px;padding:14px 14px 10px;
+    box-shadow:0 22px 50px rgba(8,22,40,.45),inset 0 1px 0 rgba(255,255,255,.08),inset 0 0 0 1px #000}
+  .abflug-kopf{display:flex;align-items:center;gap:10px;padding:2px 4px 12px;color:#ffc72c;font-family:"Barlow Condensed",sans-serif;text-transform:uppercase}
+  .abflug-kopf svg{width:26px;height:26px;flex:none}
+  .abflug-titel{font-weight:700;font-size:26px;letter-spacing:.12em;line-height:1}
+  .abflug-en{font-weight:500;font-size:15px;letter-spacing:.18em;color:#c9cdd3;align-self:flex-end;padding-bottom:2px}
+  .abflug-uhr{margin-left:auto;font-family:ui-monospace,"Courier New",monospace;font-size:22px;font-weight:700;color:#ffc72c;
+    background:#000;border-radius:6px;padding:4px 8px;letter-spacing:.06em;box-shadow:inset 0 0 0 1px #2a2d33}
+  .abflug-tafel{position:relative;aspect-ratio:480/197;overflow:hidden;border-radius:8px;background:#000;box-shadow:inset 0 0 0 1px #2a2d33}
+  /* Filter färbt die graue Vereinsflieger-Tafel um: schwarzer Grund, gelbe Schrift, dunkle Kacheln */
+  .abflug-tafel iframe{position:absolute;top:0;left:0;width:488px;height:283px;border:0;transform-origin:0 0;pointer-events:none;
+    filter:grayscale(1) brightness(.5) contrast(2.4) sepia(1) saturate(6) hue-rotate(6deg) brightness(1.9)}
+  .abflug-fuss{display:flex;justify-content:space-between;gap:10px;padding:9px 4px 0;font-size:12px;letter-spacing:.04em;color:#8b919a}
+  .abflug-fuss b{display:inline-flex;align-items:center;gap:6px;font-weight:600;color:#c9cdd3}
+  .abflug-fuss b i{width:7px;height:7px;border-radius:50%;background:#3ad16f;animation:abflug-puls 2s ease-out infinite}
+  .abflug-fuss a{color:inherit}
+  @keyframes abflug-puls{0%{box-shadow:0 0 0 0 rgba(58,209,111,.6)}70%,100%{box-shadow:0 0 0 8px rgba(58,209,111,0)}}
+  @media (max-width:1100px){
+    #start .abflug{width:min(500px,100%);margin-top:30px}
+  }
+</style>
 </head>
 <body>
 
@@ -73,6 +102,19 @@
         <a data-e="e84" class="btn primary" href="#mitfliegen">Gastflug buchen</a>
         <a data-e="e85" class="btn ghost" href="#verein">Verein kennenlernen</a>
       </div>
+      <aside class="abflug" aria-label="Abflugtafel: die letzten Flüge am Flugplatz Oberhinkofen">
+        <div class="abflug-gehaeuse">
+          <div class="abflug-kopf">
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M2.5 19h19v2h-19zm19.57-9.36c-.21-.8-1.04-1.28-1.84-1.06L14.92 10l-6.9-6.43-1.93.51 4.14 7.17-4.97 1.33-1.97-1.54-1.45.39 2.59 4.49L21 11.49c.81-.23 1.28-1.05 1.07-1.85z"/></svg>
+            <span class="abflug-titel">Abflug</span><span class="abflug-en">Departures</span>
+            <span class="abflug-uhr" aria-label="Uhrzeit">--:--</span>
+          </div>
+          <div class="abflug-tafel">
+            <iframe title="Abflugtafel von Vereinsflieger" src="https://www.vereinsflieger.de/flightboard.php?u=2dbfc4118d4cca0df51e4c09e36bbee2&amp;showmode=2&amp;hidecomment=1&amp;mobile=1" scrolling="no" tabindex="-1"></iframe>
+          </div>
+          <div class="abflug-fuss"><b><i></i> Live · Flugplatz Oberhinkofen</b><span>Daten: <a href="https://www.vereinsflieger.de" target="_blank" rel="noopener">vereinsflieger.de</a></span></div>
+        </div>
+      </aside>
       <div class="scroll-hint"><i></i> Scrollen &amp; mitfliegen</div>
     </div>
   </section>
@@ -541,6 +583,34 @@
     const body = encodeURIComponent(`${f.msg.value}\n\n${f.name.value} (${f.mail.value})`);
     location.href = `mailto:${MAIL}?subject=${encodeURIComponent('Anfrage über die Website')}&body=${body}`;
   });
+})();
+</script>
+<script>
+// Abflugtafel: nur die Flugliste der Vereinsflieger-Tafel zeigen (ab x 4 / y 57, 480 px breit),
+// Uhr (Ortszeit) anzeigen und die Tafel alle 50 s selbst neu laden. Dabei wird ein neues iframe
+// eingesetzt, damit kein Eintrag im Browser-Verlauf entsteht (Esc/Zurück bleibt bei der Seite).
+(() => {
+  const tafel = document.querySelector('.abflug-tafel');
+  if (!tafel) return;
+  const X = 4, Y = 57, B = 480;
+  let rahmen = tafel.querySelector('iframe');
+  const passen = () => {
+    const s = tafel.clientWidth / B;
+    tafel.querySelectorAll('iframe').forEach(f => { f.style.transform = `scale(${s}) translate(${-X}px,${-Y}px)`; });
+  };
+  addEventListener('resize', passen); passen();
+  setInterval(() => {
+    if (document.hidden) return;
+    const neu = rahmen.cloneNode();
+    neu.addEventListener('load', () => setTimeout(() => {
+      if (neu !== rahmen) return;
+      tafel.querySelectorAll('iframe').forEach(f => { if (f !== neu) f.remove(); });
+    }, 600), {once: true});
+    tafel.appendChild(neu); rahmen = neu; passen();
+  }, 50000);
+  const uhr = document.querySelector('.abflug-uhr');
+  const ticken = () => { uhr.textContent = new Date().toLocaleTimeString('de-DE', {hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Berlin'}); };
+  ticken(); setInterval(ticken, 10000);
 })();
 </script>
 <script src="js/editor-loader.js"></script>
