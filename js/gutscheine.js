@@ -214,6 +214,7 @@
         } catch (err) { /* Bestellung ist angekommen; Bestätigung notfalls von Hand nachschicken */ }
       }
       form.hidden = true; danke.hidden = false;
+      sperren(true);
       leisteZeigen();
       kasse.scrollIntoView({ behavior: 'smooth', block: 'start' });
     } catch (err) {
@@ -226,7 +227,14 @@
     }
   });
 
+  // nach dem Absenden: Auswahl sperren, bis „Neue Bestellung“ geklickt wird
+  function sperren(an){
+    shop.classList.toggle('gs-fertig', an);
+    shop.querySelectorAll('.gs-grid button, .gs-grid input, .gs-liste button').forEach(el => { el.disabled = an; });
+  }
+
   $('.gs-neu').addEventListener('click', () => {
+    sperren(false);
     mengen.forEach((n, el) => setze(el, 0));
     wert = []; zeichnen();
     form.reset(); adresse.hidden = true; fehler.textContent = '';
