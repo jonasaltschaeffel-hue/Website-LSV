@@ -326,6 +326,10 @@
   const isImgBlock = el => !!el && (el.classList.contains('bild-block') || isRow(el));
   const sizeOf = el => SIZES.find(c => el.classList.contains(c)) || '';
   const canJoin = b => { const n = sib(b, 1); return isImgBlock(b) && isImgBlock(n) && !(isRow(b) && isRow(n)); };
+  // Bilder frei platzieren (nur in Artikeln): links/rechts mit Textumfluss, Breite in Prozent
+  const FLOATS = ['bild-links', 'bild-rechts'];
+  const floatOf = el => FLOATS.find(c => el.classList.contains(c)) || '';
+  const isBild = el => !!el && (el.matches('.pic, .bild-block') || isRow(el));
 
   /** gleiche Operation auf Live-Seite und auf den Quelltext anwenden */
   function applyOp(container, op){
@@ -353,6 +357,21 @@
       const items = kids(t), s = sizeOf(t);
       if (s) items.forEach(i => i.classList.add(s));   // Größe der Reihe bleibt für die einzelnen Bilder
       t.before(...items); t.remove();
+    }
+    else if (op.type === 'place'){
+      // Bild an eine andere Stelle setzen (to = Position unter den übrigen Blöcken) und links/rechts/mittig ausrichten
+      const rest = kids(t.parentNode).filter(k => k !== t);
+      const ref = rest[op.to];
+      if (ref) ref.before(t); else if (rest.length) rest[rest.length - 1].after(t);
+      FLOATS.forEach(c => t.classList.remove(c));
+      if (op.align) t.classList.add(op.align);
+    }
+    else if (op.type === 'width'){
+      // Bildbreite in Prozent der Textspalte
+      SIZES.forEach(c => t.classList.remove(c));
+      if (op.w){ t.style.width = op.w + '%'; t.style.maxWidth = 'none'; }
+      else { t.style.removeProperty('width'); t.style.removeProperty('max-width'); }
+      if (!t.getAttribute('style')) t.removeAttribute('style');
     }
     else if (op.type === 'insert' || op.type === 'appendRow'){
       const tpl = t.ownerDocument.createElement('template'); tpl.innerHTML = op.html;
@@ -384,6 +403,7 @@
     const prevSize = sizeOf(target), nextSize = nextEl ? sizeOf(nextEl) : '';
     const joinCase = op.type === 'join' ? (isRow(target) ? 'append' : isRow(nextEl) ? 'prepend' : 'wrap') : '';
     const splitItems = op.type === 'split' ? kids(target) : [];
+    const prevFloat = floatOf(target), prevStyle = target.getAttribute('style');
     let created = applyOp(info.container, live);
     ops.push(full); updateSave();
     register(created);              // neue Texte sofort bearbeitbar machen
@@ -401,6 +421,14 @@
         }
         else if (op.type === 'split'){ splitItems.forEach(i => SIZES.forEach(c => i.classList.remove(c))); splitItems[0].before(target); target.append(...splitItems); }
         else if (op.type === 'toggle') target.classList.toggle(op.cls);
+        else if (op.type === 'place'){
+          pos.parent.insertBefore(target, pos.next);
+          FLOATS.forEach(c => target.classList.remove(c)); if (prevFloat) target.classList.add(prevFloat);
+        }
+        else if (op.type === 'width'){
+          if (prevStyle) target.setAttribute('style', prevStyle); else target.removeAttribute('style');
+          if (prevSize) target.classList.add(prevSize);
+        }
         else if (created) created.remove();
         else pos.parent.insertBefore(target, pos.next);         // entfernen / verschieben rückgängig
         ops.splice(ops.lastIndexOf(full), 1); updateSave();
@@ -443,6 +471,12 @@
       <button type="button" data-a="size" data-c="" title="Volle Breite">▭</button>
       <button type="button" data-a="join" title="Mit dem nächsten Bild nebeneinander stellen">⇆ nebeneinander</button>
       <button type="button" data-a="split" title="Bilder wieder untereinander">⇅ untereinander</button>
+      <span class="lsv-alignbtns">
+        <span class="lsv-sep"></span>
+        <button type="button" data-a="align" data-c="bild-links" title="Bild links, Text rechts daneben">◧ links</button>
+        <button type="button" data-a="align" data-c="" title="Bild mittig, ohne Text daneben">▣</button>
+        <button type="button" data-a="align" data-c="bild-rechts" title="Bild rechts, Text links daneben">rechts ◨</button>
+      </span>
       <span class="lsv-sep"></span>
     </span>
     <button type="button" data-a="del" title="Entfernen">✕</button>`;
@@ -451,7 +485,7 @@
   menu.className = 'lsv-addmenu lsv-ui';
   document.body.appendChild(menu);
   let cb = null;
-  function hideBlockBar(){ bb.style.display = 'none'; menu.style.display = 'none'; if (cb) cb.block.classList.remove('lsv-block-hover'); cb = null; }
+  function hideBlockBar(){ bb.style.display = 'none'; menu.style.display = 'none'; if (cb) cb.block.classList.remove('lsv-block-hover'); cb = null; griffWeg(); }
   function showBlockBar(info){
     if (cb && cb.block === info.block) return;
     if (cb) cb.block.classList.remove('lsv-block-hover');
@@ -466,6 +500,10 @@
       bb.querySelector('[data-a="join"]').style.display = canJoin(info.block) ? '' : 'none';
       bb.querySelector('[data-a="split"]').style.display = isRow(info.block) ? '' : 'none';
     }
+    // Links/rechts mit Textumfluss nur bei einzelnen Bildern in Artikeln
+    const frei = istFrei(info);
+    bb.querySelector('.lsv-alignbtns').style.display = frei && !isRow(info.block) ? 'contents' : 'none';
+    if (frei) bb.querySelectorAll('[data-a="align"]').forEach(b => b.classList.toggle('lsv-on', b.dataset.c === floatOf(info.block)));
     const r = info.block.getBoundingClientRect();
     bb.style.display = 'flex';
     bb.style.top = (r.top + scrollY - 34) + 'px';
@@ -477,8 +515,9 @@
   }
   document.addEventListener('mouseover', ev => {
     if (ev.target.closest('.lsv-blockbar, .lsv-addmenu, .lsv-format, .lsv-bar, .lsv-modal')) return;
+    if (ziehtGerade) return;
     const info = blockInfo(ev.target);
-    if (info) showBlockBar(info);
+    if (info){ showBlockBar(info); griffFuer(info); }
   });
   bb.addEventListener('mousedown', ev => ev.preventDefault());
   bb.addEventListener('click', ev => {
@@ -491,6 +530,113 @@
     else if (act === 'size'){ if (a.dataset.c !== sizeOf(info.block)) doOp(info, {type: 'size', cls: a.dataset.c, path: info.path}); }
     else if (act === 'join'){ if (canJoin(info.block)) doOp(info, {type: 'join', path: info.path}); }
     else if (act === 'split'){ if (isRow(info.block)) doOp(info, {type: 'split', path: info.path}); }
+    else if (act === 'align'){
+      if (a.dataset.c !== floatOf(info.block)) doOp(info, {type: 'place', path: info.path, to: info.path[0], align: a.dataset.c});
+    }
+  });
+
+  /* ---------------- Bilder in Artikeln: ziehen, einrasten, Größe per Ecke ----------------
+     Ein Bild am Griff „✥ verschieben“ anfassen und an eine andere Stelle im Text ziehen.
+     Beim Loslassen rastet es ein: im linken Drittel links (Text rechts daneben), im rechten
+     Drittel rechts (Text links daneben), in der Mitte mittig ohne Text daneben.
+     Mit der gelben Ecke lässt sich die Breite ändern. */
+  const istFrei = info => !!info && !info.inGrid && !info.inTable && isBild(info.block) && info.container.matches('article.article');
+  const griff = document.createElement('div');
+  griff.className = 'lsv-bildgriff lsv-ui';
+  griff.innerHTML = '<button type="button" class="lsv-zieh" title="Bild verschieben: gedrückt halten und an eine andere Stelle ziehen">✥ verschieben</button><span class="lsv-ecke" title="Größe ändern: Ecke ziehen"></span>';
+  document.body.appendChild(griff);
+  const marke = document.createElement('div');
+  marke.className = 'lsv-dropmarke lsv-ui';
+  document.body.appendChild(marke);
+  let gInfo = null, ziehtGerade = false;
+
+  function griffFuer(info){
+    if (!istFrei(info)){ griff.style.display = 'none'; gInfo = null; return; }
+    gInfo = info;
+    const r = info.block.getBoundingClientRect();
+    Object.assign(griff.style, {display: 'block', left: (r.left + scrollX) + 'px', top: (r.top + scrollY) + 'px', width: r.width + 'px', height: r.height + 'px'});
+    griff.classList.toggle('lsv-ecke-links', info.block.classList.contains('bild-rechts'));
+    griff.querySelector('.lsv-ecke').style.display = isRow(info.block) ? 'none' : '';
+  }
+  const griffWeg = () => { griff.style.display = 'none'; gInfo = null; };
+  addEventListener('resize', griffWeg);
+
+  // Verschieben
+  griff.querySelector('.lsv-zieh').addEventListener('pointerdown', ev => {
+    if (!gInfo) return;
+    ev.preventDefault();
+    const info = gInfo, t = info.block, c = info.container;
+    const vorher = kids(c).indexOf(t);
+    const bild = t.querySelector('img');
+    const geist = document.createElement('div');
+    geist.className = 'lsv-geist lsv-ui';
+    if (bild) geist.innerHTML = `<img src="${bild.src}" alt="">`;
+    document.body.appendChild(geist);
+    t.classList.add('lsv-wird-gezogen');
+    ziehtGerade = true; hideBlockBar(); griffWeg();
+    let ziel = null;
+
+    const bewegen = e => {
+      geist.style.left = (e.pageX + 14) + 'px'; geist.style.top = (e.pageY + 14) + 'px';
+      const rest = kids(c).filter(k => k !== t);
+      let i = rest.length;
+      for (let k = 0; k < rest.length; k++){
+        const r = rest[k].getBoundingClientRect();
+        if (e.clientY < r.top + r.height / 2){ i = k; break; }
+      }
+      if (rest[i] && rest[i].matches('a.back')) i++;          // nicht vor den Zurück-Link
+      const cr = c.getBoundingClientRect(), x = (e.clientX - cr.left) / cr.width;
+      const align = isRow(t) ? '' : x < 0.33 ? 'bild-links' : x > 0.67 ? 'bild-rechts' : '';
+      ziel = {to: i, align};
+      const ref = rest[i] || rest[rest.length - 1], rr = ref.getBoundingClientRect();
+      const y = rest[i] ? rr.top - 8 : rr.bottom + 4;
+      const breite = align ? cr.width * 0.45 : cr.width;
+      Object.assign(marke.style, {display: 'block', top: (y + scrollY) + 'px', width: breite + 'px',
+        left: (cr.left + scrollX + (align === 'bild-rechts' ? cr.width - breite : 0)) + 'px'});
+      marke.dataset.t = align === 'bild-links' ? '◧ links – Text rechts daneben' : align === 'bild-rechts' ? 'rechts ◨ – Text links daneben' : '▣ mittig';
+    };
+    const ende = () => {
+      removeEventListener('pointermove', bewegen); removeEventListener('pointerup', ende); removeEventListener('pointercancel', ende);
+      geist.remove(); marke.style.display = 'none';
+      t.classList.remove('lsv-wird-gezogen'); ziehtGerade = false;
+      if (ziel && (ziel.to !== vorher || ziel.align !== floatOf(t)))
+        doOp(info, {type: 'place', path: info.path, to: ziel.to, align: ziel.align});
+    };
+    addEventListener('pointermove', bewegen);
+    addEventListener('pointerup', ende);
+    addEventListener('pointercancel', ende);
+  });
+
+  // Größe per Ecke
+  griff.querySelector('.lsv-ecke').addEventListener('pointerdown', ev => {
+    if (!gInfo) return;
+    ev.preventDefault();
+    const info = gInfo, t = info.block;
+    const cw = info.container.getBoundingClientRect().width;
+    const startW = t.getBoundingClientRect().width, x0 = ev.clientX;
+    const links = t.classList.contains('bild-rechts');     // bei rechts ausgerichteten Bildern sitzt die Ecke links
+    const alt = {style: t.getAttribute('style'), size: sizeOf(t)};
+    let pct = null;
+    ziehtGerade = true; hideBlockBar();
+    const bewegen = e => {
+      const dx = (e.clientX - x0) * (links ? -1 : 1);
+      pct = Math.max(20, Math.min(100, Math.round((startW + dx) / cw * 100)));
+      SIZES.forEach(c => t.classList.remove(c));
+      t.style.width = pct + '%'; t.style.maxWidth = 'none';
+      griffFuer(info);
+    };
+    const ende = () => {
+      removeEventListener('pointermove', bewegen); removeEventListener('pointerup', ende); removeEventListener('pointercancel', ende);
+      ziehtGerade = false;
+      // Vorschau zurücksetzen und als rückgängig machbare Änderung speichern
+      if (alt.style) t.setAttribute('style', alt.style); else t.removeAttribute('style');
+      if (alt.size) t.classList.add(alt.size);
+      if (pct !== null) doOp(info, {type: 'width', path: info.path, w: pct});
+      griffFuer(info);
+    };
+    addEventListener('pointermove', bewegen);
+    addEventListener('pointerup', ende);
+    addEventListener('pointercancel', ende);
   });
 
   function showAddMenu(info){
