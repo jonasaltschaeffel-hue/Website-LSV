@@ -26,7 +26,7 @@ a{color:inherit}
 
 /* ---------- Himmel (WebGL) ---------- */
 #sky{
-  position:fixed;inset:0;z-index:0;width:100vw;height:100vh;display:block;pointer-events:none;
+  position:fixed;inset:0 0 auto 0;z-index:0;width:100vw;height:100vh;height:100lvh;display:block;pointer-events:none;
   background:linear-gradient(180deg,#1f6fc4 0%,#3d8fdc 40%,#8cc2ee 78%,#c7e3f7 100%);
 }
 
@@ -218,7 +218,7 @@ body.artikel main{padding-left:0}
 }
 
 /* 3D-Segelflugzeug (js/segelflieger3d.js) */
-#glider-3d{position:fixed;inset:0;width:100vw;height:100vh;z-index:2;pointer-events:none;filter:saturate(.9) contrast(.96)}
+#glider-3d{position:fixed;inset:0 0 auto 0;width:100vw;height:100vh;height:100lvh;z-index:2;pointer-events:none;filter:saturate(.9) contrast(.96)}
 
 /* Urhebernennung 3D-Modell */
 footer .credit{flex-basis:100%;font-size:12px;opacity:.8}
@@ -267,7 +267,12 @@ table.ad.ohne-linie th,table.ad.ohne-linie td{border-bottom:0}
 
 /* ---------- Weicher Seitenaufbau ---------- */
 /* Grundhimmel als Farbverlauf, darüber blendet der gerenderte Wolkenhimmel ein */
-body{background:linear-gradient(180deg,#2a55a8 0%,#4378c8 40%,#8fb0d8 78%,#b9cde3 100%) fixed}
+/* Als festes Element statt "background-attachment:fixed": Handy-Browser schneiden feste Hintergründe
+   sonst unten ab, wenn die Adressleiste ein-/ausfährt. 100lvh = größte Bildschirmhöhe. */
+html{background:#b9cde3}
+body{background:none}
+body::before{content:"";position:fixed;left:0;right:0;top:0;height:100vh;height:100lvh;z-index:-1;pointer-events:none;
+  background:linear-gradient(180deg,#2a55a8 0%,#4378c8 40%,#8fb0d8 78%,#b9cde3 100%)}
 #sky{opacity:0;transition:opacity 1.4s ease}
 #sky.ready{opacity:1}
 /* Flugzeug: erst einblenden, wenn das richtige Modell geladen ist */
@@ -294,7 +299,8 @@ main .card,main .article{animation:lsv-rise-in .9s cubic-bezier(.2,.7,.2,1) both
 .karte img{display:block;width:100%;height:auto}
 
 /* ---------- Info-Unterseiten: ruhiger hellblauer Hintergrund statt Wolken ---------- */
-body.artikel{background:linear-gradient(180deg,#7fbaec 0%,#a9d1f3 30%,#d4e9f9 62%,#eef6fd 85%,#f8fbfe 100%) fixed}
+body.artikel::before{background:linear-gradient(180deg,#7fbaec 0%,#a9d1f3 30%,#d4e9f9 62%,#eef6fd 85%,#f8fbfe 100%)}
+html:has(body.artikel){background:#f8fbfe}
 body.artikel #sky{display:none}
 body.artikel main{color:var(--navy);text-shadow:none;--shadow:none}
 body.artikel .note,
