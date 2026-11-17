@@ -164,7 +164,13 @@
       _subject: `Gutschein-Bestellung ${nummer} (${euro(summe)}) – ${name}`,
       _template: 'table',
       _captcha: 'false',
-      _autoresponse: bestaetigung({ name, nummer, frist, posten, summe, versand: f.versand.value }),
+      // kurze automatische Bestätigung an den Käufer (eine Zeile – lange Texte verschickt FormSubmit offenbar nicht)
+      _autoresponse: `Hallo ${name}, danke für deine Gutschein-Bestellung ${nummer} beim LSV Regensburg über ${euro(summe)}. `
+        + `Bitte überweise den Betrag bis zum ${frist}: ${[bankZeile('.gs-bank-empf'), bankZeile('.gs-bank-iban'), bankZeile('.gs-bank-bic')].join(', ')}, `
+        + `Verwendungszweck: ${nummer} ${name}. Nach Zahlungseingang schicken wir dir den Gutschein. Viele Grüße vom Flugplatz Oberhinkofen!`,
+      // zusätzlich: Kopie der Bestell-Mail an den Käufer, inklusive Zahlungsaufforderung
+      _cc: f.mail.value.trim(),
+      Zahlungsaufforderung: bestaetigung({ name, nummer, frist, posten, summe, versand: f.versand.value }),
       Bestellnummer: nummer,
       Bestellung: posten,
       Gesamt: euro(summe),
