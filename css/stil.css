@@ -428,6 +428,11 @@ body.artikel .soon{background:rgba(10,35,80,.08);border-color:rgba(10,35,80,.25)
 .gs-leiste[hidden]{display:none}
 .gs-leiste span:last-child{padding:7px 14px;border-radius:999px;background:var(--gs-orange)}
 
+/* nach dem Absenden: Auswahl gesperrt */
+.gs-fertig .gs-produkt{opacity:.5;filter:grayscale(.5);pointer-events:none}
+.gs-fertig .gs-produkt:hover{transform:none}
+.gs-fertig .gs-weg{display:none}
+
 @media (max-width:760px){
   .gs-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
 }
