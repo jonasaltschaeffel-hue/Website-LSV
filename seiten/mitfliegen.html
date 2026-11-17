@@ -49,8 +49,8 @@
     
     <p data-e="e4"><br></p>
     <table class="ad">
-      <tbody><tr><th data-e="e5">Anfrage &amp; Preise</th><td data-e="e6">mitflug@luftsportverein-regensburg.de</td></tr>
-      <tr><th data-e="e7">Flugleitung (Flugtag)</th><td data-e="e8">09453 7244</td></tr>
+      <tbody>
+      
       <tr><th data-e="e9">Mitfliegen</th><td data-e="e10">Als gemeinnütziger Verein bieten wir ausschließlich Schnupperflüge an, die dem Zweck der Werbung für den Luftsport dienen.</td></tr>
     </tbody></table>
 
@@ -133,37 +133,37 @@
       <div class="gs-kasse" id="gs-kasse">
         <div class="gs-kopf">
           <h3 data-e="gs-k-h">Deine Bestellung</h3>
-          <span class="gs-anzahl" hidden>0</span>
+          <span class="gs-anzahl" hidden="">0</span>
         </div>
         <ul class="gs-liste"></ul>
         <p class="gs-leer">Noch leer – wähle oben einen Gutschein aus.</p>
         <div class="gs-summe"><span>Gesamt</span><strong>0,00 €</strong></div>
 
-        <form class="gs-form" novalidate>
+        <form class="gs-form" novalidate="">
           <div class="gs-felder">
-            <label>Dein Name *<input name="name" autocomplete="name" required></label>
-            <label>E-Mail *<input name="mail" type="email" autocomplete="email" required></label>
+            <label>Dein Name *<input name="name" autocomplete="name" required=""></label>
+            <label>E-Mail *<input name="mail" type="email" autocomplete="email" required=""></label>
             <label>Telefon<input name="tel" type="tel" autocomplete="tel"></label>
             <label>Für wen ist der Gutschein?<input name="fuer" placeholder="Name auf dem Gutschein (optional)"></label>
           </div>
           <fieldset class="gs-versand">
             <legend>Wie möchtest du den Gutschein bekommen?</legend>
-            <label><input type="radio" name="versand" value="E-Mail (PDF zum Ausdrucken)" checked><span>✉️ Per E-Mail<small>zum Ausdrucken</small></span></label>
+            <label><input type="radio" name="versand" value="E-Mail (PDF zum Ausdrucken)" checked=""><span>✉️ Per E-Mail<small>zum Ausdrucken</small></span></label>
             <label><input type="radio" name="versand" value="Post"><span>📮 Per Post<small>an deine Adresse</small></span></label>
           </fieldset>
-          <label class="gs-adresse" hidden>Postanschrift *<textarea name="adresse" rows="3" autocomplete="street-address"></textarea></label>
+          <label class="gs-adresse" hidden="">Postanschrift *<textarea name="adresse" rows="3" autocomplete="street-address"></textarea></label>
           <label>Nachricht an uns<textarea name="msg" rows="3" placeholder="z. B. Wunschtermin, Widmung für den Gutschein …"></textarea></label>
-          <label class="gs-check"><input type="checkbox" name="ok" required> Ich bezahle per Überweisung. Den Gutschein bekomme ich nach Zahlungseingang.</label>
+          <label class="gs-check"><input type="checkbox" name="ok" required=""> Ich bezahle per Überweisung. Den Gutschein bekomme ich nach Zahlungseingang.</label>
           <input type="text" name="_honey" class="gs-honig" tabindex="-1" autocomplete="off" aria-hidden="true">
           <p class="gs-fehler" role="alert"></p>
           <button class="gs-senden" type="submit">
             <span class="gs-senden-text">Jetzt bestellen</span>
             <span class="gs-senden-summe"></span>
-            <svg class="gs-senden-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3.4 20.4 21 12 3.4 3.6 3.4 10l12.6 2-12.6 2z" fill="currentColor"/></svg>
+            <svg class="gs-senden-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3.4 20.4 21 12 3.4 3.6 3.4 10l12.6 2-12.6 2z" fill="currentColor"></path></svg>
           </button>
         </form>
 
-        <div class="gs-danke" hidden>
+        <div class="gs-danke" hidden="">
           <div class="gs-danke-haken" aria-hidden="true">✓</div>
           <h3>Danke für deine Bestellung!</h3>
           <p>Deine Bestellung ist bei uns angekommen. Du bekommst gleich eine Bestätigung per E-Mail mit der Bankverbindung und der Zahlungsaufforderung. Nach Zahlungseingang schicken wir dir den Gutschein.</p>
@@ -178,7 +178,7 @@
         <p data-e="gs-bank-bic" class="gs-bank-bic">BIC:2345</p>
         <p data-e="gs-bank-bank" class="gs-bank-bank">Bank: TestBank</p>
       </div>
-      <a class="gs-leiste" href="#gs-kasse" hidden><span class="gs-leiste-text"></span><span>Zur Kasse →</span></a>
+      <a class="gs-leiste" href="#gs-kasse" hidden=""><span class="gs-leiste-text"></span><span>Zur Kasse →</span></a>
       <p data-e="gs-hinweis" class="note">Flüge finden bei geeignetem Wetter von April bis Oktober statt – Termin bitte vorher absprechen.</p>
     </div>
 
@@ -205,6 +205,7 @@
   b.addEventListener('click', () => b.setAttribute('aria-expanded', t.classList.toggle('open')));
 </script>
 <script src="../js/editor-loader.js"></script>
+
 
 
 
