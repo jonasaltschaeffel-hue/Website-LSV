@@ -12,6 +12,24 @@
     el.onload = ok; el.onerror = fail;
     (css ? document.head : document.body).appendChild(el);
   });
+  // Esc: zurück zur vorherigen Seite (auf Unterseiten ohne Verlauf: zur Startseite)
+  document.addEventListener('keydown', ev => {
+    if (ev.key !== 'Escape' || ev.defaultPrevented || ev.ctrlKey || ev.altKey || ev.metaKey || ev.shiftKey) return;
+    const f = document.activeElement;
+    if (f && (f.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(f.tagName))) return;   // Eingabe läuft
+    if (document.querySelector('.lsv-modal, dialog[open]')) return;                          // Fenster offen
+    const menu = document.getElementById('tabs');
+    if (menu && menu.classList.contains('open')){                                            // Handy-Menü erst schließen
+      menu.classList.remove('open');
+      document.getElementById('menu-btn')?.setAttribute('aria-expanded', 'false');
+      return;
+    }
+    const start = new URL('index.html', base).href;
+    const istStart = location.href.split(/[?#]/)[0] === start || location.href.split(/[?#]/)[0] === base.href;
+    if (history.length > 1 && document.referrer.startsWith(base.origin)) history.back();
+    else if (!istStart) location.href = start;
+  });
+
   const startEditor = () => Promise.all([load('css/editor.css', true), window.LSVGit ? 0 : load('js/lsv-github.js'), window.LSVCms ? 0 : load('js/lsv-cms.js')]).then(() => load('js/editor.js'));
 
   // Schon angemeldet (in diesem Tab)?
