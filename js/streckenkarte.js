@@ -210,7 +210,11 @@
     .sf-admin .sf-schritte{margin:4px 0 8px 22px}
     .sf-admin details{margin-top:6px}
     .sf-admin summary{cursor:pointer;font-weight:600}
-    .sf-admin details p{margin:8px 0}
+    .sf-admin details p{margin:8px 0;font-size:15px;line-height:1.5}
+    .sf-admin .sf-anleitung{margin-top:10px;padding-top:8px;border-top:1px solid rgba(15,44,76,.15)}
+    .sf-admin .sf-anleitung h4{font:700 16px/1.2 "Barlow Condensed",sans-serif;letter-spacing:.02em;margin:16px 0 4px;color:#0d2440}
+    .sf-admin .sf-anleitung ul,.sf-admin .sf-anleitung ol{margin:4px 0 8px 22px}
+    .sf-admin .sf-anleitung li{margin:3px 0}
     #sf-box ~ .sf-admin a.sf-lesezeichen{display:inline-block;padding:9px 16px;border-radius:999px;background:#ffc72c;color:#0d2440;font-weight:700;text-decoration:none;cursor:grab;box-shadow:0 4px 12px rgba(0,0,0,.15)}
     .sf-admin .sf-hinweis{font-size:13px;opacity:.75}
     .sf-admin .sf-status:not(:empty){margin-top:10px;padding:8px 12px;border-radius:10px;background:#eef4fb}
@@ -235,6 +239,49 @@
       <p>Zieh diesen Knopf mit der Maus in deine Lesezeichenleiste (Chrome/Edge: Lesezeichenleiste mit Strg+Umschalt+B einblenden):</p>
       <p><a class="sf-lesezeichen" title="In die Lesezeichenleiste ziehen">⭐ LSV-Strecken holen</a></p>
       <p class="sf-hinweis">Das Lesezeichen funktioniert nur auf www.weglide.org. Es liest die öffentlichen Flugdaten des Vereins und übergibt sie an diese Seite.</p>
+    </details>
+    <details class="sf-anleitung"><summary>📖 Ausführliche Anleitung</summary>
+      <h4>Warum ein Lesezeichen?</h4>
+      <p>Die Strecken kommen von WeGlide. WeGlide erlaubt das Auslesen der Flugdaten nur von der eigenen Seite www.weglide.org aus – nicht von unserer Website und nicht von Servern. Deshalb holt ein Lesezeichen die Daten direkt auf WeGlide ab und gibt sie an diese Seite weiter, die sie dann wie jede andere Änderung speichert.</p>
+
+      <h4>Was du brauchst</h4>
+      <ul>
+        <li>Einen Computer mit Chrome, Edge oder Firefox (am Handy funktionieren Lesezeichen dieser Art nur umständlich).</li>
+        <li>Die Anmeldung hier im Bearbeitungsmodus. Ein WeGlide-Konto ist nicht nötig.</li>
+      </ul>
+
+      <h4>1. Einmalig: Lesezeichen anlegen</h4>
+      <ol>
+        <li>Lesezeichenleiste einblenden: <b>Strg+Umschalt+B</b> (Mac: Cmd+Umschalt+B).</li>
+        <li>Oben unter „Einmalig einrichten“ den gelben Knopf <b>„⭐ LSV-Strecken holen“</b> mit gedrückter Maustaste in die Lesezeichenleiste <b>ziehen</b> und dort loslassen. Nicht anklicken – ein Klick hier bewirkt nichts.</li>
+        <li>Das Lesezeichen bleibt dauerhaft in diesem Browser. Auf einem anderen Computer oder Browser legst du es dort einmal neu an. Mit eingeschalteter Browser-Synchronisierung erscheint es auch auf deinen anderen Geräten.</li>
+      </ol>
+
+      <h4>2. Strecken aktualisieren (z. B. nach einem Flugwochenende)</h4>
+      <ol>
+        <li>Hier auf <b>„✈️ Strecken aktualisieren“</b> klicken. WeGlide öffnet sich in einem neuen Tab.</li>
+        <li>Im WeGlide-Tab in der Lesezeichenleiste auf <b>„LSV-Strecken holen“</b> klicken.</li>
+        <li>Unten rechts erscheint ein Fenster mit Fortschrittsbalken. Den Tab dabei offen und im Vordergrund lassen.</li>
+        <li>Wenn <b>„Fertig!“</b> erscheint, den WeGlide-Tab schließen und hierher zurückkehren. Hier steht dann „Gespeichert“ und die Karte zeigt sofort den neuen Stand.</li>
+      </ol>
+      <p>Beim allerersten Mal werden alle Flüge der letzten fünf Saisons geladen (rund 500 Flüge, etwa 2–4 Minuten). Danach werden nur noch neue Flüge geholt – das dauert meist nur Sekunden. Für Besucher ist die Karte etwa eine Minute nach dem Speichern aktuell (ggf. Seite neu laden).</p>
+
+      <h4>Gut zu wissen</h4>
+      <ul>
+        <li><b>Neue Saison:</b> Bei WeGlide beginnt die neue Saison im Oktober. Sie kommt beim nächsten Aktualisieren automatisch dazu, die älteste fällt weg – es bleiben immer die letzten fünf.</li>
+        <li><b>Gezeigt werden</b> nur Strecke, Datum, Kilometer und Flugzeugtyp – keine Namen. Gelöschte Flüge verschwinden beim nächsten Aktualisieren auch hier.</li>
+        <li><b>Aktualisieren kann</b> jeder, der Zugang zum Bearbeitungsmodus hat.</li>
+      </ul>
+
+      <h4>Wenn etwas nicht klappt</h4>
+      <ul>
+        <li><b>„Der Browser hat das Öffnen blockiert“:</b> In der Adressleiste das Pop-up-Symbol anklicken, Pop-ups für diese Seite erlauben und nochmal auf „Strecken aktualisieren“ klicken. Alternativ www.weglide.org selbst in einem neuen Tab öffnen.</li>
+        <li><b>Lesezeichenleiste nicht zu sehen:</b> Strg+Umschalt+B drücken.</li>
+        <li><b>Beim Klick aufs Lesezeichen passiert nichts:</b> Prüfen, ob gerade wirklich ein Tab von www.weglide.org offen ist. Sonst erscheint der Hinweis, dass das Lesezeichen nur dort funktioniert.</li>
+        <li><b>Eine Datei wurde heruntergeladen statt gespeichert:</b> Das passiert, wenn der WeGlide-Tab nicht von hier aus geöffnet wurde. Einfach hier auf <b>„Datei hochladen“</b> klicken und die Datei <i>lsv-strecken-….json</i> aus dem Download-Ordner auswählen.</li>
+        <li><b>„Nicht mehr angemeldet“:</b> Die Anmeldung gilt nur für diesen Browser-Tab. Neu anmelden und dann die Datei hochladen bzw. erneut aktualisieren.</li>
+        <li><b>„Das hat nicht geklappt“ im WeGlide-Fenster:</b> WeGlide ist gerade nicht erreichbar oder überlastet. Später noch einmal versuchen – bereits gespeicherte Strecken bleiben unverändert.</li>
+      </ul>
     </details>
     <div class="sf-status" aria-live="polite"></div>`;
   box.after(admin);
