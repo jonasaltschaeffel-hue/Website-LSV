@@ -106,12 +106,6 @@
   betrag.addEventListener('input', () => betrag.setCustomValidity(''));
   betrag.addEventListener('keydown', e => { if (e.key === 'Enter'){ e.preventDefault(); add.click(); } });
 
-  // Postanschrift nur bei Versand per Post
-  const adresse = $('.gs-adresse');
-  form.querySelectorAll('input[name="versand"]').forEach(r => r.addEventListener('change', () => {
-    adresse.hidden = form.versand.value !== 'Post';
-  }));
-
   function fehlerZeigen(msg){
     fehler.textContent = msg;
   }
@@ -154,7 +148,6 @@
     if (!p.length) msg = 'Bitte wähle mindestens einen Gutschein aus.';
     else if (!f.name.value.trim()) msg = 'Bitte gib deinen Namen ein.';
     else if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(f.mail.value.trim())) msg = 'Bitte gib eine gültige E-Mail-Adresse ein.';
-    else if (f.versand.value === 'Post' && !f.adresse.value.trim()) msg = 'Bitte gib die Postanschrift ein.';
     else if (!f.ok.checked) msg = 'Bitte bestätige die Zahlung per Überweisung.';
     fehlerZeigen(msg);
     if (msg) return;
@@ -183,7 +176,6 @@
       zeile('Telefon', f.tel.value.trim() || '–'),
       zeile('Gutschein für', f.fuer.value.trim() || '–'),
       zeile('Zustellung', zustellung),
-      zustellung === 'Post' ? zeile('Anschrift', f.adresse.value.trim()) : null,
       zeile('Nachricht', f.msg.value.trim() || '–'),
       zeile('Zahlung', 'Überweisung, fällig bis ' + frist),
       '',
@@ -237,7 +229,7 @@
     sperren(false);
     mengen.forEach((n, el) => setze(el, 0));
     wert = []; zeichnen();
-    form.reset(); adresse.hidden = true; fehler.textContent = '';
+    form.reset(); fehler.textContent = '';
     form.hidden = false; danke.hidden = true;
   });
 
