@@ -106,8 +106,39 @@
     adresse.hidden = form.versand.value !== 'Post';
   }));
 
-  function fehlerZeigen(msg, mitMailLink){
-    fehler.innerHTML = esc(msg) + (mitMailLink ? ` Du kannst uns die Bestellung auch an <a href="mailto:${MAIL}">${MAIL}</a> schicken.` : '');
+  function fehlerZeigen(msg){
+    fehler.textContent = msg;
+  }
+
+  // Bankverbindung aus dem Feld „Bankverbindung“ (nur im Bearbeitungsmodus sichtbar)
+  const bankZeile = sel => text($(sel)).replace(/\s+/g, ' ');
+
+  // Text der automatischen Bestätigungs-E-Mail an den Käufer (mit Zahlungsaufforderung)
+  function bestaetigung({ name, nummer, frist, posten, summe, versand }){
+    return [
+      `Hallo ${name},`,
+      '',
+      'vielen Dank für deine Gutschein-Bestellung beim Luftsportverein Regensburg! Hier ist deine Übersicht:',
+      '',
+      `Bestellnummer: ${nummer}`,
+      posten,
+      `Gesamtbetrag: ${euro(summe)}`,
+      `Zustellung: ${versand}`,
+      '',
+      'ZAHLUNGSAUFFORDERUNG',
+      `Bitte überweise den Gesamtbetrag von ${euro(summe)} bis zum ${frist} auf folgendes Konto:`,
+      '',
+      bankZeile('.gs-bank-empf'),
+      bankZeile('.gs-bank-iban'),
+      bankZeile('.gs-bank-bic'),
+      bankZeile('.gs-bank-bank'),
+      `Verwendungszweck: ${nummer} ${name}`,
+      '',
+      'Sobald dein Geld bei uns eingegangen ist, schicken wir dir den Gutschein zu.',
+      '',
+      'Viele Grüße vom Flugplatz Oberhinkofen',
+      'Luftsportverein Regensburg e. V.'
+    ].join('\n');
   }
 
   form.addEventListener('submit', async e => {
@@ -125,12 +156,18 @@
 
     const summe = p.reduce((s, x) => s + x.n * x.preis, 0);
     const name = f.name.value.trim();
+    const jetzt = new Date();
+    const zwei = n => String(n).padStart(2, '0');
+    const nummer = `GS-${zwei(jetzt.getFullYear() % 100)}${zwei(jetzt.getMonth() + 1)}${zwei(jetzt.getDate())}-${zwei(jetzt.getHours())}${zwei(jetzt.getMinutes())}`;
+    const frist = new Date(jetzt.getTime() + 14 * 864e5).toLocaleDateString('de-DE');
+    const posten = p.map(x => `${x.n} × ${x.name} à ${euro(x.preis)} = ${euro(x.n * x.preis)}`).join('\n');
     const daten = {
-      _subject: `Gutschein-Bestellung (${euro(summe)}) – ${name}`,
+      _subject: `Gutschein-Bestellung ${nummer} (${euro(summe)}) – ${name}`,
       _template: 'table',
       _captcha: 'false',
-      _autoresponse: `Hallo ${name}, danke für deine Gutschein-Bestellung beim LSV Regensburg über ${euro(summe)}! Wir melden uns in Kürze mit der Bankverbindung. Nach Zahlungseingang schicken wir dir den Gutschein. Viele Grüße vom Flugplatz Oberhinkofen`,
-      Bestellung: p.map(x => `${x.n} × ${x.name} à ${euro(x.preis)} = ${euro(x.n * x.preis)}`).join('\n'),
+      _autoresponse: bestaetigung({ name, nummer, frist, posten, summe, versand: f.versand.value }),
+      Bestellnummer: nummer,
+      Bestellung: posten,
       Gesamt: euro(summe),
       Name: name,
       email: f.mail.value.trim(),
@@ -157,11 +194,7 @@
       leisteZeigen();
       kasse.scrollIntoView({ behavior: 'smooth', block: 'start' });
     } catch (err) {
-      // Ausweg: Bestellung fertig vorbereitet per E-Mail-Programm senden
-      const text = Object.entries(daten).filter(([k]) => !k.startsWith('_')).map(([k, v]) => `${k === 'email' ? 'E-Mail' : k}: ${v}`).join('\n');
-      const href = `mailto:${MAIL}?subject=${encodeURIComponent(daten._subject)}&body=${encodeURIComponent(text)}`;
-      fehler.innerHTML = 'Das Senden über die Website klappt gerade nicht. Du kannst die fertige Bestellung stattdessen per E-Mail schicken:'
-        + ` <a class="gs-mail-knopf" href="${esc(href)}">✉️ Bestellung per E-Mail senden</a>`;
+      fehlerZeigen('Die Bestellung konnte gerade nicht gesendet werden. Bitte versuche es gleich noch einmal.');
     } finally {
       clearTimeout(uhr);
       senden.disabled = false; senden.classList.remove('gs-laedt');
