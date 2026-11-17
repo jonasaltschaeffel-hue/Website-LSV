@@ -152,7 +152,6 @@
     else if (!f.ok.checked) msg = 'Bitte bestätige die Zahlung per Überweisung.';
     fehlerZeigen(msg);
     if (msg) return;
-    if (f._honey.value) return;   // Spam-Schutz: nur Roboter füllen dieses unsichtbare Feld aus
 
     const summe = p.reduce((s, x) => s + x.n * x.preis, 0);
     const name = f.name.value.trim();
@@ -176,7 +175,8 @@
       Zustellung: f.versand.value,
       Anschrift: f.versand.value === 'Post' ? f.adresse.value.trim() : '–',
       Nachricht: f.msg.value.trim() || '–',
-      Zahlung: 'Überweisung'
+      Zahlung: 'Überweisung',
+      _honey: f._honey.value   // Spam-Schutz: FormSubmit verwirft Anfragen, bei denen dieses unsichtbare Feld ausgefüllt ist
     };
 
     // als Formulardaten senden (keine Vorab-Anfrage nötig) und nach 20 Sekunden aufgeben
@@ -194,7 +194,8 @@
       leisteZeigen();
       kasse.scrollIntoView({ behavior: 'smooth', block: 'start' });
     } catch (err) {
-      fehlerZeigen('Die Bestellung konnte gerade nicht gesendet werden. Bitte versuche es gleich noch einmal.');
+      const grund = err.name === 'AbortError' ? 'Zeitüberschreitung' : (err.message || 'unbekannt');
+      fehlerZeigen(`Die Bestellung konnte gerade nicht gesendet werden. Bitte versuche es gleich noch einmal. (Grund: ${grund})`);
     } finally {
       clearTimeout(uhr);
       senden.disabled = false; senden.classList.remove('gs-laedt');
