@@ -46,6 +46,10 @@
   function ansicht(W, H){
     let x0 = HEIM.lng, x1 = HEIM.lng, y0 = HEIM.lat, y1 = HEIM.lat;
     flugListe.forEach(f => f.pts.forEach(([x, y]) => { if (x < x0) x0 = x; if (x > x1) x1 = x; if (y < y0) y0 = y; if (y > y1) y1 = y; }));
+    // Mindestausschnitt (ca. 400 × 300 km), damit auch bei wenigen kurzen Flügen Ländergrenzen sichtbar sind
+    const MIN_LAT = 2.7, MIN_LNG = 5.5;
+    if (y1 - y0 < MIN_LAT){ const m = (y0 + y1) / 2; y0 = m - MIN_LAT / 2; y1 = m + MIN_LAT / 2; }
+    if (x1 - x0 < MIN_LNG){ const m = (x0 + x1) / 2; x0 = m - MIN_LNG / 2; x1 = m + MIN_LNG / 2; }
     const k = Math.cos((y0 + y1) / 2 * Math.PI / 180);
     const pad = Math.min(W, H) * .08;
     let w = (x1 - x0) * k || .5, h = (y1 - y0) || .5;
