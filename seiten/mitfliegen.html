@@ -146,12 +146,8 @@
             <label>Telefon<input name="tel" type="tel" autocomplete="tel"></label>
             <label>Für wen ist der Gutschein?<input name="fuer" placeholder="Name auf dem Gutschein (optional)"></label>
           </div>
-          <fieldset class="gs-versand">
-            <legend>Wie möchtest du den Gutschein bekommen?</legend>
-            <label><input type="radio" name="versand" value="E-Mail (PDF zum Ausdrucken)" checked=""><span>✉️ Per E-Mail<small>zum Ausdrucken</small></span></label>
-            <label><input type="radio" name="versand" value="Post"><span>📮 Per Post<small>an deine Adresse</small></span></label>
-          </fieldset>
-          <label class="gs-adresse" hidden="">Postanschrift *<textarea name="adresse" rows="3" autocomplete="street-address"></textarea></label>
+          <input type="hidden" name="versand" value="E-Mail (PDF zum Ausdrucken)">
+          <p style="margin:2px 0 4px;font-size:15px">✉️ Den Gutschein bekommst du per E-Mail zum Ausdrucken.</p>
           <label>Nachricht an uns<textarea name="msg" rows="3" placeholder="z. B. Wunschtermin, Widmung für den Gutschein …"></textarea></label>
           <label class="gs-check"><input type="checkbox" name="ok" required=""> Ich bezahle per Überweisung. Den Gutschein bekomme ich nach Zahlungseingang.</label>
           <input type="text" name="_honey" class="gs-honig" tabindex="-1" autocomplete="off" aria-hidden="true">
@@ -199,7 +195,7 @@
 </main>
 
 <script src="../js/himmel.js"></script>
-<script src="../js/gutscheine.js?v=10"></script>
+<script src="../js/gutscheine.js?v=11"></script>
 <script>
   const b = document.getElementById('menu-btn'), t = document.getElementById('tabs');
   b.addEventListener('click', () => b.setAttribute('aria-expanded', t.classList.toggle('open')));
