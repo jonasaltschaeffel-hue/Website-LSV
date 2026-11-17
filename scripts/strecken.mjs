@@ -17,6 +17,11 @@ async function api(pfad){
   for (let versuch = 1; ; versuch++){
     const r = await fetch('https://api.weglide.org/v1/' + pfad, {headers: {'User-Agent': 'LSV-Regensburg-Website (GitHub Actions)'}});
     if (r.ok) return r.json();
+    if (r.status === 403){
+      // WeGlide lässt automatische Abrufe (noch) nicht zu: bestehende Daten bleiben unverändert, kein Fehler-Mail.
+      console.log('::warning::WeGlide hat den Zugriff abgelehnt (403). Die vorhandenen Streckendaten bleiben unverändert.');
+      process.exit(0);
+    }
     if (versuch >= 3 || r.status === 404) throw new Error(r.status + ' ' + pfad);
     await pause(3000 * versuch);
   }
