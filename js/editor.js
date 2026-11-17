@@ -366,6 +366,17 @@
       FLOATS.forEach(c => t.classList.remove(c));
       if (op.align) t.classList.add(op.align);
     }
+    else if (op.type === 'teilen'){
+      // Absatz an einem Zeilenumbruch (br) teilen – damit ein Bild mitten in den Text gesetzt werden kann
+      const np = t.ownerDocument.createElement(t.tagName.toLowerCase());
+      if (t.className) np.className = t.className;
+      if (t.getAttribute('style')) np.setAttribute('style', t.getAttribute('style'));
+      np.setAttribute('data-e', op.id);
+      const br = [...t.childNodes].filter(n => n.nodeName === 'BR')[op.br];
+      if (br){ let n = br.nextSibling; while (n){ const x = n.nextSibling; np.appendChild(n); n = x; } br.remove(); }
+      t.after(np);
+      return np;
+    }
     else if (op.type === 'width'){
       // Bildbreite in Prozent der Textspalte
       SIZES.forEach(c => t.classList.remove(c));
@@ -404,9 +415,16 @@
     const joinCase = op.type === 'join' ? (isRow(target) ? 'append' : isRow(nextEl) ? 'prepend' : 'wrap') : '';
     const splitItems = op.type === 'split' ? kids(target) : [];
     const prevFloat = floatOf(target), prevStyle = target.getAttribute('style');
+    // nach dem Teilen eines Absatzes beide Hälften mit ihrem aktuellen Text speichern
+    const nachTeilen = () => {
+      if (op.type !== 'teilen' || !created) return;
+      original.set(created.dataset.e, {html: '\u0000', style: '', href: null});
+      markDirty(created); markDirty(target);
+    };
     let created = applyOp(info.container, live);
     ops.push(full); updateSave();
     register(created);              // neue Texte sofort bearbeitbar machen
+    nachTeilen();
     hideBlockBar();
     pushHist({
       undo(){
@@ -429,13 +447,17 @@
           if (prevStyle) target.setAttribute('style', prevStyle); else target.removeAttribute('style');
           if (prevSize) target.classList.add(prevSize);
         }
+        else if (op.type === 'teilen'){
+          // Absatz wieder zusammenfügen
+          if (created){ target.append(document.createElement('br'), ...created.childNodes); created.remove(); dirty.delete(created.dataset.e); markDirty(target); }
+        }
         else if (created) created.remove();
         else pos.parent.insertBefore(target, pos.next);         // entfernen / verschieben rückgängig
         ops.splice(ops.lastIndexOf(full), 1); updateSave();
       },
       redo(){
         created = applyOp(info.container, live); register(created);
-        ops.push(full); updateSave();
+        ops.push(full); updateSave(); nachTeilen();
       }
     });
   }
@@ -589,7 +611,20 @@
       const align = isRow(t) ? '' : x < 0.33 ? 'bild-links' : x > 0.67 ? 'bild-rechts' : '';
       ziel = {to: i, align};
       const ref = rest[i] || rest[rest.length - 1], rr = ref.getBoundingClientRect();
-      const y = rest[i] ? rr.top - 8 : rr.bottom + 4;
+      let y = rest[i] ? rr.top - 8 : rr.bottom + 4;
+      // Mitten in einem Absatz? Dann an der nächsten Zeile (Zeilenumbruch) teilen
+      const absatz = rest.find(k => { const r = k.getBoundingClientRect(); return e.clientY > r.top + 12 && e.clientY < r.bottom - 12; });
+      if (absatz && absatz.matches('p[data-e]') && !isRow(t)){
+        const brs = [...absatz.childNodes].filter(n => n.nodeName === 'BR');
+        let best = -1, abst = Infinity, by = 0;
+        brs.forEach((br, j) => {
+          const rg = document.createRange(); rg.selectNode(br);
+          const b = rg.getBoundingClientRect(); if (!b.height) return;
+          const d = Math.abs(b.bottom - e.clientY);
+          if (d < abst){ abst = d; best = j; by = b.bottom; }
+        });
+        if (best >= 0){ ziel = {to: rest.indexOf(absatz) + 1, align, absatz, br: best}; y = by + 2; }
+      }
       const breite = align ? cr.width * 0.45 : cr.width;
       Object.assign(marke.style, {display: 'block', top: (y + scrollY) + 'px', width: breite + 'px',
         left: (cr.left + scrollX + (align === 'bild-rechts' ? cr.width - breite : 0)) + 'px'});
@@ -599,7 +634,14 @@
       removeEventListener('pointermove', bewegen); removeEventListener('pointerup', ende); removeEventListener('pointercancel', ende);
       geist.remove(); marke.style.display = 'none';
       t.classList.remove('lsv-wird-gezogen'); ziehtGerade = false;
-      if (ziel && (ziel.to !== vorher || ziel.align !== floatOf(t)))
+      if (ziel && ziel.absatz){
+        // Absatz teilen und das Bild zwischen die beiden Hälften setzen
+        const p = ziel.absatz;
+        doOp({container: c, block: p, path: [kids(c).indexOf(p)]}, {type: 'teilen', path: [kids(c).indexOf(p)], br: ziel.br, id: nid()});
+        const zweite = sib(p, 1);
+        doOp({container: c, block: t, path: [kids(c).indexOf(t)]}, {type: 'place', path: [kids(c).indexOf(t)], to: kids(c).filter(k => k !== t).indexOf(zweite), align: ziel.align});
+      }
+      else if (ziel && (ziel.to !== vorher || ziel.align !== floatOf(t)))
         doOp(info, {type: 'place', path: info.path, to: ziel.to, align: ziel.align});
     };
     addEventListener('pointermove', bewegen);
