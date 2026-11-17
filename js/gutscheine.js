@@ -179,13 +179,13 @@
       _honey: f._honey.value   // Spam-Schutz: FormSubmit verwirft Anfragen, bei denen dieses unsichtbare Feld ausgefüllt ist
     };
 
-    // als Formulardaten senden (keine Vorab-Anfrage nötig) und nach 20 Sekunden aufgeben
+    // als Formulardaten senden (keine Vorab-Anfrage nötig) und nach 90 Sekunden aufgeben
     const fd = new FormData();
     Object.entries(daten).forEach(([k, v]) => fd.append(k, v));
     const abbruch = new AbortController();
-    const uhr = setTimeout(() => abbruch.abort(), 20000);
+    const uhr = setTimeout(() => abbruch.abort(), 90000);
     senden.disabled = true; senden.classList.add('gs-laedt');
-    $('.gs-senden-text').textContent = 'Wird gesendet …';
+    $('.gs-senden-text').textContent = 'Wird gesendet … (kann bis zu 1 Minute dauern)';
     try {
       const r = await fetch(ENDPUNKT, { method: 'POST', headers: { Accept: 'application/json' }, body: fd, signal: abbruch.signal });
       const antwort = await r.json().catch(() => ({}));
