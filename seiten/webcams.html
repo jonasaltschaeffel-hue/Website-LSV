@@ -20,6 +20,14 @@
   /* Rahmen im Bildformat 16:9; die alte Webcam-Seite wird so verschoben und skaliert, dass nur das Kamerabild sichtbar ist */
   .wc-rahmen{position:relative;overflow:hidden;aspect-ratio:16/9;border-radius:14px;background:#0f2c4c;box-shadow:0 12px 34px rgba(15,44,76,.18)}
   .wc-rahmen iframe{position:absolute;top:0;left:0;width:1000px;height:700px;border:0;transform-origin:0 0;display:block;pointer-events:none}
+  .wc-nav{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:12px}
+  .wc-nav button{display:inline-flex;align-items:center;gap:6px;font:600 15px/1 'Barlow',sans-serif;padding:11px 18px;border-radius:999px;
+    border:1.5px solid rgba(15,44,76,.18);background:#fff;color:#0f2c4c;cursor:pointer;transition:background .2s,border-color .2s,transform .15s,opacity .2s}
+  .wc-nav button:hover:not(:disabled){border-color:#0f2c4c;transform:translateY(-1px)}
+  .wc-nav button:disabled{opacity:.4;cursor:default}
+  .wc-nav .wc-stand{font:600 14px/1.2 'Barlow',sans-serif;color:#0f2c4c;text-align:center}
+  .wc-nav .wc-stand button{padding:6px 12px;font-size:13px;margin-left:6px}
+  @media (max-width:520px){ .wc-nav button{padding:10px 13px} .wc-nav .wc-txt{display:none} }
 </style>
 </head>
 <body class="artikel">
@@ -59,7 +67,7 @@
     <a class="back" href="../index.html">← Zur Startseite</a>
     <div data-e="e4" class="date">Blick auf den Flugplatz</div>
     <h1 data-e="e1">Webcams</h1>
-    <p data-e="e2">Der Live-Blick auf den Flugplatz Oberhinkofen – praktisch, um vor der Anfahrt Wetter und Flugbetrieb zu prüfen. Wähle eine Kamera. Fragen zum Flugbetrieb? An Flugtagen erreichst du die Flugleitung unter 09453 7244, sonst über <a href="../index.html#kontakt">Kontakt</a>.</p>
+    <p data-e="e2">Der Live-Blick auf den Flugplatz Oberhinkofen – praktisch, um vor der Anfahrt Wetter und Flugbetrieb zu prüfen. Wähle eine Kamera; mit den Pfeilen (oder den Pfeiltasten) blätterst du durch die letzten Bilder. Fragen zum Flugbetrieb? An Flugtagen erreichst du die Flugleitung unter 09453 7244, sonst über <a href="../index.html#kontakt">Kontakt</a>.</p>
 
     <div class="wc-auswahl" role="tablist" aria-label="Kamera wählen">
       <button type="button" role="tab" aria-selected="true" data-cam="instar">Hallen</button>
@@ -68,6 +76,11 @@
     </div>
     <div class="wc-rahmen">
       <iframe id="wc-bild" title="Webcam Hallen" src="https://www.luftsportverein-regensburg.de/instar/phpslideshow.php" scrolling="no" tabindex="-1"></iframe>
+    </div>
+    <div class="wc-nav">
+      <button type="button" class="wc-aelter" aria-label="Älteres Bild">‹ <span class="wc-txt">Älter</span></button>
+      <span class="wc-stand"><span class="wc-stand-text">Neuestes Bild</span><button type="button" class="wc-jetzt" hidden>Zum neuesten</button></span>
+      <button type="button" class="wc-neuer" aria-label="Neueres Bild" disabled><span class="wc-txt">Neuer</span> ›</button>
     </div>
   </article>
 </main>
@@ -80,22 +93,49 @@
   // Webcams: Kamera wechseln. Die alte Webcam-Seite wird 1000 px breit geladen; dort liegt das
   // Kamerabild bei x 58, y 146 (885 × 498 px). Nur diesen Ausschnitt (mit kleinem Rand nach innen) zeigen.
   (() => {
-    const quelle = cam => 'https://www.luftsportverein-regensburg.de/' + cam + '/phpslideshow.php';
+    // Bild 0 = neuestes, höhere Nummer = älter (die alte Webcam-Seite hält die letzten 120 Bilder)
+    const MAX = 119;
+    const quelle = (cam, nr) => 'https://www.luftsportverein-regensburg.de/' + cam + '/phpslideshow.php' + (nr ? '?directory=.&currentPic=' + nr : '');
     const rahmen = document.querySelector('.wc-rahmen');
-    let bild = document.getElementById('wc-bild');
+    const aelter = document.querySelector('.wc-aelter'), neuer = document.querySelector('.wc-neuer');
+    const standText = document.querySelector('.wc-stand-text'), jetzt = document.querySelector('.wc-jetzt');
+    let bild = document.getElementById('wc-bild'), cam = 'instar', name = 'Hallen', nr = 0;
     const X = 65.5, Y = 150, B = 871;
     const passen = () => {
       const s = rahmen.clientWidth / B;
-      bild.style.transform = 'scale(' + s + ') translate(' + (-X) + 'px,' + (-Y) + 'px)';
+      rahmen.querySelectorAll('iframe').forEach(f => { f.style.transform = 'scale(' + s + ') translate(' + (-X) + 'px,' + (-Y) + 'px)'; });
     };
     addEventListener('resize', passen); passen();
+
+    // Neues iframe über das alte legen und das alte erst nach dem Laden entfernen: kein Flackern
+    // und kein Eintrag im Browser-Verlauf (Esc/Zurück führt weiter zur vorherigen Seite).
+    function zeigen(){
+      const neu = bild.cloneNode();
+      neu.removeAttribute('id');
+      neu.src = quelle(cam, nr);
+      neu.title = 'Webcam ' + name;
+      neu.addEventListener('load', () => {
+        if (neu !== bild){ neu.remove(); return; }                       // inzwischen schon weitergeblättert
+        setTimeout(() => rahmen.querySelectorAll('iframe').forEach(f => { if (f !== bild) f.remove(); }), 400);   // kurz warten, bis das neue Bild gezeichnet ist
+      }, {once: true});
+      rahmen.appendChild(neu); bild = neu; passen();
+      neuer.disabled = nr === 0; aelter.disabled = nr >= MAX;
+      standText.textContent = nr === 0 ? 'Neuestes Bild' : nr + (nr === 1 ? ' Bild' : ' Bilder') + ' zurück';
+      jetzt.hidden = nr === 0;
+    }
+    aelter.addEventListener('click', () => { if (nr < MAX){ nr++; zeigen(); } });
+    neuer.addEventListener('click', () => { if (nr > 0){ nr--; zeigen(); } });
+    jetzt.addEventListener('click', () => { nr = 0; zeigen(); });
+    addEventListener('keydown', ev => {
+      const f = document.activeElement;
+      if (ev.ctrlKey || ev.altKey || ev.metaKey || (f && (f.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(f.tagName)))) return;
+      if (ev.key === 'ArrowLeft'){ ev.preventDefault(); aelter.click(); }
+      if (ev.key === 'ArrowRight'){ ev.preventDefault(); neuer.click(); }
+    });
     document.querySelectorAll('.wc-auswahl button').forEach(btn => btn.addEventListener('click', () => {
       document.querySelectorAll('.wc-auswahl button').forEach(x => x.setAttribute('aria-selected', x === btn));
-      // neues iframe statt src ändern: so entsteht kein Eintrag im Browser-Verlauf (Esc/Zurück bleibt bei der Seite)
-      const neu = bild.cloneNode();
-      neu.src = quelle(btn.dataset.cam);
-      neu.title = 'Webcam ' + btn.textContent;
-      bild.replaceWith(neu); bild = neu;
+      cam = btn.dataset.cam; name = btn.textContent; nr = 0;
+      zeigen();
     }));
   })();
 </script>
