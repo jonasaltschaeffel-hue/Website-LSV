@@ -7,6 +7,29 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
 <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&amp;family=Barlow+Condensed:wght@500;600;700&amp;display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../css/stil.css">
+<style>
+  /* Streckenkarte: eigene, vereinfachte Darstellung der WeGlide-Flüge (Daten: daten/strecken/) */
+  .sf-box{margin:22px 0 30px;background:radial-gradient(120% 90% at 50% 0%,#17406b 0%,#0d2440 60%,#091a30 100%);
+    border-radius:18px;padding:16px;color:#e8f1fb;box-shadow:0 22px 50px -24px rgba(6,28,58,.7)}
+  .sf-kopf{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px 16px;margin-bottom:12px}
+  .sf-jahre{display:flex;flex-wrap:wrap;gap:6px}
+  .sf-jahre button{font:600 15px/1 'Barlow',sans-serif;padding:9px 15px;border-radius:999px;cursor:pointer;
+    border:1.5px solid rgba(255,255,255,.25);background:rgba(255,255,255,.06);color:#e8f1fb;transition:background .2s,border-color .2s,color .2s}
+  .sf-jahre button:hover{border-color:rgba(255,255,255,.6)}
+  .sf-jahre button[aria-selected="true"]{background:#ffc72c;border-color:#ffc72c;color:#0d2440}
+  .sf-zahlen{font:500 15px/1.2 'Barlow',sans-serif;color:#b9cde3}
+  .sf-zahlen b{font:700 22px/1 'Barlow Condensed',sans-serif;color:#fff;letter-spacing:.02em}
+  .sf-karte{position:relative;aspect-ratio:16/10;border-radius:12px;overflow:hidden;background:rgba(0,0,0,.18);touch-action:pan-y}
+  .sf-karte canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+  .sf-info{position:absolute;left:12px;bottom:12px;max-width:calc(100% - 24px);padding:8px 12px;border-radius:10px;
+    background:rgba(6,20,38,.82);font-size:14px;line-height:1.35;pointer-events:none;opacity:0;transition:opacity .15s}
+  .sf-info.an{opacity:1}
+  .sf-info b{color:#ffc72c}
+  .sf-leer{position:absolute;inset:0;display:grid;place-items:center;text-align:center;padding:20px;color:#b9cde3;font-size:15px}
+  .sf-fuss{display:flex;flex-wrap:wrap;justify-content:space-between;gap:4px 14px;margin-top:10px;font-size:12.5px;color:#8fa6c0}
+  #sf-box .sf-fuss a{color:#cfe0f3}
+  @media (max-width:560px){ .sf-box{padding:12px;border-radius:14px} .sf-karte{aspect-ratio:4/5} .sf-jahre button{padding:8px 12px;font-size:14px} }
+</style>
 </head>
 <body class="artikel">
 
@@ -43,7 +66,19 @@
   <article class="article">
     <a class="back" href="../index.html">← Zur Startseite</a>
     <div data-e="e15" class="date">Leistungsflug</div>
-    <h1 data-e="e1">Streckenflug</h1><div class="pic bild-block"><img data-e="bi58ax9" src="../img/uploads/seiten-streckenflug-bi58ax9-mwj3zzxa.jpg" alt=""></div><div class="bild-reihe"><div class="pic bild-block"><img data-e="b6ghw46" src="../img/uploads/seiten-streckenflug-b6ghw46.jpg" alt=""></div><div class="pic bild-block"><img data-e="bzg3cav" src="../img/uploads/seiten-streckenflug-bzg3cav-mwj3x2ev.jpg" alt=""></div></div><p data-e="e2">Du willst mehr als nur eine Runde um den Flugplatz drehen? Dann ist Streckenfliegen genau dein Ding!<br>Mit unseren Einsitzern Discus und Ventus oder gemeinsam im Doppelsitzer DG geht es hoch hinaus und weit hinaus. Hunderte Kilometer durch die Luft gleiten, nur angetrieben von der Kraft der Natur – genauer gesagt von der „heißen Luft“. Thermik finden, Höhe gewinnen, die nächste Etappe planen und dabei immer neue Landschaften aus der Vogelperspektive entdecken.<br>Streckenfliegen verbindet Abenteuer, sportlichen Ehrgeiz und echte Erfolgserlebnisse. Jeder Flug ist anders, jede Herausforderung bringt dich weiter und jeder Kilometer macht stolz.<br>Und wenn du nach deinem Schein noch mehr erreichen möchtest, warten spannende Wettbewerbe auf dich! Hier kannst du dich mit anderen Pilotinnen und Piloten messen, dein Wissen über Wetter und Flugtaktik vertiefen und lernen, im Team noch erfolgreicher unterwegs zu sein.<br>Neue Ziele, neue Herausforderungen und unvergessliche Momente am Himmel – wie weit dich deine Leidenschaft trägt, entscheidest du selbst!<br><br></p>
+    <h1 data-e="e1">Streckenflug</h1>
+    <div class="sf-box" id="sf-box">
+      <div class="sf-kopf">
+        <div class="sf-jahre" role="tablist" aria-label="Saison wählen"></div>
+        <div class="sf-zahlen"><b class="sf-n">–</b> Flüge · <b class="sf-km">–</b> km</div>
+      </div>
+      <div class="sf-karte">
+        <canvas aria-label="Karte der Streckenflüge des LSV Regensburg"></canvas>
+        <div class="sf-leer">Strecken werden geladen …</div>
+        <div class="sf-info" aria-live="polite"></div>
+      </div>
+      <div class="sf-fuss"><span>Alle Streckenflüge unserer Pilotinnen und Piloten einer Saison · Daten: <a href="https://www.weglide.org/flight/map?club=LSV%2520Regensburg,145&amp;country=Deutschland,DE" target="_blank" rel="noopener">WeGlide</a></span><span class="sf-stand"></span></div>
+    </div><div class="bild-reihe"><div class="pic bild-block"><img data-e="b6ghw46" src="../img/uploads/seiten-streckenflug-b6ghw46.jpg" alt=""></div><div class="pic bild-block"><img data-e="bzg3cav" src="../img/uploads/seiten-streckenflug-bzg3cav-mwj3x2ev.jpg" alt=""></div></div><p data-e="e2">Du willst mehr als nur eine Runde um den Flugplatz drehen? Dann ist Streckenfliegen genau dein Ding!<br>Mit unseren Einsitzern Discus und Ventus oder gemeinsam im Doppelsitzer DG geht es hoch hinaus und weit hinaus. Hunderte Kilometer durch die Luft gleiten, nur angetrieben von der Kraft der Natur – genauer gesagt von der „heißen Luft“. Thermik finden, Höhe gewinnen, die nächste Etappe planen und dabei immer neue Landschaften aus der Vogelperspektive entdecken.<br>Streckenfliegen verbindet Abenteuer, sportlichen Ehrgeiz und echte Erfolgserlebnisse. Jeder Flug ist anders, jede Herausforderung bringt dich weiter und jeder Kilometer macht stolz.<br>Und wenn du nach deinem Schein noch mehr erreichen möchtest, warten spannende Wettbewerbe auf dich! Hier kannst du dich mit anderen Pilotinnen und Piloten messen, dein Wissen über Wetter und Flugtaktik vertiefen und lernen, im Team noch erfolgreicher unterwegs zu sein.<br>Neue Ziele, neue Herausforderungen und unvergessliche Momente am Himmel – wie weit dich deine Leidenschaft trägt, entscheidest du selbst!<br><br></p>
     <div class="bild-reihe"><div class="pic bild-block"><img data-e="bzxc2ja" src="../img/uploads/seiten-streckenflug-bzxc2ja.jpg" alt=""></div><div class="pic bild-block"><img data-e="bg84ena" src="../img/uploads/seiten-streckenflug-bg84ena.jpg" alt=""></div></div>
 
     <h2 data-e="e3">Vereinsrekord</h2><p data-e="e4">Am 16. Juni 2014 flog Michael Sommer eine Strecke von über 1.350&nbsp;km.</p>
@@ -63,6 +98,7 @@
 </main>
 
 <script src="../js/himmel.js"></script>
+<script src="../js/streckenkarte.js"></script>
 <script>
   const b = document.getElementById('menu-btn'), t = document.getElementById('tabs');
   b.addEventListener('click', () => b.setAttribute('aria-expanded', t.classList.toggle('open')));
