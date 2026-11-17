@@ -68,3 +68,16 @@
 .lsv-undo:disabled,.lsv-redo:disabled{opacity:.4;cursor:default}
 .lsv-admin{background:transparent;color:#ffd34d;border:1px solid rgba(255,211,77,.6)!important}
 .lsv-dialog select{display:block;width:100%;margin-top:6px;font:inherit;padding:9px 11px;border:1px solid #c9d4e2;border-radius:10px;color:#0a2350;background:#fff}
+
+/* Bilder in Artikeln: Griff zum Verschieben, Ecke für die Größe, Einrast-Markierung */
+.lsv-bildgriff{position:absolute;z-index:8999;display:none;pointer-events:none;border:2px dashed #ffd34d;border-radius:18px;box-sizing:border-box}
+.lsv-zieh{pointer-events:auto;position:absolute;left:10px;top:10px;font:600 13px system-ui,sans-serif;padding:7px 12px;border-radius:999px;border:0;background:rgba(10,35,80,.92);color:#fff;cursor:grab;touch-action:none;text-shadow:none;box-shadow:0 6px 16px -6px rgba(0,0,0,.6)}
+.lsv-zieh:active{cursor:grabbing}
+.lsv-ecke{pointer-events:auto;position:absolute;right:-10px;bottom:-10px;width:20px;height:20px;border-radius:6px;background:#ffd34d;border:2px solid #0a2350;cursor:nwse-resize;touch-action:none}
+.lsv-ecke-links .lsv-ecke{right:auto;left:-10px;cursor:nesw-resize}
+.lsv-dropmarke{position:absolute;z-index:9004;display:none;height:6px;border-radius:3px;background:#ffd34d;box-shadow:0 0 0 2px #0a2350;pointer-events:none}
+.lsv-dropmarke::after{content:attr(data-t);position:absolute;left:0;top:10px;font:600 12px system-ui,sans-serif;background:#0a2350;color:#fff;padding:4px 9px;border-radius:7px;white-space:nowrap}
+.lsv-geist{position:absolute;z-index:9005;width:160px;pointer-events:none;opacity:.85;border-radius:10px;overflow:hidden;background:#fff;box-shadow:0 12px 30px -8px rgba(0,0,0,.55)}
+.lsv-geist img{display:block;width:100%;height:auto}
+.lsv-wird-gezogen{opacity:.35}
+.lsv-blockbar .lsv-alignbtns button{padding:0 9px;white-space:nowrap}
