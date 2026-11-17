@@ -367,13 +367,26 @@
       if (op.align) t.classList.add(op.align);
     }
     else if (op.type === 'teilen'){
-      // Absatz an einem Zeilenumbruch (br) teilen – damit ein Bild mitten in den Text gesetzt werden kann
+      // Absatz an beliebiger Stelle teilen (pos = Anzahl Zeichen ab Absatzanfang),
+      // damit ein Bild mitten in den Text gesetzt werden kann
       const np = t.ownerDocument.createElement(t.tagName.toLowerCase());
       if (t.className) np.className = t.className;
       if (t.getAttribute('style')) np.setAttribute('style', t.getAttribute('style'));
       np.setAttribute('data-e', op.id);
-      const br = [...t.childNodes].filter(n => n.nodeName === 'BR')[op.br];
-      if (br){ let n = br.nextSibling; while (n){ const x = n.nextSibling; np.appendChild(n); n = x; } br.remove(); }
+      let n = t.firstChild, z = 0;
+      while (n){
+        const len = n.textContent.length;
+        if (z + len > op.pos){ if (n.nodeType === 3 && op.pos > z) n = n.splitText(op.pos - z); break; }
+        z += len; n = n.nextSibling;
+      }
+      while (n){ const x = n.nextSibling; np.appendChild(n); n = x; }
+      // Zeilenumbrüche und Leerraum an der Trennstelle entfernen
+      const leer = k => k && (k.nodeName === 'BR' || (k.nodeType === 3 && !k.textContent.trim()));
+      while (leer(t.lastChild)) t.lastChild.remove();
+      while (leer(np.firstChild)) np.firstChild.remove();
+      if (np.firstChild && np.firstChild.nodeType === 3) np.firstChild.textContent = np.firstChild.textContent.replace(/^\s+/, '');
+      if (t.lastChild && t.lastChild.nodeType === 3) t.lastChild.textContent = t.lastChild.textContent.replace(/\s+$/, '');
+      t.classList.add('geteilt');        // kein Absatzabstand an der Trennstelle
       t.after(np);
       return np;
     }
@@ -415,6 +428,7 @@
     const joinCase = op.type === 'join' ? (isRow(target) ? 'append' : isRow(nextEl) ? 'prepend' : 'wrap') : '';
     const splitItems = op.type === 'split' ? kids(target) : [];
     const prevFloat = floatOf(target), prevStyle = target.getAttribute('style');
+    const prevHtml = target.innerHTML, prevClass = target.className;
     // nach dem Teilen eines Absatzes beide Hälften mit ihrem aktuellen Text speichern
     const nachTeilen = () => {
       if (op.type !== 'teilen' || !created) return;
@@ -449,7 +463,7 @@
         }
         else if (op.type === 'teilen'){
           // Absatz wieder zusammenfügen
-          if (created){ target.append(document.createElement('br'), ...created.childNodes); created.remove(); dirty.delete(created.dataset.e); markDirty(target); }
+          if (created){ target.innerHTML = prevHtml; target.className = prevClass; created.remove(); dirty.delete(created.dataset.e); markDirty(target); }
         }
         else if (created) created.remove();
         else pos.parent.insertBefore(target, pos.next);         // entfernen / verschieben rückgängig
@@ -581,6 +595,13 @@
     griff.querySelector('.lsv-ecke').style.display = isRow(info.block) ? 'none' : '';
   }
   const griffWeg = () => { griff.style.display = 'none'; gInfo = null; };
+  // Textstelle an einem Bildschirmpunkt (Chrome/Edge/Safari bzw. Firefox)
+  const caretAt = (x, y) => {
+    if (document.caretRangeFromPoint) return document.caretRangeFromPoint(x, y);
+    const p = document.caretPositionFromPoint && document.caretPositionFromPoint(x, y);
+    if (!p) return null;
+    const r = document.createRange(); r.setStart(p.offsetNode, p.offset); return r;
+  };
   addEventListener('resize', griffWeg);
 
   // Verschieben
@@ -612,18 +633,24 @@
       ziel = {to: i, align};
       const ref = rest[i] || rest[rest.length - 1], rr = ref.getBoundingClientRect();
       let y = rest[i] ? rr.top - 8 : rr.bottom + 4;
-      // Mitten in einem Absatz? Dann an der nächsten Zeile (Zeilenumbruch) teilen
-      const absatz = rest.find(k => { const r = k.getBoundingClientRect(); return e.clientY > r.top + 12 && e.clientY < r.bottom - 12; });
+      // Mitten in einem Absatz? Dann am Anfang der Zeile unter dem Zeiger teilen
+      const absatz = rest.find(k => { const r = k.getBoundingClientRect(); return e.clientY > r.top + 6 && e.clientY < r.bottom - 6; });
       if (absatz && absatz.matches('p[data-e]') && !isRow(t)){
-        const brs = [...absatz.childNodes].filter(n => n.nodeName === 'BR');
-        let best = -1, abst = Infinity, by = 0;
-        brs.forEach((br, j) => {
-          const rg = document.createRange(); rg.selectNode(br);
-          const b = rg.getBoundingClientRect(); if (!b.height) return;
-          const d = Math.abs(b.bottom - e.clientY);
-          if (d < abst){ abst = d; best = j; by = b.bottom; }
-        });
-        if (best >= 0){ ziel = {to: rest.indexOf(absatz) + 1, align, absatz, br: best}; y = by + 2; }
+        const ar = absatz.getBoundingClientRect();
+        let caret = null;
+        for (let px = ar.left + 2; px < ar.right && !caret; px += 30){      // erstes Zeichen der Zeile suchen (neben Bildern versetzt)
+          const c2 = caretAt(px, e.clientY);
+          if (c2 && absatz.contains(c2.startContainer)) caret = c2;
+        }
+        if (caret){
+          const vor = document.createRange(); vor.setStart(absatz, 0); vor.setEnd(caret.startContainer, caret.startOffset);
+          const pos = vor.toString().length;
+          if (pos > 0 && pos < absatz.textContent.trimEnd().length){
+            const cr2 = caret.getBoundingClientRect();
+            ziel = {to: rest.indexOf(absatz) + 1, align, absatz, pos};
+            y = (cr2.height ? cr2.top : e.clientY) - 4;
+          }
+        }
       }
       const breite = align ? cr.width * 0.45 : cr.width;
       Object.assign(marke.style, {display: 'block', top: (y + scrollY) + 'px', width: breite + 'px',
@@ -637,7 +664,7 @@
       if (ziel && ziel.absatz){
         // Absatz teilen und das Bild zwischen die beiden Hälften setzen
         const p = ziel.absatz;
-        doOp({container: c, block: p, path: [kids(c).indexOf(p)]}, {type: 'teilen', path: [kids(c).indexOf(p)], br: ziel.br, id: nid()});
+        doOp({container: c, block: p, path: [kids(c).indexOf(p)]}, {type: 'teilen', path: [kids(c).indexOf(p)], pos: ziel.pos, id: nid()});
         const zweite = sib(p, 1);
         doOp({container: c, block: t, path: [kids(c).indexOf(t)]}, {type: 'place', path: [kids(c).indexOf(t)], to: kids(c).filter(k => k !== t).indexOf(zweite), align: ziel.align});
       }
