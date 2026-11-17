@@ -35,6 +35,22 @@
   @media (max-width:1100px){
     #start .abflug{width:min(500px,100%);margin-top:30px}
   }
+  /* Handy: Kopfzeile kompakter, damit die Uhr in der Tafel bleibt */
+  @media (max-width:520px){
+    .abflug-gehaeuse{padding:10px 10px 8px;border-radius:12px}
+    .abflug-kopf{gap:7px;padding:0 2px 9px}
+    .abflug-kopf svg{width:20px;height:20px}
+    .abflug-titel{font-size:20px;letter-spacing:.08em}
+    .abflug-en{font-size:12px;letter-spacing:.1em}
+    .abflug-uhr{font-size:16px;padding:3px 6px}
+    .abflug-fuss{font-size:11px;flex-wrap:wrap;gap:4px 10px}
+  }
+  @media (max-width:360px){ .abflug-en{display:none} }
+  /* Handy: Flotten-Auswahl umbrechen statt die Seite zu verbreitern */
+  @media (max-width:600px){
+    .filter{display:flex;flex-wrap:wrap;justify-content:center;max-width:100%;border-radius:24px}
+    .filter button{padding:8px 14px;font-size:15px}
+  }
 </style>
 </head>
 <body>
