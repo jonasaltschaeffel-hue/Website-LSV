@@ -8,6 +8,24 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=Barlow+Condensed:wght@500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../css/stil.css">
+<style>
+  /* Webcams: Bilder kommen vom Server der alten Website (luftsportverein-regensburg.de) */
+  .wc-auswahl{display:flex;flex-wrap:wrap;gap:8px;margin:26px 0 14px}
+  .wc-auswahl button{font:600 15px/1 'Barlow',sans-serif;letter-spacing:.02em;padding:11px 18px;border-radius:999px;
+    border:1.5px solid rgba(15,44,76,.18);background:#fff;color:#0f2c4c;cursor:pointer;transition:background .2s,color .2s,border-color .2s,transform .15s}
+  .wc-auswahl button:hover{border-color:#0f2c4c;transform:translateY(-1px)}
+  .wc-auswahl button[aria-selected="true"]{background:#0f2c4c;border-color:#0f2c4c;color:#fff}
+  .wc-auswahl button::before{content:"";display:inline-block;width:8px;height:8px;border-radius:50%;background:#c8102e;margin-right:8px;vertical-align:1px;opacity:.35}
+  .wc-auswahl button[aria-selected="true"]::before{opacity:1;box-shadow:0 0 0 3px rgba(200,16,46,.25)}
+  .wc-rahmen{position:relative;overflow:hidden;border-radius:14px;background:#0f2c4c;box-shadow:0 12px 34px rgba(15,44,76,.18)}
+  .wc-rahmen iframe{position:absolute;top:0;left:0;width:1000px;border:0;transform-origin:0 0;display:block}
+  .wc-fuss{display:flex;justify-content:space-between;flex-wrap:wrap;gap:6px 16px;margin:10px 2px 0;font-size:14px;color:#5a6b7d}
+  .wc-fuss a{color:#0f2c4c;font-weight:600;text-decoration:none}
+  .wc-fuss a:hover{text-decoration:underline}
+  .wc-wetter{display:flex;flex-wrap:wrap;align-items:center;gap:18px 28px}
+  .wc-wetter iframe{width:300px;height:250px;border:0;border-radius:12px;background:#fff;box-shadow:0 8px 24px rgba(15,44,76,.12);flex:none}
+  .wc-wetter p{flex:1 1 220px;margin:0}
+</style>
 </head>
 <body class="artikel">
 
@@ -46,9 +64,26 @@
     <a class="back" href="../index.html">← Zur Startseite</a>
     <div data-e="e4" class="date">Blick auf den Flugplatz</div>
     <h1 data-e="e1">Webcams</h1>
-    <span data-e="e5" class="soon">Diese Seite ist im Aufbau</span>
-    <p data-e="e2">Hier entsteht der Live-Blick auf den Flugplatz Oberhinkofen – praktisch, um vor der Anfahrt Wetter und Flugbetrieb zu prüfen.</p>
-    <p data-e="e3">Bis dahin erreichst du uns über <a href="../index.html#kontakt">Kontakt</a> oder an Flugtagen bei der Flugleitung unter 09453 7244.</p>
+    <p data-e="e2">Der Live-Blick auf den Flugplatz Oberhinkofen – praktisch, um vor der Anfahrt Wetter und Flugbetrieb zu prüfen. Wähle eine Kamera; mit „vor“ und „zurück“ blätterst du durch die letzten Bilder.</p>
+
+    <div class="wc-auswahl" role="tablist" aria-label="Kamera wählen">
+      <button type="button" role="tab" aria-selected="true" data-cam="instar">Hallen</button>
+      <button type="button" role="tab" aria-selected="false" data-cam="instar-west">Landebahn West</button>
+      <button type="button" role="tab" aria-selected="false" data-cam="instar-ost">Landebahn Ost</button>
+    </div>
+    <div class="wc-rahmen">
+      <iframe id="wc-bild" title="Webcam Hallen" src="https://www.luftsportverein-regensburg.de/instar/phpslideshow.php" loading="lazy"></iframe>
+    </div>
+    <div class="wc-fuss">
+      <span>Bilder: Webcams am Flugplatz Oberhinkofen</span>
+      <a id="wc-gross" href="https://www.luftsportverein-regensburg.de/instar/phpslideshow.php" target="_blank" rel="noopener">In voller Größe öffnen ↗</a>
+    </div>
+
+    <h2 data-e="wc-h1">Wetter in Regensburg</h2>
+    <div class="wc-wetter">
+      <iframe src="https://kachelmannwetter.com/widget/rectangle/2849483" title="Wettervorhersage Regensburg von Kachelmannwetter" scrolling="no" loading="lazy"></iframe>
+      <p data-e="e3">Vorhersage von <a href="https://kachelmannwetter.com/de/wetter/2849483-regensburg" target="_blank" rel="noopener">Kachelmannwetter</a>. Fragen zum Flugbetrieb? An Flugtagen erreichst du die Flugleitung unter 09453 7244, sonst über <a href="../index.html#kontakt">Kontakt</a>.</p>
+    </div>
   </article>
 </main>
 
@@ -56,6 +91,25 @@
 <script>
   const b = document.getElementById('menu-btn'), t = document.getElementById('tabs');
   b.addEventListener('click', () => b.setAttribute('aria-expanded', t.classList.toggle('open')));
+
+  // Webcams: Kamera wechseln und die Ansicht (1000 px breit) auf die Spaltenbreite skalieren
+  (() => {
+    const quelle = cam => 'https://www.luftsportverein-regensburg.de/' + cam + '/phpslideshow.php';
+    const rahmen = document.querySelector('.wc-rahmen'), bild = document.getElementById('wc-bild'), gross = document.getElementById('wc-gross');
+    const BREITE = 1000, HOEHE = 670;
+    bild.style.height = HOEHE + 'px';
+    const passen = () => {
+      const s = Math.min(1, rahmen.clientWidth / BREITE);
+      bild.style.transform = 'scale(' + s + ')';
+      rahmen.style.height = Math.round(HOEHE * s) + 'px';
+    };
+    addEventListener('resize', passen); passen();
+    document.querySelectorAll('.wc-auswahl button').forEach(btn => btn.addEventListener('click', () => {
+      document.querySelectorAll('.wc-auswahl button').forEach(x => x.setAttribute('aria-selected', x === btn));
+      bild.src = gross.href = quelle(btn.dataset.cam);
+      bild.title = 'Webcam ' + btn.textContent;
+    }));
+  })();
 </script>
 <script src="../js/editor-loader.js"></script>
 </body>
