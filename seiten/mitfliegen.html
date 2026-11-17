@@ -6,7 +6,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
 <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&amp;family=Barlow+Condensed:wght@500;600;700&amp;display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../css/stil.css?v=4">
+<link rel="stylesheet" href="../css/stil.css?v=5">
 </head>
 <body class="artikel">
 
@@ -166,9 +166,17 @@
         <div class="gs-danke" hidden>
           <div class="gs-danke-haken" aria-hidden="true">✓</div>
           <h3>Danke für deine Bestellung!</h3>
-          <p>Deine Bestellung ist bei uns angekommen. Du bekommst gleich eine Bestätigung per E-Mail – wir melden uns dann mit der Bankverbindung. Nach Zahlungseingang schicken wir dir den Gutschein.</p>
+          <p>Deine Bestellung ist bei uns angekommen. Du bekommst gleich eine Bestätigung per E-Mail mit der Bankverbindung und der Zahlungsaufforderung. Nach Zahlungseingang schicken wir dir den Gutschein.</p>
           <button type="button" class="btn ghost gs-neu">Neue Bestellung</button>
         </div>
+      </div>
+      <!-- Bankverbindung für die Bestätigungs-E-Mail an Käufer: nur im Bearbeitungsmodus sichtbar -->
+      <div class="gs-bank">
+        <div class="gs-bank-titel">🏦 Bankverbindung für die Bestätigungs-E-Mail <small>Nur im Bearbeitungsmodus sichtbar – hier IBAN und BIC eintragen und speichern.</small></div>
+        <p data-e="gs-bank-empf" class="gs-bank-empf">Kontoinhaber: Luftsportverein Regensburg e. V.</p>
+        <p data-e="gs-bank-iban" class="gs-bank-iban">IBAN: bitte eintragen</p>
+        <p data-e="gs-bank-bic" class="gs-bank-bic">BIC: bitte eintragen</p>
+        <p data-e="gs-bank-bank" class="gs-bank-bank">Bank: bitte eintragen</p>
       </div>
       <a class="gs-leiste" href="#gs-kasse" hidden><span class="gs-leiste-text"></span><span>Zur Kasse →</span></a>
       <p data-e="gs-hinweis" class="note">Flüge finden bei geeignetem Wetter von April bis Oktober statt – Termin bitte vorher absprechen.</p>
@@ -191,7 +199,7 @@
 </main>
 
 <script src="../js/himmel.js"></script>
-<script src="../js/gutscheine.js?v=4"></script>
+<script src="../js/gutscheine.js?v=5"></script>
 <script>
   const b = document.getElementById('menu-btn'), t = document.getElementById('tabs');
   b.addEventListener('click', () => b.setAttribute('aria-expanded', t.classList.toggle('open')));
