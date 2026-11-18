@@ -1,0 +1,152 @@
+/* =====================================================================
+   Gestaltung für die Seiten „Pilot werden“ und „Jugend“ (Nachwuchs-Werbung)
+   Hero mit Foto, Fakten-Kacheln, Zeitstrahl, Karten, Zitate, Fragen, Aufruf
+   ===================================================================== */
+:root{--w-orange:var(--accent,#f08a24);--w-blau:var(--blue-text,#0a2350);--w-navy:var(--navy,#0f2c4c)}
+
+/* ---------- Hero ---------- */
+.w-hero{position:relative;border-radius:24px;overflow:hidden;min-height:clamp(340px,52vw,460px);margin:6px 0 26px;
+  display:flex;align-items:flex-end;box-shadow:0 24px 50px -26px rgba(6,28,58,.75);isolation:isolate}
+.article .w-hero .pic{position:absolute;inset:0;margin:0;border:0;border-radius:0;aspect-ratio:auto;box-shadow:none;z-index:-2}
+.w-hero::before{content:"";position:absolute;inset:0;z-index:-1;
+  background:linear-gradient(180deg,rgba(10,35,80,0) 20%,rgba(10,35,80,.55) 60%,rgba(8,26,58,.9) 100%)}
+.w-hero .pic.placeholder::after{position:absolute;top:16px;right:18px}
+.w-hero-text{padding:clamp(20px,4vw,40px);color:#fff;width:100%}
+.article .w-hero h1{color:#fff;margin:0 0 8px;font-size:clamp(44px,7vw,76px);text-shadow:0 2px 24px rgba(0,0,0,.35)}
+.article .w-hero .w-claim{color:#fff;font:700 clamp(22px,3.2vw,32px)/1.15 "Barlow Condensed",sans-serif;letter-spacing:.01em;margin:0 0 18px;max-width:none}
+.w-hero .btns{margin:0}
+body.artikel .w-hero .btn.ghost{border-color:#fff;color:#fff;background:rgba(255,255,255,.12);backdrop-filter:blur(4px)}
+body.artikel .w-hero .btn.ghost:hover{background:#fff;color:var(--w-blau)}
+.w-hero .btn.primary,.w-aufruf .btn.primary,.w-leiste a{background:var(--w-orange);border-color:var(--w-orange);color:#fff}
+.w-hero .btn.primary:hover,.w-aufruf .btn.primary:hover,.w-leiste a:hover{background:var(--accent-dark,#c96a0e);border-color:var(--accent-dark,#c96a0e)}
+
+/* ---------- Fakten-Kacheln ---------- */
+.w-fakten{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:0 0 30px}
+.w-fakt{background:#fff;border-radius:18px;padding:18px 14px 16px;text-align:center;box-shadow:0 12px 30px -20px rgba(6,28,58,.55);
+  border-top:4px solid var(--w-orange)}
+.w-fakt .w-ico{font-size:24px;display:block;margin-bottom:4px}
+.w-fakt .w-zahl{display:block;font:700 clamp(28px,4vw,40px)/1 "Barlow Condensed",sans-serif;color:var(--w-blau);font-variant-numeric:tabular-nums;white-space:nowrap}
+.w-fakt .w-was{display:block;margin-top:6px;font-size:14px;font-weight:600;line-height:1.3;color:var(--navy-soft,#3a5674)}
+@media (max-width:640px){ .w-fakten{grid-template-columns:repeat(2,1fr)} }
+
+/* ---------- Abschnitte ---------- */
+.w-abschnitt{margin:44px 0 0;clear:both}
+.w-abschnitt > .w-eyebrow{font:700 14px "Barlow Condensed",sans-serif;letter-spacing:.16em;text-transform:uppercase;color:var(--w-orange);margin:0 0 2px}
+.article .w-abschnitt h2{margin:0 0 14px;font-size:clamp(30px,4vw,40px)}
+.article .w-lead{font-size:19px}
+
+/* ---------- Zeitstrahl „Dein Weg ins Cockpit“ ---------- */
+.w-weg{list-style:none;position:relative;margin:20px 0 0;padding:0 0 0 64px}
+.w-weg::before{content:"";position:absolute;left:23px;top:8px;bottom:8px;width:4px;border-radius:2px;background:rgba(10,35,80,.12)}
+.w-weg::after{content:"";position:absolute;left:23px;top:8px;width:4px;border-radius:2px;height:calc((100% - 16px) * var(--fortschritt,0));
+  background:linear-gradient(var(--w-blau),var(--w-orange));transition:height .15s linear}
+.w-weg .w-flieger{position:absolute;left:9px;top:calc(8px + (100% - 16px) * var(--fortschritt,0) - 16px);width:32px;height:32px;z-index:2;
+  transition:top .15s linear;filter:drop-shadow(0 3px 6px rgba(6,28,58,.35))}
+.w-schritt{position:relative;background:#fff;border-radius:16px;padding:16px 18px 14px;margin:0 0 14px;box-shadow:0 10px 26px -20px rgba(6,28,58,.6)}
+.w-schritt::before{content:attr(data-nr);position:absolute;left:-55px;top:14px;width:32px;height:32px;border-radius:50%;background:#fff;
+  border:3px solid var(--w-blau);color:var(--w-blau);display:grid;place-items:center;font:700 15px "Barlow Condensed",sans-serif;z-index:1}
+.w-schritt.w-ziel::before{background:var(--w-orange);border-color:var(--w-orange);color:#fff}
+.article .w-schritt h3{font-size:22px;margin:0 0 4px}
+.article .w-schritt p{font-size:16px;line-height:1.5;margin:0;max-width:none}
+.w-schritt .w-ico{float:right;font-size:26px;margin:-2px 0 0 10px}
+
+/* ---------- Tagesablauf ---------- */
+.w-tag{display:grid;grid-template-columns:repeat(4,1fr);gap:0;margin:20px 0 0;position:relative}
+.w-tag::before{content:"";position:absolute;left:12%;right:12%;top:31px;height:3px;background:repeating-linear-gradient(90deg,var(--w-orange) 0 10px,transparent 10px 18px)}
+.w-uhr{text-align:center;padding:0 8px;position:relative}
+.w-uhr .w-ico{display:grid;place-items:center;width:64px;height:64px;margin:0 auto 10px;border-radius:50%;background:#fff;font-size:28px;
+  box-shadow:0 10px 24px -14px rgba(6,28,58,.6);position:relative}
+.w-uhr .w-zeit{display:block;font:700 22px "Barlow Condensed",sans-serif;color:var(--w-blau)}
+.w-uhr .w-taet{display:block;font-size:15px;font-weight:600;line-height:1.35;color:var(--navy-soft,#3a5674)}
+@media (max-width:640px){
+  .w-tag{grid-template-columns:1fr 1fr;row-gap:22px}
+  .w-tag::before{display:none}
+}
+
+/* ---------- Karten ---------- */
+.w-karten{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin:18px 0 0}
+.w-karten.w-drei{grid-template-columns:repeat(3,1fr)}
+.w-karte{background:#fff;border-radius:18px;overflow:hidden;box-shadow:0 14px 30px -22px rgba(6,28,58,.65);display:flex;flex-direction:column;
+  transition:transform .2s,box-shadow .2s}
+.w-karte:hover{transform:translateY(-3px);box-shadow:0 20px 36px -22px rgba(6,28,58,.7)}
+.article .w-karte .pic{aspect-ratio:16/10;margin:0;border:0;border-radius:0;box-shadow:none}
+.w-karte-text{padding:14px 16px 16px}
+.article .w-karte h3{font-size:22px;margin:0 0 4px}
+.article .w-karte p{font-size:15.5px;line-height:1.5;margin:0;max-width:none}
+.w-karte .w-ico{font-size:26px;display:block;margin-bottom:4px}
+@media (max-width:760px){ .w-karten.w-drei{grid-template-columns:1fr 1fr} }
+@media (max-width:520px){ .w-karten,.w-karten.w-drei{grid-template-columns:1fr} }
+
+/* ---------- Galerie ---------- */
+.w-galerie{display:grid;grid-template-columns:2fr 1fr 1fr;grid-template-rows:auto auto;gap:12px;margin:18px 0 0}
+.article .w-galerie .pic{margin:0;aspect-ratio:4/3;border-radius:16px}
+.article .w-galerie .pic:first-child{grid-row:span 2;aspect-ratio:auto;min-height:100%}
+@media (max-width:640px){
+  .w-galerie{grid-template-columns:1fr 1fr}
+  .article .w-galerie .pic:first-child{grid-column:span 2;grid-row:auto;aspect-ratio:16/10}
+}
+
+/* ---------- Hervorgehobenes Zitat ---------- */
+.w-banner{margin:34px 0 0;padding:26px clamp(20px,4vw,36px);border-radius:22px;color:#fff;position:relative;overflow:hidden;
+  background:linear-gradient(135deg,var(--w-blau) 0%,#1d4f9a 60%,#2f73c9 100%);box-shadow:0 20px 40px -26px rgba(6,28,58,.8)}
+.w-banner::after{content:"✈";position:absolute;right:-10px;bottom:-34px;font-size:150px;opacity:.08;transform:rotate(-20deg)}
+.article .w-banner p{color:#fff;font:700 clamp(22px,3vw,30px)/1.25 "Barlow Condensed",sans-serif;margin:0;max-width:none}
+
+/* ---------- Stimmen ---------- */
+.w-stimmen{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin:18px 0 0}
+.w-stimme{background:#fff;border-radius:18px;padding:20px 18px 18px;box-shadow:0 14px 30px -22px rgba(6,28,58,.65);position:relative;text-align:center}
+.w-stimme::before{content:"“";position:absolute;top:-6px;left:14px;font:700 70px/1 Georgia,serif;color:var(--w-orange);opacity:.35}
+.article .w-stimme .pic{width:84px;height:84px;aspect-ratio:1;border-radius:50%;margin:0 auto 12px;border:3px solid #fff;box-shadow:0 6px 18px -8px rgba(6,28,58,.6)}
+.w-stimme .pic.placeholder::after{content:"Foto";font-size:11px}
+.article .w-stimme p{font-size:16px;line-height:1.5;font-style:italic;margin:0 0 10px;max-width:none}
+.article .w-stimme .w-wer{font-style:normal;font-weight:700;font-size:14px;color:var(--w-blau);margin:0}
+@media (max-width:760px){ .w-stimmen{grid-template-columns:1fr} }
+
+/* ---------- Fragen (aufklappbar) ---------- */
+.w-fragen{margin:16px 0 0}
+.w-fragen details{background:#fff;border-radius:14px;margin:0 0 10px;box-shadow:0 8px 22px -18px rgba(6,28,58,.6);overflow:hidden}
+.w-fragen summary{list-style:none;cursor:pointer;padding:15px 50px 15px 18px;font-weight:700;font-size:17px;position:relative;color:var(--w-blau)}
+.w-fragen summary::-webkit-details-marker{display:none}
+.w-fragen summary::after{content:"+";position:absolute;right:18px;top:50%;transform:translateY(-50%);width:26px;height:26px;border-radius:50%;
+  display:grid;place-items:center;background:rgba(240,138,36,.14);color:var(--w-orange);font-size:20px;transition:transform .2s}
+.w-fragen details[open] summary::after{transform:translateY(-50%) rotate(45deg)}
+.article .w-fragen details p{font-size:16px;line-height:1.55;margin:0;padding:0 18px 16px;max-width:none}
+
+/* ---------- Info-Kasten (z. B. für Eltern) ---------- */
+.w-kasten{margin:18px 0 0;padding:20px 22px;border-radius:18px;background:#fff8ef;border:2px solid rgba(240,138,36,.35)}
+.w-kasten ul{margin:6px 0 0 20px}
+.article .w-kasten li{font-size:16px;line-height:1.5;margin:6px 0;font-weight:500}
+
+/* ---------- Instagram ---------- */
+.w-insta{display:flex;align-items:center;gap:18px;margin:34px 0 0;padding:20px 22px;border-radius:22px;color:#fff;text-decoration:none;
+  background:linear-gradient(115deg,#f58529 0%,#dd2a7b 45%,#8134af 75%,#515bd4 100%);box-shadow:0 20px 40px -24px rgba(129,52,175,.8)}
+.w-insta svg{flex:none;width:52px;height:52px}
+.w-insta-text{flex:1}
+.article .w-insta h3{color:#fff;font-size:26px;margin:0}
+.article .w-insta p{color:#fff;font-size:15.5px;margin:2px 0 0;max-width:none;opacity:.95}
+body.artikel .w-insta .btn{background:#fff;border-color:#fff;color:#8134af;flex:none}
+body.artikel .w-insta:hover .btn{background:transparent;color:#fff}
+@media (max-width:560px){ .w-insta{flex-wrap:wrap} .w-insta-text{flex-basis:calc(100% - 70px)} }
+
+/* ---------- Aufruf am Ende ---------- */
+.w-aufruf{margin:48px 0 0;padding:clamp(24px,4vw,40px);border-radius:24px;text-align:center;color:#fff;position:relative;overflow:hidden;
+  background:radial-gradient(120% 120% at 50% 0%,#2a64b5 0%,var(--w-blau) 70%);box-shadow:0 24px 50px -28px rgba(6,28,58,.85)}
+.article .w-aufruf h2{color:#fff;margin:0 0 8px}
+.article .w-aufruf p{color:#fff;margin:0 auto 18px;max-width:52ch}
+.w-aufruf .btns{justify-content:center}
+body.artikel .w-aufruf .btn.ghost{border-color:#fff;color:#fff;background:rgba(255,255,255,.1)}
+body.artikel .w-aufruf .btn.ghost:hover{background:#fff;color:var(--w-blau)}
+.w-wann{display:flex;flex-wrap:wrap;justify-content:center;gap:8px 20px;margin:0 0 20px;font-weight:600;font-size:15px}
+.w-wann span{background:rgba(255,255,255,.12);border-radius:999px;padding:7px 14px}
+
+/* ---------- mitlaufender Knopf ---------- */
+.w-leiste{position:fixed;left:50%;bottom:18px;transform:translate(-50%,140%);z-index:40;transition:transform .35s cubic-bezier(.2,.8,.2,1)}
+.w-leiste.an{transform:translate(-50%,0)}
+.w-leiste a{display:inline-flex;align-items:center;gap:8px;padding:14px 24px;border-radius:999px;font-weight:700;text-decoration:none;
+  box-shadow:0 14px 30px -10px rgba(201,106,14,.7);white-space:nowrap}
+.lsv-edit .w-leiste{display:none}
+
+/* ---------- Einblenden beim Scrollen ---------- */
+.w-js .w-zeigen{opacity:0;transform:translateY(18px);transition:opacity .6s ease,transform .6s cubic-bezier(.2,.7,.2,1)}
+.w-js .w-zeigen.da{opacity:1;transform:none}
+@media (prefers-reduced-motion:reduce){ .w-js .w-zeigen{opacity:1;transform:none;transition:none} .w-weg::after,.w-weg .w-flieger{transition:none} }
