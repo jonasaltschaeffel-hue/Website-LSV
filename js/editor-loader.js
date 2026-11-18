@@ -12,7 +12,7 @@
     el.onload = ok; el.onerror = fail;
     (css ? document.head : document.body).appendChild(el);
   });
-  // Esc: zurück zur vorherigen Seite (auf Unterseiten ohne Verlauf: zur Startseite)
+  // Esc: zurück zur Startseite
   document.addEventListener('keydown', ev => {
     if (ev.key !== 'Escape' || ev.defaultPrevented || ev.ctrlKey || ev.altKey || ev.metaKey || ev.shiftKey) return;
     const f = document.activeElement;
@@ -26,8 +26,7 @@
     }
     const start = new URL('index.html', base).href;
     const istStart = location.href.split(/[?#]/)[0] === start || location.href.split(/[?#]/)[0] === base.href;
-    if (history.length > 1 && document.referrer.startsWith(base.origin)) history.back();
-    else if (!istStart) location.href = start;
+    if (!istStart) location.href = start;
   });
 
   const startEditor = () => Promise.all([load('css/editor.css', true), window.LSVGit ? 0 : load('js/lsv-github.js'), window.LSVCms ? 0 : load('js/lsv-cms.js')]).then(() => load('js/editor.js'));
