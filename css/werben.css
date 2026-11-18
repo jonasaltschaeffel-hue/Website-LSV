@@ -2,7 +2,7 @@
    Gestaltung für die Seiten „Pilot werden“ und „Jugend“ (Nachwuchs-Werbung)
    Hero mit Foto, Fakten-Kacheln, Zeitstrahl, Karten, Zitate, Fragen, Aufruf
    ===================================================================== */
-:root{--w-orange:var(--accent,#f08a24);--w-blau:var(--blue-text,#0a2350);--w-navy:var(--navy,#0f2c4c)}
+:root{--w-akzent:var(--blue-text,#0a2350);--w-blau:var(--blue-text,#0a2350);--w-navy:var(--navy,#0f2c4c)}
 
 /* ---------- Hero ---------- */
 .w-hero{position:relative;border-radius:24px;overflow:hidden;min-height:clamp(340px,52vw,460px);margin:6px 0 26px;
@@ -17,13 +17,14 @@
 .w-hero .btns{margin:0}
 body.artikel .w-hero .btn.ghost{border-color:#fff;color:#fff;background:rgba(255,255,255,.12);backdrop-filter:blur(4px)}
 body.artikel .w-hero .btn.ghost:hover{background:#fff;color:var(--w-blau)}
-.w-hero .btn.primary,.w-aufruf .btn.primary,.w-leiste a{background:var(--w-orange);border-color:var(--w-orange);color:#fff}
-.w-hero .btn.primary:hover,.w-aufruf .btn.primary:hover,.w-leiste a:hover{background:var(--accent-dark,#c96a0e);border-color:var(--accent-dark,#c96a0e)}
+.w-hero .btn.primary,.w-aufruf .btn.primary,.w-leiste a{background:var(--w-akzent);border-color:var(--w-akzent);color:#fff}
+.w-hero .btn.primary,.w-aufruf .btn.primary{border-color:rgba(255,255,255,.55)}
+.w-hero .btn.primary:hover,.w-aufruf .btn.primary:hover,.w-leiste a:hover{background:#061633;border-color:#061633}
 
 /* ---------- Fakten-Kacheln ---------- */
 .w-fakten{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:0 0 30px}
 .w-fakt{background:#fff;border-radius:18px;padding:18px 14px 16px;text-align:center;box-shadow:0 12px 30px -20px rgba(6,28,58,.55);
-  border-top:4px solid var(--w-orange)}
+  border-top:4px solid var(--w-akzent)}
 .w-fakt .w-ico{font-size:24px;display:block;margin-bottom:4px}
 .w-fakt .w-zahl{display:block;font:700 clamp(28px,4vw,40px)/1 "Barlow Condensed",sans-serif;color:var(--w-blau);font-variant-numeric:tabular-nums;white-space:nowrap}
 .w-fakt .w-was{display:block;margin-top:6px;font-size:14px;font-weight:600;line-height:1.3;color:var(--navy-soft,#3a5674)}
@@ -31,7 +32,7 @@ body.artikel .w-hero .btn.ghost:hover{background:#fff;color:var(--w-blau)}
 
 /* ---------- Abschnitte ---------- */
 .w-abschnitt{margin:44px 0 0;clear:both}
-.w-abschnitt > .w-eyebrow{font:700 14px "Barlow Condensed",sans-serif;letter-spacing:.16em;text-transform:uppercase;color:var(--w-orange);margin:0 0 2px}
+.w-abschnitt > .w-eyebrow{font:700 14px "Barlow Condensed",sans-serif;letter-spacing:.16em;text-transform:uppercase;color:var(--w-akzent);margin:0 0 2px}
 .article .w-abschnitt h2{margin:0 0 14px;font-size:clamp(30px,4vw,40px)}
 .article .w-lead{font-size:19px}
 
@@ -40,7 +41,7 @@ body.artikel .w-hero .btn.ghost:hover{background:#fff;color:var(--w-blau)}
 .w-weg::before{content:"";position:absolute;left:23px;top:8px;bottom:8px;width:4px;border-radius:2px;background:rgba(10,35,80,.12)}
 .w-weg::after{content:"";position:absolute;left:23px;top:8px;width:4px;border-radius:2px;height:calc(100% - 16px);
   transform-origin:top;transform:scaleY(var(--fortschritt,0));will-change:transform;
-  background:linear-gradient(var(--w-blau),var(--w-orange))}
+  background:linear-gradient(#7ea0c8,var(--w-blau))}
 /* Segelflieger wie auf der Startseite, Mitte genau auf der Linie (x = 25px) */
 .w-weg .w-flieger{position:absolute;left:1px;top:-24px;width:48px;height:48px;z-index:2;pointer-events:none;
   will-change:transform;filter:drop-shadow(0 4px 5px rgba(6,28,58,.35))}
@@ -49,14 +50,14 @@ body.artikel .w-hero .btn.ghost:hover{background:#fff;color:var(--w-blau)}
 .w-schritt::before{content:attr(data-nr);position:absolute;left:-57px;top:14px;width:36px;height:36px;box-sizing:border-box;border-radius:50%;background:#fff;
   border:3px solid var(--w-blau);color:var(--w-blau);display:flex;align-items:center;justify-content:center;
   font:700 16px/1 "Barlow Condensed",sans-serif;font-variant-numeric:tabular-nums;z-index:1}
-.w-schritt.w-ziel::before{background:var(--w-orange);border-color:var(--w-orange);color:#fff}
+.w-schritt.w-ziel::before{background:var(--w-akzent);border-color:var(--w-akzent);color:#fff}
 .article .w-schritt h3{font-size:22px;margin:0 0 4px}
 .article .w-schritt p{font-size:16px;line-height:1.5;margin:0;max-width:none}
 .w-schritt .w-ico{float:right;font-size:26px;margin:-2px 0 0 10px}
 
 /* ---------- Tagesablauf ---------- */
 .w-tag{display:grid;grid-template-columns:repeat(4,1fr);gap:0;margin:20px 0 0;position:relative}
-.w-tag::before{content:"";position:absolute;left:12%;right:12%;top:31px;height:3px;background:repeating-linear-gradient(90deg,var(--w-orange) 0 10px,transparent 10px 18px)}
+.w-tag::before{content:"";position:absolute;left:12%;right:12%;top:31px;height:3px;background:repeating-linear-gradient(90deg,var(--w-akzent) 0 10px,transparent 10px 18px)}
 .w-uhr{text-align:center;padding:0 8px;position:relative}
 .w-uhr .w-ico{display:grid;place-items:center;width:64px;height:64px;margin:0 auto 10px;border-radius:50%;background:#fff;font-size:28px;
   box-shadow:0 10px 24px -14px rgba(6,28,58,.6);position:relative}
@@ -99,7 +100,7 @@ body.artikel .w-hero .btn.ghost:hover{background:#fff;color:var(--w-blau)}
 /* ---------- Stimmen ---------- */
 .w-stimmen{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin:18px 0 0}
 .w-stimme{background:#fff;border-radius:18px;padding:20px 18px 18px;box-shadow:0 14px 30px -22px rgba(6,28,58,.65);position:relative;text-align:center}
-.w-stimme::before{content:"“";position:absolute;top:-6px;left:14px;font:700 70px/1 Georgia,serif;color:var(--w-orange);opacity:.35}
+.w-stimme::before{content:"“";position:absolute;top:-6px;left:14px;font:700 70px/1 Georgia,serif;color:var(--w-akzent);opacity:.35}
 .article .w-stimme .pic{width:84px;height:84px;aspect-ratio:1;border-radius:50%;margin:0 auto 12px;border:3px solid #fff;box-shadow:0 6px 18px -8px rgba(6,28,58,.6)}
 .w-stimme .pic.placeholder::after{content:"Foto";font-size:11px}
 .article .w-stimme p{font-size:16px;line-height:1.5;font-style:italic;margin:0 0 10px;max-width:none}
@@ -112,12 +113,12 @@ body.artikel .w-hero .btn.ghost:hover{background:#fff;color:var(--w-blau)}
 .w-fragen summary{list-style:none;cursor:pointer;padding:15px 50px 15px 18px;font-weight:700;font-size:17px;position:relative;color:var(--w-blau)}
 .w-fragen summary::-webkit-details-marker{display:none}
 .w-fragen summary::after{content:"+";position:absolute;right:18px;top:50%;transform:translateY(-50%);width:26px;height:26px;border-radius:50%;
-  display:grid;place-items:center;background:rgba(240,138,36,.14);color:var(--w-orange);font-size:20px;transition:transform .2s}
+  display:grid;place-items:center;background:rgba(10,35,80,.08);color:var(--w-akzent);font-size:20px;transition:transform .2s}
 .w-fragen details[open] summary::after{transform:translateY(-50%) rotate(45deg)}
 .article .w-fragen details p{font-size:16px;line-height:1.55;margin:0;padding:0 18px 16px;max-width:none}
 
 /* ---------- Info-Kasten (z. B. für Eltern) ---------- */
-.w-kasten{margin:18px 0 0;padding:20px 22px;border-radius:18px;background:#fff8ef;border:2px solid rgba(240,138,36,.35)}
+.w-kasten{margin:18px 0 0;padding:20px 22px;border-radius:18px;background:#f3f7fc;border:2px solid rgba(10,35,80,.16)}
 .w-kasten ul{margin:6px 0 0 20px}
 .article .w-kasten li{font-size:16px;line-height:1.5;margin:6px 0;font-weight:500}
 
