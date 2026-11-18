@@ -31,6 +31,21 @@
 
   const startEditor = () => Promise.all([load('css/editor.css', true), window.LSVGit ? 0 : load('js/lsv-github.js'), window.LSVCms ? 0 : load('js/lsv-cms.js')]).then(() => load('js/editor.js'));
 
+  // Fußzeile wie auf der Startseite auf allen Unterseiten (Impressum, Datenschutz, Bearbeiten).
+  // Wird nur angezeigt, nicht in die Seiten gespeichert.
+  if (!document.querySelector('footer')){
+    const ziel = document.querySelector('main .article') || document.querySelector('main');
+    if (ziel){
+      const f = document.createElement('footer');
+      f.className = 'lsv-fuss';
+      const link = (text, href, nofollow) => { const a = document.createElement('a'); a.textContent = text; a.href = href; if (nofollow) a.rel = 'nofollow'; return a; };
+      const c = document.createElement('span'); c.textContent = `© ${new Date().getFullYear()} Luftsportverein Regensburg e. V.`;
+      f.append(c, link('Impressum', new URL('seiten/impressum.html', base).href), link('Datenschutz', new URL('seiten/datenschutz.html', base).href),
+        link('Kontakt', new URL('seiten/kontakt.html', base).href), link('Bearbeiten', '#bearbeiten', true));
+      ziel.appendChild(f);
+    }
+  }
+
   // Schon angemeldet (in diesem Tab)?
   try { if (sessionStorage.getItem('lsv-edit-session')){ startEditor(); return; } } catch {}
 
