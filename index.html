@@ -51,6 +51,14 @@
     .filter{display:flex;flex-wrap:wrap;justify-content:center;max-width:100%;border-radius:24px}
     .filter button{padding:8px 14px;font-size:15px}
   }
+  /* Kontaktformular */
+  .k-falle{position:absolute!important;left:-9999px!important;width:1px!important;height:1px!important;opacity:0}
+  #kontakt .k-hinweis{font-size:14px;opacity:.9;margin:0}
+  #kontakt .k-hinweis a{color:inherit}
+  #kontakt .k-fehler{margin:0;font-weight:700;color:#fff;background:rgba(179,38,30,.75);padding:8px 12px;border-radius:10px}
+  #kontakt .k-fehler:empty{display:none}
+  #contact-form button:disabled{opacity:.6;cursor:wait}
+  #kontakt .k-danke .lead{margin-bottom:14px}
 </style>
 </head>
 <body>
@@ -439,12 +447,20 @@
           <p data-e="e81" style="margin-top:12px"><strong>Flugplatz</strong> (Navi): Einthal, 93083 Obertraubling<br>Telefon Flugplatz: <a href="tel:09453 7244">09453 7244</a></p>
           <p data-e="e82" style="margin-top:12px">info@luftsportverein-regensburg.de<br>Mitfliegen: mitflug@luftsportverein-regensburg.de<br>Ausbildung: ausbildung@luftsportverein-regensburg.de</p>
         </div>
-        <form id="contact-form">
-          <input name="name" placeholder="Name" required="">
-          <input name="mail" type="email" placeholder="E-Mail" required="">
-          <textarea name="msg" placeholder="Nachricht" required=""></textarea>
-          <button class="btn primary" type="submit" style="cursor:pointer;justify-self:start">Nachricht senden</button>
-        </form>
+        <div class="k-box">
+          <form id="contact-form" data-kontakt novalidate>
+            <input name="name" placeholder="Name" autocomplete="name" required="">
+            <input name="mail" type="email" placeholder="E-Mail" autocomplete="email" required="">
+            <textarea name="msg" placeholder="Nachricht" required=""></textarea>
+            <input name="_honey" class="k-falle" tabindex="-1" autocomplete="off" aria-hidden="true">
+            <p class="k-hinweis">Du bekommst eine Eingangsbestätigung per E-Mail. <a href="seiten/datenschutz.html">Datenschutz</a> · <a href="seiten/kontakt.html">Mehr Optionen</a></p>
+            <button class="btn primary" type="submit" style="cursor:pointer;justify-self:start">Nachricht senden</button>
+          </form>
+          <div class="k-danke" data-kontakt-danke hidden>
+            <p class="lead"><strong>Danke, <span data-kontakt-name></span>!</strong><br>Deine Nachricht ist angekommen. Du bekommst gleich eine Bestätigung per E-Mail.</p>
+            <button type="button" class="btn ghost" data-kontakt-neu style="cursor:pointer">Neue Nachricht</button>
+          </div>
+        </div>
       </div>
       <!-- Eigene Karte des Flugplatzes (img/karte-flugplatz.svg, Daten: OpenStreetMap) -->
       <h3 data-e="map-h" class="zwischen">So findest du zu uns</h3>
@@ -591,16 +607,10 @@
   showKind(m ? m[1] : 'segel');
   if (m) requestAnimationFrame(() => document.getElementById('flotte').scrollIntoView());
 
-  /* Kontaktformular -> Mailprogramm (Adresse ergänzen) */
-  const MAIL = 'info@luftsportverein-regensburg.de';
-  document.getElementById('contact-form').addEventListener('submit', e => {
-    e.preventDefault();
-    const f = e.target;
-    const body = encodeURIComponent(`${f.msg.value}\n\n${f.name.value} (${f.mail.value})`);
-    location.href = `mailto:${MAIL}?subject=${encodeURIComponent('Anfrage über die Website')}&body=${body}`;
-  });
+  /* Kontaktformular: Versand über js/kontakt.js */
 })();
 </script>
+<script src="js/kontakt.js?v=1"></script>
 <script>
 // Abflugtafel: nur die Flugliste der Vereinsflieger-Tafel zeigen (ab x 4 / y 57, 480 px breit),
 // Uhr (Ortszeit) anzeigen und die Tafel alle 50 s selbst neu laden. Dabei wird ein neues iframe
