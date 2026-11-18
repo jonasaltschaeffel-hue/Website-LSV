@@ -45,16 +45,21 @@
     const flieger = document.createElement('span');
     flieger.className = 'w-flieger';
     flieger.setAttribute('aria-hidden', 'true');
-    // Flugzeug-Symbol, nach unten fliegend (Material-Icon „flight“, 180° gedreht)
-    flieger.innerHTML = '<svg viewBox="0 0 32 32"><circle cx="16" cy="16" r="15" fill="#fff" stroke="#f08a24" stroke-width="2"/>' +
-      '<g transform="translate(16 16) rotate(180) translate(-10 -10) scale(.833)" fill="#0a2350"><path d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z"/></g></svg>';
+    // derselbe Segelflieger wie auf der Startseite, Nase nach unten
+    flieger.innerHTML = '<svg viewBox="-24 -24 48 48"><g transform="rotate(90) translate(1 0) scale(.8)">' +
+      '<path fill="#fff" stroke="#0f2c4c" stroke-width="1.1" stroke-linejoin="round" d="M16 0 C14 -1.6 8 -2.2 5 -2.1 L3.6 -27 L1.4 -27.6 L0 -2 L-13.5 -0.9 L-14.5 -0.8 L-15.6 -8.5 L-17.8 -8.5 L-18 -0.6 L-18 0.6 L-17.8 8.5 L-15.6 8.5 L-14.5 0.8 L-13.5 0.9 L0 2 L1.4 27.6 L3.6 27 L5 2.1 C8 2.2 14 1.6 16 0 Z"/></g></svg>';
     weg.appendChild(flieger);
+    // ruckelfrei: höchstens einmal pro Bild neu setzen, nur per transform
+    let geplant = false;
     const setzen = () => {
+      geplant = false;
       const r = weg.getBoundingClientRect(), mitte = innerHeight * .6;
-      const p = Math.max(0, Math.min(1, (mitte - r.top) / r.height));
-      weg.style.setProperty('--fortschritt', bearbeiten ? 1 : p.toFixed(3));
+      const p = bearbeiten ? 1 : Math.max(0, Math.min(1, (mitte - r.top) / r.height));
+      weg.style.setProperty('--fortschritt', p.toFixed(4));
+      flieger.style.transform = `translateY(${(8 + p * (weg.offsetHeight - 16)).toFixed(1)}px)`;
     };
-    addEventListener('scroll', setzen, {passive: true}); addEventListener('resize', setzen); setzen();
+    const anstossen = () => { if (!geplant){ geplant = true; requestAnimationFrame(setzen); } };
+    addEventListener('scroll', anstossen, {passive: true}); addEventListener('resize', anstossen); setzen();
   }
 
   // ---------- mitlaufender Knopf ----------
