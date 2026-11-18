@@ -7,6 +7,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
 <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&amp;family=Barlow+Condensed:wght@500;600;700&amp;display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../css/stil.css">
+<link rel="stylesheet" href="../css/werben.css?v=5">
 </head>
 <body class="artikel">
 
@@ -40,38 +41,140 @@
 </header>
 
 <main>
-  <article class="article">
+  <article class="article w-seite">
     <a class="back" href="../index.html">← Zur Startseite</a>
     <div data-e="e31" class="date">Flugplatz Oberhinkofen</div>
     <h1 data-e="e1">Anflug für Piloten</h1>
+    <p data-e="ap-lead" class="w-lead">Alles Wichtige für deinen Anflug auf Oberhinkofen auf einen Blick – herzlich willkommen bei uns!</p>
     <p data-e="e2" class="warn"><strong>Hinweis:</strong> Angaben laut bisheriger Vereinswebsite, ohne Gewähr. Vor jedem Flug die aktuellen Daten (AIP VFR, NOTAMs) prüfen und bei der Flugleitung nachfragen.</p>
 
-    <h2 data-e="e3">Platzdaten</h2>
-    <table class="ad">
-      <tbody><tr><th data-e="e4">Frequenz</th><td data-e="e5">133.260 MHz</td></tr>
-      <tr><th data-e="e6">Koordinaten</th><td data-e="e7">48° 57' 09,3" N / 12° 08' 54,2" E</td></tr>
-      <tr><th data-e="e8">Piste</th><td data-e="e9">05/23 · 600 m · Gras</td></tr>
-      <tr><th data-e="e10">Zugelassen für</th><td data-e="e11">Segelflugzeuge, Motorsegler, Ultraleicht</td></tr>
-      <tr><th data-e="e12">Platzrunde</th><td data-e="e13">Segelflugzeuge im Norden, Motorsegler im Süden, 2300 ft MSL</td></tr>
-      <tr><th data-e="e14">Startarten</th><td data-e="e15">F-Schlepp und Windenstart</td></tr>
-    </tbody></table>
+    <div class="a-karte">
+      <div class="a-karte-kopf"><b data-e="e3">Platzdaten</b><span data-e="ap-kopf">Segelfluggelände Oberhinkofen</span></div>
+      <div class="a-daten">
+        <div class="a-feld a-gross"><span data-e="e4" class="a-lbl">Frequenz</span><span data-e="e5" class="a-wert">133.260 MHz</span><button type="button" class="a-kopier" data-kopieren="e5">Kopieren</button></div>
+        <div class="a-feld a-breit"><span data-e="e6" class="a-lbl">Koordinaten</span><span data-e="e7" class="a-wert">48° 57' 09,3" N / 12° 08' 54,2" E</span><button type="button" class="a-kopier" data-kopieren="e7">Kopieren</button></div>
+        <div class="a-feld"><span data-e="e8" class="a-lbl">Piste</span><span data-e="e9" class="a-wert">05/23 · 600 m · Gras</span></div>
+        <div class="a-feld a-breit"><span data-e="e12" class="a-lbl">Platzrunde</span><span data-e="e13" class="a-wert">Segelflugzeuge im Norden, Motorsegler im Süden, 2300 ft MSL</span></div>
+        <div class="a-feld"><span data-e="e10" class="a-lbl">Zugelassen für</span><span data-e="e11" class="a-wert">Segelflugzeuge, Motorsegler, Ultraleicht</span></div>
+        <div class="a-feld"><span data-e="e14" class="a-lbl">Startarten</span><span data-e="e15" class="a-wert">F-Schlepp und Windenstart</span></div>
+        <div class="a-feld"><span data-e="ap-h-l" class="a-lbl">Platzhöhe</span><span data-e="ap-h" class="a-wert">Angabe folgt</span></div>
+      </div>
+      <div class="a-aktionen">
+        <a data-e="ap-maps" class="btn primary" href="https://www.google.com/maps?q=48.952583,12.148389" target="_blank" rel="noopener">📍 In Google Maps öffnen</a>
+        <a data-e="ap-aip" class="btn ghost" href="https://aip.dfs.de/BasicVFR/" target="_blank" rel="noopener">AIP VFR (DFS)</a>
+        <a data-e="ap-notam" class="btn ghost" href="https://secais.dfs.de/" target="_blank" rel="noopener">NOTAM (DFS)</a>
+        <a data-e="ap-wetter" class="btn ghost" href="https://www.flugwetter.de/" target="_blank" rel="noopener">Flugwetter (DWD)</a>
+        <button type="button" class="btn ghost" data-drucken>🖨️ Drucken</button>
+      </div>
+    </div>
 
-    <h2 data-e="e16">Betrieb</h2>
-    <p data-e="e17">Die Flugsaison geht von April bis Oktober. Geflogen wird vor allem an Wochenenden und Feiertagen bei gutem Wetter, manchmal auch unter der Woche. Der Flugbetrieb beginnt gegen 9 Uhr und endet gegen 18 Uhr.</p>
+    <div class="w-abschnitt">
+      <p data-e="ap-s-e" class="w-eyebrow">Platzskizze</p>
+      <h2 data-e="ap-s-h">So liegt der Platz</h2>
+      <div class="a-skizze">
+        <svg viewBox="0 0 640 420" role="img" aria-label="Skizze des Flugplatzes Oberhinkofen: Piste 05/23, Piste 05/23 von Südwest nach Nordost, Platzrunde für Segelflugzeuge im Norden, für Motorsegler im Süden, Stromleitung etwa 600 Meter vor dem Südwest-Ende, Winde am Südwest-Ende, Windenschleppstrecke nördlich der Piste.">
+          <defs>
+            <pattern id="a-gras" width="8" height="8" patternUnits="userSpaceOnUse"><rect width="8" height="8" fill="#eaf2e3"/><path d="M0 8L8 0" stroke="#dbe8cf" stroke-width="2"/></pattern>
+          </defs>
+          <rect width="640" height="420" fill="url(#a-gras)" rx="14"/>
+          <g transform="translate(330 200) rotate(-40)">
+            <rect x="-150" y="-105" width="300" height="105" rx="46" fill="rgba(10,35,80,.05)" stroke="#0a2350" stroke-width="3" stroke-dasharray="10 7"/>
+            <rect x="-150" y="0" width="300" height="105" rx="46" fill="rgba(46,139,122,.06)" stroke="#2e8b7a" stroke-width="3" stroke-dasharray="10 7"/>
+            <line x1="78" y1="-20" x2="-142" y2="-20" stroke="#b3261e" stroke-width="2.5" stroke-dasharray="3 5"/>
+            <rect x="-160" y="-28" width="18" height="16" rx="3" fill="#b3261e"/>
+            <rect x="-82" y="-9" width="164" height="18" rx="3" fill="#7aa95a" stroke="#56803d" stroke-width="1.5"/>
+            <line x1="-70" y1="0" x2="70" y2="0" stroke="#fff" stroke-width="1.6" stroke-dasharray="9 7"/>
+          </g>
+          <line x1="146" y1="292" x2="146" y2="414" stroke="#b3261e" stroke-width="3"/>
+          <g fill="#b3261e"><circle cx="146" cy="300" r="4"/><circle cx="146" cy="340" r="4"/><circle cx="146" cy="380" r="4"/></g>
+          <text x="156" y="404" font-size="18" font-weight="700" fill="#b3261e">⚡ Stromleitung <tspan font-weight="400">(ca. 600 m vor 05)</tspan></text>
+          <text x="190" y="290" text-anchor="end" font-size="19" font-weight="700" fill="#b3261e" stroke="#fff" stroke-width="4" paint-order="stroke">Winde</text>
+          <text x="398" y="138" font-size="20" font-weight="700" fill="#3d5f2a" stroke="#fff" stroke-width="4" paint-order="stroke">23</text>
+          <text x="262" y="276" font-size="20" font-weight="700" fill="#3d5f2a" stroke="#fff" stroke-width="4" paint-order="stroke" text-anchor="end">05</text>
+          <text x="18" y="40" font-size="21" font-weight="700" fill="#0a2350">Platzrunde Segelflug</text>
+          <text x="18" y="64" font-size="17" fill="#0a2350">im Norden</text>
+          <text x="624" y="374" font-size="21" font-weight="700" fill="#2e8b7a" text-anchor="end">Platzrunde Motorsegler</text>
+          <text x="624" y="398" font-size="17" fill="#2e8b7a" text-anchor="end">im Süden</text>          <g transform="translate(596 48)">
+            <circle r="24" fill="#fff" stroke="#0a2350" stroke-width="2"/>
+            <path d="M0 -17 L7 6 L0 2 L-7 6 Z" fill="#0a2350"/>
+            <text y="-28" font-size="14" font-weight="700" fill="#0a2350" text-anchor="middle">N</text>
+          </g>
+        </svg>
+        <div class="a-legende">
+          <span style="color:#0a2350"><i style="border-top-style:dashed"></i> Platzrunde Segelflugzeuge</span>
+          <span style="color:#2e8b7a"><i style="border-top-style:dashed"></i> Platzrunde Motorsegler</span>
+          <span style="color:#b3261e"><i style="border-top-style:dotted"></i> Windenschleppstrecke</span>
+          <span style="color:#b3261e"><i></i> Stromleitung</span>
+        </div>
+      </div>
+      <p data-e="ap-s-hinweis" class="a-hinweis-klein">Skizze – nicht maßstäblich, nicht zur Navigation. Sie zeigt nur die ungefähre Lage. Maßgeblich sind die veröffentlichten Daten und die Anweisungen der Flugleitung.</p>
+    </div>
 
-    <h2 data-e="e18">Bitte beachten</h2>
-    <table class="ad">
-      <tbody><tr><th data-e="e19">Hindernis</th><td data-e="e20">Stromleitungen ca. 600 m vor Schwelle 05, etwa in Nord-Süd-Richtung</td></tr>
-      <tr><th data-e="e21">Lärmschutz</th><td data-e="e22">Umliegende Ortschaften nicht direkt überfliegen</td></tr>
-      <tr><th data-e="e23">Am Boden</th><td data-e="e24">Start-/Landebahn nicht betreten, Windenschleppstrecke nicht überqueren</td></tr>
-    </tbody></table>
+    <div class="w-abschnitt">
+      <p data-e="ap-w-e" class="w-eyebrow">Wichtig</p>
+      <h2 data-e="e18">Bitte beachten</h2>
+      <div class="a-warnungen">
+        <div class="a-warnung w-zeigen"><span class="w-ico" aria-hidden="true">⚡</span><h3 data-e="e19">Hindernis</h3><p data-e="e20">Stromleitungen ca. 600 m vor Schwelle 05, etwa in Nord-Süd-Richtung</p></div>
+        <div class="a-warnung w-zeigen"><span class="w-ico" aria-hidden="true">🏘️</span><h3 data-e="e21">Lärmschutz</h3><p data-e="e22">Umliegende Ortschaften nicht direkt überfliegen</p></div>
+        <div class="a-warnung w-zeigen"><span class="w-ico" aria-hidden="true">🚫</span><h3 data-e="e23">Am Boden</h3><p data-e="e24">Start-/Landebahn nicht betreten, Windenschleppstrecke nicht überqueren</p></div>
+      </div>
+    </div>
 
-    <h2 data-e="e25">Kontakt</h2>
-    <table class="ad">
-      <tbody><tr><th data-e="e26">Flugleitung</th><td data-e="e27">09453 7244</td></tr>
-      <tr><th data-e="e28">Anfahrt (Navi)</th><td data-e="e29">Einthal, 93083 Obertraubling</td></tr>
-    </tbody></table>
-    
+    <div class="w-abschnitt">
+      <p data-e="ap-l-e" class="w-eyebrow">Live</p>
+      <h2 data-e="ap-l-h">Heute Betrieb?</h2>
+      <div class="a-live">
+        <div class="abflug-gehaeuse">
+          <div class="abflug-kopf">
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M2.5 19h19v2h-19zm19.57-9.36c-.21-.8-1.04-1.28-1.84-1.06L14.92 10l-6.9-6.43-1.93.51 4.14 7.17-4.97 1.33-1.97-1.54-1.45.39 2.59 4.49L21 11.49c.81-.23 1.28-1.05 1.07-1.85z"/></svg>
+            <span class="abflug-titel">Abflug</span><span class="abflug-en">Departures</span>
+            <span class="abflug-uhr" aria-label="Uhrzeit">--:--</span>
+          </div>
+          <div class="abflug-tafel">
+            <iframe title="Abflugtafel von Vereinsflieger" src="https://www.vereinsflieger.de/flightboard.php?u=2dbfc4118d4cca0df51e4c09e36bbee2&amp;showmode=2&amp;hidecomment=1&amp;mobile=1" scrolling="no" tabindex="-1"></iframe>
+          </div>
+          <div class="abflug-fuss"><b><i></i> Live · Flugplatz Oberhinkofen</b><span>Daten: <a href="https://www.vereinsflieger.de" target="_blank" rel="noopener">vereinsflieger.de</a></span></div>
+        </div>
+        <a class="a-cam" href="webcams.html">
+          <span class="w-ico" aria-hidden="true">📷</span>
+          <h3 data-e="ap-cam-t">Webcams</h3>
+          <p data-e="ap-cam-p">Wie sieht's gerade am Platz aus? Wetter, Wolken und Betrieb live.</p>
+          <span class="btn" aria-hidden="true">Ansehen</span>
+        </a>
+      </div>
+    </div>
+
+    <div class="w-abschnitt">
+      <h2 data-e="e16">Betrieb</h2>
+      <div class="w-kasten"><p data-e="e17">Die Flugsaison geht von April bis Oktober. Geflogen wird vor allem an Wochenenden und Feiertagen bei gutem Wetter, manchmal auch unter der Woche. Der Flugbetrieb beginnt gegen 9 Uhr und endet gegen 18 Uhr.</p></div>
+    </div>
+
+    <div class="w-abschnitt">
+      <p data-e="ap-v-e" class="w-eyebrow">Gastflieger</p>
+      <h2 data-e="ap-v-h">Vor dem Anflug</h2>
+      <div class="w-kasten">
+        <ul>
+          <li data-e="ap-v1"><strong>Anmeldung:</strong> Angabe folgt – zum Beispiel: bitte vorher telefonisch bei der Flugleitung anmelden.</li>
+          <li data-e="ap-v2"><strong>Landegebühren:</strong> Angabe folgt</li>
+          <li data-e="ap-v3"><strong>Treibstoff:</strong> Angabe folgt</li>
+          <li data-e="ap-v4"><strong>Abstellen:</strong> Angabe folgt – bitte nach Einweisung durch die Flugleitung.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="w-abschnitt">
+      <h2 data-e="e25">Kontakt</h2>
+      <table class="ad">
+        <tr><th data-e="e26">Flugleitung</th><td data-e="e27"><a href="tel:094537244">09453 7244</a></td></tr>
+        <tr><th data-e="e28">Anfahrt (Navi)</th><td data-e="e29">Einthal, 93083 Obertraubling</td></tr>
+      </table>
+    </div>
+
+    <details class="a-englisch">
+      <summary data-e="ap-en-t">🇬🇧 In English</summary>
+      <p data-e="ap-en1">Oberhinkofen glider field (south of Regensburg). Frequency 133.260 MHz. Runway 05/23, 600 m grass. Gliders, motor gliders and microlights. Circuit: gliders north, motor gliders south, 2300 ft MSL. Winch and aerotow launches.</p>
+      <p data-e="ap-en2">Caution: power lines approx. 600 m before threshold 05. Avoid overflying the villages. Never cross the runway or the winch cable area on the ground. Please call the airfield before arrival: +49 9453 7244. Information without guarantee – always check the AIP VFR and NOTAMs.</p>
+    </details>
   </article>
 </main>
 
@@ -80,6 +183,26 @@
   const b = document.getElementById('menu-btn'), t = document.getElementById('tabs');
   b.addEventListener('click', () => b.setAttribute('aria-expanded', t.classList.toggle('open')));
 </script>
+<script>
+// Abflugtafel (wie auf der Startseite): nur die Flugliste zeigen, Uhr, alle 50 s neu laden ohne Verlaufseintrag
+(() => {
+  const tafel = document.querySelector('.abflug-tafel');
+  if (!tafel) return;
+  const X = 4, Y = 57, B = 480;
+  let rahmen = tafel.querySelector('iframe');
+  const passen = () => { const s = tafel.clientWidth / B; tafel.querySelectorAll('iframe').forEach(f => { f.style.transform = `scale(${s}) translate(${-X}px,${-Y}px)`; }); };
+  addEventListener('resize', passen); passen();
+  setInterval(() => {
+    if (document.hidden) return;
+    const neu = rahmen.cloneNode();
+    neu.addEventListener('load', () => setTimeout(() => { if (neu !== rahmen) return; tafel.querySelectorAll('iframe').forEach(f => { if (f !== neu) f.remove(); }); }, 600), {once: true});
+    tafel.appendChild(neu); rahmen = neu; passen();
+  }, 50000);
+  const uhr = document.querySelector('.abflug-uhr');
+  const ticken = () => { uhr.textContent = new Date().toLocaleTimeString('de-DE', {hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Berlin'}); };
+  ticken(); setInterval(ticken, 10000);
+})();
+</script><script src="../js/werben.js?v=4"></script>
 <script src="../js/editor-loader.js"></script>
 
 </body></html>
