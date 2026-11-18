@@ -50,6 +50,13 @@
   .nk-pop-zeile{font-size:13.5px}
   .nk-pop-text{margin-top:8px;padding-top:8px;border-top:1px solid #e3e8ee;font:12.5px/1.45 ui-monospace,Consolas,monospace;white-space:pre-wrap;max-height:220px;overflow:auto;color:#24344a}
   .leaflet-container{font-family:'Barlow',sans-serif}
+  /* Heimatflugplatz */
+  .nk-heim{background:none;border:0}
+  .nk-heim svg{display:block;width:30px;height:30px;filter:drop-shadow(0 2px 4px rgba(6,28,58,.45))}
+  .leaflet-tooltip.nk-heim-name{background:#0a2350;color:#fff;border:0;border-radius:6px;padding:3px 8px;font:700 14px 'Barlow Condensed',sans-serif;letter-spacing:.04em;box-shadow:0 2px 6px rgba(6,28,58,.35)}
+  .leaflet-tooltip.nk-heim-name::before{display:none}
+  .nk-box .nk-neu{background:#ffc72c;border-color:#ffc72c;color:#0d2440}
+  .nk-box .nk-neu:disabled{opacity:.7;cursor:wait}
   @media (max-width:560px){ .nk-box{padding:12px;border-radius:14px} .nk-karte{aspect-ratio:4/5;min-height:360px} .nk-box button,.nk-box select{padding:8px 12px;font-size:14px} }
 </style>
 </head>
@@ -108,7 +115,7 @@
           </select>
         </label>
         <div class="nk-ebenen" role="group" aria-label="Ebenen ein- und ausblenden"></div>
-        <div class="nk-nav"><button type="button" class="nk-home">Oberhinkofen</button><button type="button" class="nk-de">Ganz Deutschland</button></div>
+        <div class="nk-nav"><button type="button" class="nk-home">Oberhinkofen</button><button type="button" class="nk-de">Ganz Deutschland</button><button type="button" class="nk-neu" title="Neueste NOTAMs laden">↻ Aktualisieren</button></div>
       </div>
       <div class="nk-karte">
         <div class="nk-map" aria-label="Karte mit NOTAMs und Lufträumen in Deutschland"></div>
@@ -125,7 +132,7 @@
 
 <script src="../js/himmel.js"></script>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
-<script src="../js/notamkarte.js"></script>
+<script src="../js/notamkarte.js?v=2"></script>
 <script>
   const b = document.getElementById('menu-btn'), t = document.getElementById('tabs');
   b.addEventListener('click', () => b.setAttribute('aria-expanded', t.classList.toggle('open')));
