@@ -71,4 +71,25 @@
     new IntersectionObserver(([e]) => { heroWeg = !e.isIntersecting; zeigen(); }).observe(hero);
     if (aufruf) new IntersectionObserver(([e]) => { aufrufDa = e.isIntersecting; zeigen(); }).observe(aufruf);
   }
+
+  // ---------- Vorher / Nachher: Regler verschiebt die Trennlinie ----------
+  document.querySelectorAll('.w-vergleich').forEach(v => {
+    const r = v.querySelector('input[type=range]');
+    if (!r) return;
+    const setzen = () => v.style.setProperty('--pos', r.value + '%');
+    r.addEventListener('input', setzen); setzen();
+  });
+
+  // ---------- Kopieren (z. B. Frequenz, Koordinaten) ----------
+  document.querySelectorAll('[data-kopieren]').forEach(k => {
+    k.addEventListener('click', async () => {
+      const q = document.querySelector(`[data-e="${k.dataset.kopieren}"]`);
+      const text = (q?.textContent || '').trim();
+      try { await navigator.clipboard.writeText(text); }
+      catch { const t = document.createElement('textarea'); t.value = text; document.body.appendChild(t); t.select(); document.execCommand('copy'); t.remove(); }
+      const alt = k.textContent; k.textContent = '✓ Kopiert'; k.classList.add('ok');
+      setTimeout(() => { k.textContent = alt; k.classList.remove('ok'); }, 1600);
+    });
+  });
+  document.querySelectorAll('[data-drucken]').forEach(k => k.addEventListener('click', () => print()));
 })();
