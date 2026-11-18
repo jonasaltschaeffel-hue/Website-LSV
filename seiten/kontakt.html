@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="de"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kontakt – LSV Regensburg</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&amp;family=Barlow+Condensed:wght@500;600;700&amp;display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/stil.css">
+<link rel="stylesheet" href="../css/werben.css?v=4">
+</head>
+<body class="artikel">
+
+<canvas id="sky" aria-hidden="true"></canvas>
+
+<header id="topbar">
+  <a class="brand" href="../index.html" aria-label="LSV Regensburg – zur Startseite">
+    <img src="../img/wappen-lsv-regensburg.jpg" alt="Wappen des LSV Regensburg" hidden="" onload="this.hidden=false;this.nextElementSibling.setAttribute('hidden','')">
+    <svg class="shield" viewBox="0 0 44 52" aria-hidden="true">
+      <path d="M2 3h40v22c0 13-9 21-20 25C11 46 2 38 2 25Z" fill="#fff" stroke="#0f2c4c" stroke-width="2.5"></path>
+      <path d="M22 4v45" stroke="#c8102e" stroke-width="2"></path>
+      <text x="22" y="30" text-anchor="middle" font-family="Barlow Condensed" font-weight="700" font-size="11" fill="#0f2c4c">LSV</text>
+    </svg>
+    <span class="name">LSV Regensburg<small>Segelflug</small></span>
+  </a>
+  <button id="menu-btn" aria-label="Menü öffnen" aria-expanded="false" aria-controls="tabs">
+    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"></path></svg>
+  </button>
+  <!-- Reiter: im Bearbeitungsmodus unter „Verwaltung → Seiten & Reiter“ pflegen -->
+  <ul id="tabs">
+    <li><a href="../seiten/mitfliegen.html">Mitfliegen</a></li>
+    <li><a href="../seiten/pilot-werden.html">Pilot werden</a></li>
+    <li><a href="../seiten/verein.html">Verein</a></li>
+    <li><a href="../seiten/jugend.html">Jugend</a></li>
+    <li><a href="../seiten/streckenflug.html">Streckenflug</a></li>
+    <li><a href="../seiten/werkstatt.html">Werkstatt</a></li>
+    <li><a href="../seiten/anflug.html">Anflug für Piloten</a></li>
+    <li><a href="../seiten/webcams.html">Webcams</a></li>
+    <li><a href="../seiten/flugvorbereitung.html">Flugvorbereitung</a></li>
+  </ul>
+</header>
+
+<main>
+  <article class="article w-seite">
+    <a class="back" href="../index.html#kontakt">← Zur Startseite</a>
+    <div data-e="k1" class="date">Kontakt</div>
+    <h1 data-e="k2">Schreib uns!</h1>
+    <p data-e="k3" class="w-lead">Du möchtest einen Schnupperflug machen, in die Jugendgruppe reinschnuppern oder hast eine Frage zur Ausbildung? Schreib uns einfach – wir melden uns so schnell wie möglich bei dir.</p>
+
+    <div class="k-raster">
+      <div class="k-karte">
+        <form data-kontakt class="k-form" novalidate>
+          <label>Worum geht's?
+            <select name="thema">
+              <option value="allgemein">Allgemeine Frage</option>
+              <option value="schnupperflug">Schnupperflug anfragen</option>
+              <option value="mitmachen">Mitmachen in der Jugendgruppe</option>
+              <option value="ausbildung">Ausbildung / Pilot werden</option>
+              <option value="mitfliegen">Mitfliegen &amp; Gutscheine</option>
+            </select>
+          </label>
+          <div class="k-zwei">
+            <label>Name<input name="name" autocomplete="name" required></label>
+            <label>E-Mail<input name="mail" type="email" autocomplete="email" required></label>
+          </div>
+          <label><span>Telefon <small>(freiwillig)</small></span><input name="tel" type="tel" autocomplete="tel"></label>
+          <label>Nachricht<textarea name="msg" rows="6" required placeholder="Zum Beispiel: Ich bin 14 und würde gerne einmal mitfliegen. Wann passt es euch?"></textarea></label>
+          <input name="_honey" class="k-falle" tabindex="-1" autocomplete="off" aria-hidden="true">
+          <p data-e="k-ds" class="k-hinweis">Mit dem Absenden wird deine Nachricht per E-Mail an uns geschickt, und du bekommst eine Eingangsbestätigung. Mehr dazu in der <a href="datenschutz.html">Datenschutzerklärung</a>.</p>
+          <button class="btn primary" type="submit">Nachricht senden</button>
+        </form>
+        <div class="k-danke" data-kontakt-danke hidden>
+          <span class="k-danke-ico" aria-hidden="true">✓</span>
+          <h2 data-e="k-d1">Danke, <span data-kontakt-name></span>!</h2>
+          <p data-e="k-d2">Deine Nachricht ist bei uns angekommen. Du bekommst gleich eine Bestätigung per E-Mail – wir melden uns so bald wie möglich.</p>
+          <button type="button" class="btn ghost" data-kontakt-neu>Neue Nachricht</button>
+        </div>
+      </div>
+
+      <div class="k-info">
+        <h3 data-e="k4">So erreichst du uns</h3>
+        <p data-e="k5"><strong>Luftsportverein Regensburg e.&nbsp;V.</strong><br>Postfach 1126<br>93081 Obertraubling</p>
+        <p data-e="k6"><strong>Flugplatz</strong> (Navi): Einthal, 93083 Obertraubling<br>Telefon Flugplatz: <a href="tel:094537244">09453 7244</a></p>
+        <p data-e="k7"><strong>Flugbetrieb:</strong> bei gutem Wetter Samstag, Sonntag und an Feiertagen ab 9 Uhr – komm einfach vorbei!</p>
+      </div>
+    </div>
+  </article>
+</main>
+
+<script src="../js/himmel.js"></script>
+<script>
+  const b = document.getElementById('menu-btn'), t = document.getElementById('tabs');
+  b.addEventListener('click', () => b.setAttribute('aria-expanded', t.classList.toggle('open')));
+</script>
+<script src="../js/werben.js?v=3"></script>
+<script src="../js/kontakt.js?v=1"></script>
+<script src="../js/editor-loader.js"></script>
+
+
+</body></html>
