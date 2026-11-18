@@ -8,6 +8,50 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=Barlow+Condensed:wght@500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../css/stil.css">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+<style>
+  /* NOTAM-Karte: eigene Karte mit Lufträumen und NOTAMs (Daten: daten/notams/, Skript: js/notamkarte.js) */
+  .nk-box{margin:22px 0 30px;background:radial-gradient(120% 90% at 50% 0%,#17406b 0%,#0d2440 60%,#091a30 100%);
+    border-radius:18px;padding:16px;color:#e8f1fb;box-shadow:0 22px 50px -24px rgba(6,28,58,.7);text-shadow:none}
+  .nk-kopf{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px 16px;margin-bottom:10px}
+  .nk-kopf b{font:700 22px/1 'Barlow Condensed',sans-serif;letter-spacing:.02em;color:#fff}
+  .nk-zeit,.nk-nav{display:flex;flex-wrap:wrap;gap:6px}
+  .nk-box button,.nk-box select{font:600 15px/1 'Barlow',sans-serif;padding:9px 15px;border-radius:999px;cursor:pointer;
+    border:1.5px solid rgba(255,255,255,.25);background:rgba(255,255,255,.06);color:#e8f1fb;transition:background .2s,border-color .2s,color .2s}
+  .nk-box button:hover,.nk-box select:hover{border-color:rgba(255,255,255,.6)}
+  .nk-zeit button[aria-pressed="true"]{background:#ffc72c;border-color:#ffc72c;color:#0d2440}
+  .nk-box select{padding:8px 12px;appearance:auto}
+  .nk-box select option{color:#0d2440}
+  .nk-filter{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;margin-bottom:12px}
+  .nk-filter label{font:500 15px 'Barlow',sans-serif;color:#b9cde3;display:flex;align-items:center;gap:8px}
+  .nk-ebenen{display:flex;flex-wrap:wrap;gap:6px}
+  .nk-box .nk-chip{display:inline-flex;align-items:center;gap:7px;padding:7px 12px;font-size:14px}
+  .nk-chip i{width:10px;height:10px;border-radius:50%;flex:none}
+  .nk-chip small{font:600 12px 'Barlow',sans-serif;opacity:.75}
+  .nk-box .nk-chip[aria-pressed="false"]{opacity:.5;text-decoration:line-through}
+  .nk-karte{position:relative;aspect-ratio:16/11;min-height:420px;border-radius:12px;overflow:hidden;background:#e8eef3}
+  .nk-map{position:absolute;inset:0}
+  .nk-map .leaflet-tile-pane{filter:saturate(.3) brightness(1.08) contrast(.85)}   /* ruhige, helle Grundkarte wie bei WeGlide */
+  .nk-leer{position:absolute;inset:0;display:grid;place-items:center;text-align:center;padding:20px;color:#3a5674;font-size:15px;z-index:500;background:rgba(232,238,243,.85)}
+  .nk-legende{display:flex;flex-wrap:wrap;gap:6px 16px;margin-top:12px;font-size:13px;color:#b9cde3}
+  .nk-legende span{display:inline-flex;align-items:center;gap:6px}
+  .nk-legende i{width:10px;height:10px;border-radius:50%}
+  .nk-legende i.raum{width:16px;height:10px;border-radius:2px;border:2px solid}
+  .nk-warn{margin:12px 0 0;padding:10px 14px;border-radius:10px;background:rgba(255,199,44,.14);border:1px solid rgba(255,199,44,.45);font-size:14.5px;line-height:1.45;color:#fff3cf}
+  .nk-warn b{color:#ffc72c}
+  #nk-box .nk-warn a{color:#ffc72c}
+  .nk-fuss{display:flex;flex-wrap:wrap;justify-content:space-between;gap:4px 14px;margin-top:10px;font-size:12.5px;color:#8fa6c0}
+  #nk-box .nk-fuss a{color:#cfe0f3}
+  .nk-stand.alt{color:#ffc72c}
+  /* Popups */
+  .nk-pop{font:14px/1.4 'Barlow',sans-serif;color:#0d2440;max-width:360px}
+  .nk-pop b{font:700 17px/1.2 'Barlow Condensed',sans-serif;display:block;margin-bottom:3px}
+  .nk-pop-meta{font-size:12.5px;color:#5a6b80;margin-bottom:6px}
+  .nk-pop-zeile{font-size:13.5px}
+  .nk-pop-text{margin-top:8px;padding-top:8px;border-top:1px solid #e3e8ee;font:12.5px/1.45 ui-monospace,Consolas,monospace;white-space:pre-wrap;max-height:220px;overflow:auto;color:#24344a}
+  .leaflet-container{font-family:'Barlow',sans-serif}
+  @media (max-width:560px){ .nk-box{padding:12px;border-radius:14px} .nk-karte{aspect-ratio:4/5;min-height:360px} .nk-box button,.nk-box select{padding:8px 12px;font-size:14px} }
+</style>
 </head>
 <body class="artikel">
 
@@ -46,13 +90,42 @@
     <a class="back" href="../index.html">← Zur Startseite</a>
     <div data-e="e4" class="date">Für Piloten</div>
     <h1 data-e="e1">Flugvorbereitung</h1>
-    <span data-e="e5" class="soon">Diese Seite ist im Aufbau</span>
-    <p data-e="e2">Hier entstehen Links und Hilfen zur Flugvorbereitung: Wetter, Luftraum, NOTAMs und Checklisten für den Flugbetrieb in Oberhinkofen.</p>
-    <p data-e="e3">Bis dahin erreichst du uns über <a href="../index.html#kontakt">Kontakt</a> oder an Flugtagen bei der Flugleitung unter 09453 7244.</p>
+    <p data-e="e2">NOTAMs und Lufträume für ganz Deutschland auf einen Blick. Wähle den Tag und die Höhe, bis zu der du fliegen willst – die Karte zeigt dann nur, was für dich zählt. Ein Klick auf ein Gebiet oder einen Punkt zeigt den vollständigen NOTAM-Text.</p>
+
+    <div class="nk-box" id="nk-box">
+      <div class="nk-kopf">
+        <b>NOTAMs &amp; Luftraum</b>
+        <div class="nk-zeit" role="group" aria-label="Zeitraum"></div>
+      </div>
+      <div class="nk-filter">
+        <label>Höhe bis
+          <select class="nk-hoehe" aria-label="Höhe bis">
+            <option value="45">FL 45 (ca. 4.500 ft)</option>
+            <option value="65">FL 65</option>
+            <option value="100">FL 100</option>
+            <option value="150">FL 150</option>
+            <option value="999">alle Höhen</option>
+          </select>
+        </label>
+        <div class="nk-ebenen" role="group" aria-label="Ebenen ein- und ausblenden"></div>
+        <div class="nk-nav"><button type="button" class="nk-home">Oberhinkofen</button><button type="button" class="nk-de">Ganz Deutschland</button></div>
+      </div>
+      <div class="nk-karte">
+        <div class="nk-map" aria-label="Karte mit NOTAMs und Lufträumen in Deutschland"></div>
+        <div class="nk-leer">NOTAMs werden geladen …</div>
+      </div>
+      <div class="nk-legende"></div>
+      <p class="nk-warn"><b>Wichtig:</b> Diese Karte dient nur zur Übersicht und ersetzt keine Flugvorbereitung. Vor jedem Flug die NOTAMs im <a href="https://secais.dfs.de/pilotservice/home.jsp" target="_blank" rel="noopener">offiziellen Briefing der DFS (AIS-Portal)</a> abrufen. NOTAM Office der DFS: 06103 707-5555.</p>
+      <div class="nk-fuss"><span>NOTAM- und Luftraumdaten: <a href="https://notaminfo.com/germanymap" target="_blank" rel="noopener">notaminfo.com</a> · ohne Gewähr, stündlich übernommen</span><span class="nk-stand"></span></div>
+    </div>
+
+    <p data-e="e3">Fragen zum Flugbetrieb in Oberhinkofen? Du erreichst uns über <a href="../index.html#kontakt">Kontakt</a> oder an Flugtagen bei der Flugleitung unter 09453 7244.</p>
   </article>
 </main>
 
 <script src="../js/himmel.js"></script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+<script src="../js/notamkarte.js"></script>
 <script>
   const b = document.getElementById('menu-btn'), t = document.getElementById('tabs');
   b.addEventListener('click', () => b.setAttribute('aria-expanded', t.classList.toggle('open')));
