@@ -38,13 +38,17 @@ body.artikel .w-hero .btn.ghost:hover{background:#fff;color:var(--w-blau)}
 /* ---------- Zeitstrahl „Dein Weg ins Cockpit“ ---------- */
 .w-weg{list-style:none;position:relative;margin:20px 0 0;padding:0 0 0 64px}
 .w-weg::before{content:"";position:absolute;left:23px;top:8px;bottom:8px;width:4px;border-radius:2px;background:rgba(10,35,80,.12)}
-.w-weg::after{content:"";position:absolute;left:23px;top:8px;width:4px;border-radius:2px;height:calc((100% - 16px) * var(--fortschritt,0));
-  background:linear-gradient(var(--w-blau),var(--w-orange));transition:height .15s linear}
-.w-weg .w-flieger{position:absolute;left:9px;top:calc(8px + (100% - 16px) * var(--fortschritt,0) - 16px);width:32px;height:32px;z-index:2;
-  transition:top .15s linear;filter:drop-shadow(0 3px 6px rgba(6,28,58,.35))}
+.w-weg::after{content:"";position:absolute;left:23px;top:8px;width:4px;border-radius:2px;height:calc(100% - 16px);
+  transform-origin:top;transform:scaleY(var(--fortschritt,0));will-change:transform;
+  background:linear-gradient(var(--w-blau),var(--w-orange))}
+/* Segelflieger wie auf der Startseite, Mitte genau auf der Linie (x = 25px) */
+.w-weg .w-flieger{position:absolute;left:1px;top:-24px;width:48px;height:48px;z-index:2;pointer-events:none;
+  will-change:transform;filter:drop-shadow(0 4px 5px rgba(6,28,58,.35))}
+.w-weg .w-flieger svg{display:block;width:100%;height:100%;overflow:visible}
 .w-schritt{position:relative;background:#fff;border-radius:16px;padding:16px 18px 14px;margin:0 0 14px;box-shadow:0 10px 26px -20px rgba(6,28,58,.6)}
-.w-schritt::before{content:attr(data-nr);position:absolute;left:-55px;top:14px;width:32px;height:32px;border-radius:50%;background:#fff;
-  border:3px solid var(--w-blau);color:var(--w-blau);display:grid;place-items:center;font:700 15px "Barlow Condensed",sans-serif;z-index:1}
+.w-schritt::before{content:attr(data-nr);position:absolute;left:-57px;top:14px;width:36px;height:36px;box-sizing:border-box;border-radius:50%;background:#fff;
+  border:3px solid var(--w-blau);color:var(--w-blau);display:flex;align-items:center;justify-content:center;
+  font:700 16px/1 "Barlow Condensed",sans-serif;font-variant-numeric:tabular-nums;z-index:1}
 .w-schritt.w-ziel::before{background:var(--w-orange);border-color:var(--w-orange);color:#fff}
 .article .w-schritt h3{font-size:22px;margin:0 0 4px}
 .article .w-schritt p{font-size:16px;line-height:1.5;margin:0;max-width:none}
