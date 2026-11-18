@@ -23,13 +23,13 @@
     W: {name: 'Segelfluggebiet / Wellenfenster', farbe: '#2f9e44', strich: '7 5', fuell: .06},
     O: {name: 'Sonstiger Luftraum',          farbe: '#868e96', strich: '3 4', fuell: .02},
   };
-  const HOME = [48.95, 12.08];   // Raum Oberhinkofen / Regensburg
+  const HOME = [48.9526, 12.1484];   // Flugplatz Oberhinkofen (48° 57' 09" N / 12° 08' 54" E)
 
   const $ = s => box.querySelector(s);
   const kartenEl = $('.nk-karte'), leerEl = $('.nk-leer'), standEl = $('.nk-stand');
   const zeitEl = $('.nk-zeit'), hoeheEl = $('.nk-hoehe'), ebenenEl = $('.nk-ebenen'), legendeEl = $('.nk-legende');
 
-  const karte = L.map(kartenEl.querySelector('.nk-map'), {preferCanvas: true, zoomSnap: .5, minZoom: 5, maxZoom: 13, attributionControl: true, scrollWheelZoom: false});
+  const karte = L.map(kartenEl.querySelector('.nk-map'), {preferCanvas: true, zoomSnap: .5, minZoom: 5, maxZoom: 13, attributionControl: true, scrollWheelZoom: true, wheelPxPerZoomLevel: 90});
   karte.attributionControl.setPrefix('');
   // Topografische Grundkarte, per CSS hell und blass gestellt (siehe .nk-map .leaflet-tile-pane)
   L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
@@ -37,13 +37,25 @@
     attribution: 'Karte: © <a href="https://opentopomap.org" target="_blank" rel="noopener">OpenTopoMap</a> (CC-BY-SA) · Daten: © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>, SRTM',
   }).addTo(karte);
   karte.fitBounds([[47.2, 5.8], [55.1, 15.1]]);
-  // Mausrad erst nach Klick in die Karte (sonst bleibt man beim Scrollen der Seite hängen)
-  karte.on('click', () => karte.scrollWheelZoom.enable());
-  karte.on('mouseout', () => karte.scrollWheelZoom.disable());
 
   const renderer = L.canvas({padding: .4});
   const raumLayer = L.layerGroup().addTo(karte);
   const notamLayer = L.layerGroup().addTo(karte);
+
+  // Heimatflugplatz Oberhinkofen – immer sichtbar, über allen anderen Ebenen
+  karte.createPane('nk-heim').style.zIndex = 650;
+  L.marker(HOME, {
+    pane: 'nk-heim', keyboard: false, title: 'Flugplatz Oberhinkofen',
+    icon: L.divIcon({className: 'nk-heim', iconSize: [30, 30], iconAnchor: [15, 15],
+      html: '<svg viewBox="-16 -16 32 32" aria-hidden="true"><circle r="14" fill="#0a2350" stroke="#fff" stroke-width="2.5"/>' +
+        '<path transform="rotate(-40) scale(.34)" fill="#fff" d="M16 0 C14 -1.6 8 -2.2 5 -2.1 L3.6 -27 L1.4 -27.6 L0 -2 L-13.5 -0.9 L-14.5 -0.8 L-15.6 -8.5 L-17.8 -8.5 L-18 -0.6 L-18 0.6 L-17.8 8.5 L-15.6 8.5 L-14.5 0.8 L-13.5 0.9 L0 2 L1.4 27.6 L3.6 27 L5 2.1 C8 2.2 14 1.6 16 0 Z"/></svg>'})
+  }).bindTooltip('Oberhinkofen', {permanent: true, direction: 'right', offset: [14, 0], className: 'nk-heim-name', pane: 'nk-heim'})
+    .bindPopup(() => {
+      const d = document.createElement('div'); d.className = 'nk-pop';
+      d.innerHTML = '<b>Flugplatz Oberhinkofen</b><div class="nk-pop-meta">LSV Regensburg · Segelfluggelände</div>' +
+        '<div class="nk-pop-zeile">Frequenz 133.260 MHz · Piste 05/23, 600 m Gras</div><div class="nk-pop-zeile"><a href="anflug.html">Anflug für Piloten →</a></div>';
+      return d;
+    }).addTo(karte);
 
   const st = {zeit: 'heute', fl: 100, raum: true, gruppen: Object.fromEntries(Object.entries(GRUPPEN).map(([k, g]) => [k, g.an]))};
   let notams = [], raeume = [];
@@ -154,18 +166,63 @@
   for (const g of Object.values(GRUPPEN)){ const z = el('span'); const m = el('i'); m.style.background = g.farbe; z.append(m, 'NOTAM: ' + g.name); legendeEl.append(z); }
 
   // ---------- Laden ----------
-  (async () => {
-    try {
-      const [n, r] = await Promise.all(['notams.json', 'luftraum.json'].map(f => fetch(DATEN + f, {cache: 'no-cache'}).then(x => { if (!x.ok) throw new Error(x.status); return x.json(); })));
-      notams = n.notams || []; raeume = r.raeume || [];
-      const s = n.stand || n.abgerufen;
-      standEl.textContent = s ? 'Stand: ' + zeit(s) : '';
-      const alt = s && Date.now() - Date.parse(s) > 6 * 3600e3;
-      if (alt) { standEl.textContent += ' – älter als 6 Stunden'; standEl.classList.add('alt'); }
-      leerEl.hidden = true;
-      zeichnen();
-    } catch {
-      leerEl.textContent = 'Die NOTAM-Daten konnten gerade nicht geladen werden. Bitte das offizielle DFS-Briefing nutzen.';
+  // quelle: Funktion, die zu einem Dateinamen die Daten liefert (normal: von der Website)
+  const vonWebsite = f => fetch(DATEN + f + '?t=' + Date.now(), {cache: 'no-store'}).then(x => { if (!x.ok) throw new Error(x.status); return x.json(); });
+  async function laden(quelle = vonWebsite){
+    const [n, r] = await Promise.all(['notams.json', 'luftraum.json'].map(quelle));
+    notams = n.notams || []; raeume = r.raeume || [];
+    const s = n.stand || n.abgerufen;
+    standEl.classList.remove('alt');
+    standEl.textContent = s ? 'Stand: ' + zeit(s) : '';
+    const alt = s && Date.now() - Date.parse(s) > 6 * 3600e3;
+    if (alt) { standEl.textContent += ' – älter als 6 Stunden'; standEl.classList.add('alt'); }
+    leerEl.hidden = true;
+    zeichnen();
+    return s;
+  }
+  laden().catch(() => {
+    leerEl.textContent = 'Die NOTAM-Daten konnten gerade nicht geladen werden. Bitte das offizielle DFS-Briefing nutzen.';
+  });
+
+  // ---------- Sofort aktualisieren ----------
+  // Besucher: neuesten Datenstand der Website nachladen.
+  // Im Bearbeitungsmodus (angemeldet): zusätzlich den GitHub-Ablauf „NOTAMs aktualisieren“ starten,
+  // auf sein Ende warten und die frischen Daten direkt aus GitHub lesen.
+  const neuBtn = $('.nk-neu'), neuText = neuBtn ? neuBtn.textContent : '';
+  const meldung = txt => { if (neuBtn) neuBtn.title = txt; standEl.textContent = txt; };
+  let sitzung = null;
+  try { sitzung = JSON.parse(sessionStorage.getItem('lsv-edit-session')); } catch {}
+  async function githubLauf(){
+    const {cfg, token} = sitzung;
+    const api = `https://api.github.com/repos/${cfg.owner}/${cfg.repo}`;
+    const kopf = {'Accept': 'application/vnd.github+json', 'Authorization': 'Bearer ' + token, 'X-GitHub-Api-Version': '2022-11-28'};
+    const start = Date.now() - 5000;
+    const r = await fetch(`${api}/actions/workflows/notams.yml/dispatches`, {method: 'POST', headers: {...kopf, 'Content-Type': 'application/json'}, body: JSON.stringify({ref: cfg.branch || 'main'})});
+    if (r.status === 403 || r.status === 404) throw new Error('recht');
+    if (!r.ok) throw new Error('Status ' + r.status);
+    meldung('Neue NOTAMs werden geholt … (ca. 1 Minute)');
+    for (let i = 0; i < 30; i++){
+      await new Promise(ok => setTimeout(ok, 8000));
+      const l = await fetch(`${api}/actions/workflows/notams.yml/runs?per_page=1&event=workflow_dispatch&t=${Date.now()}`, {headers: kopf}).then(x => x.json());
+      const lauf = (l.workflow_runs || [])[0];
+      if (!lauf || Date.parse(lauf.created_at) < start || lauf.status !== 'completed') continue;
+      if (lauf.conclusion !== 'success') throw new Error('Der Ablauf ist fehlgeschlagen.');
+      return laden(f => fetch(`${api}/contents/daten/notams/${f}?ref=${cfg.branch || 'main'}&t=${Date.now()}`, {headers: {...kopf, 'Accept': 'application/vnd.github.raw'}}).then(x => { if (!x.ok) throw new Error(x.status); return x.json(); }));
     }
-  })();
+    throw new Error('Zeitüberschreitung – bitte später noch einmal laden.');
+  }
+  if (neuBtn) neuBtn.onclick = async () => {
+    neuBtn.disabled = true; neuBtn.textContent = '↻ Lädt …';
+    try {
+      if (sitzung && sitzung.token) await githubLauf(); else await laden();
+      neuBtn.textContent = '✓ Aktuell';
+    } catch (err) {
+      try { await laden(); } catch {}
+      if (err.message === 'recht') standEl.textContent += ' – den Abruf bitte bei GitHub unter Actions → „NOTAMs aktualisieren“ starten';
+      else if (sitzung) standEl.textContent += ' – ' + err.message;
+      neuBtn.textContent = neuText;
+    } finally {
+      setTimeout(() => { neuBtn.disabled = false; neuBtn.textContent = neuText; }, 2500);
+    }
+  };
 })();
