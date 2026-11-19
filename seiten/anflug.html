@@ -7,7 +7,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
 <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&amp;family=Barlow+Condensed:wght@500;600;700&amp;display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../css/stil.css">
-<link rel="stylesheet" href="../css/werben.css?v=5">
+<link rel="stylesheet" href="../css/werben.css?v=6">
 </head>
 <body class="artikel">
 
@@ -48,7 +48,25 @@
     <p data-e="ap-lead" class="w-lead">Alles Wichtige für deinen Anflug auf Oberhinkofen auf einen Blick – herzlich willkommen bei uns!</p>
     
 
-    
+    <div class="a-karte">
+      <div class="a-karte-kopf"><b data-e="e3">Platzdaten</b><span data-e="ap-kopf">Segelfluggelände Oberhinkofen</span></div>
+      <div class="a-daten">
+        <div class="a-feld a-gross"><span data-e="e4" class="a-lbl">Frequenz</span><span data-e="e5" class="a-wert">133.260 MHz</span><button type="button" class="a-kopier" data-kopieren="e5">Kopieren</button></div>
+        <div class="a-feld a-breit"><span data-e="e6" class="a-lbl">Koordinaten</span><span data-e="e7" class="a-wert">48° 57' 09,3" N / 12° 08' 54,2" E</span><button type="button" class="a-kopier" data-kopieren="e7">Kopieren</button></div>
+        <div class="a-feld"><span data-e="e8" class="a-lbl">Piste</span><span data-e="e9" class="a-wert">05/23 · 600 m · Gras</span></div>
+        <div class="a-feld a-breit"><span data-e="e12" class="a-lbl">Platzrunde</span><span data-e="e13" class="a-wert">Segelflugzeuge im Norden, Motorsegler im Süden, 2300 ft MSL</span></div>
+        <div class="a-feld"><span data-e="e10" class="a-lbl">Zugelassen für</span><span data-e="e11" class="a-wert">Segelflugzeuge, Motorsegler, Ultraleicht</span></div>
+        <div class="a-feld"><span data-e="e14" class="a-lbl">Startarten</span><span data-e="e15" class="a-wert">F-Schlepp und Windenstart</span></div>
+        <div class="a-feld"><span data-e="ap-h-l" class="a-lbl">Platzhöhe</span><span data-e="ap-h" class="a-wert">377m</span></div>
+      </div>
+      <div class="a-aktionen">
+        <a data-e="ap-maps" class="btn primary" href="https://www.google.com/maps?q=48.952583,12.148389" target="_blank" rel="noopener">📍 In Google Maps öffnen</a>
+        <a data-e="ap-aip" class="btn ghost" href="https://aip.dfs.de/BasicVFR/" target="_blank" rel="noopener">AIP VFR (DFS)</a>
+        <a data-e="ap-notam" class="btn ghost" href="https://secais.dfs.de/" target="_blank" rel="noopener">NOTAM (DFS)</a>
+        <a data-e="ap-wetter" class="btn ghost" href="https://www.flugwetter.de/" target="_blank" rel="noopener">Flugwetter (DWD)</a>
+        <button type="button" class="btn ghost" data-drucken="">🖨️ Drucken</button>
+      </div>
+    </div>
 
     <div class="w-abschnitt">
       <p data-e="ap-s-e" class="w-eyebrow">Platzskizze</p>
@@ -136,10 +154,10 @@
       <h2 data-e="ap-v-h">Vor dem Anflug</h2>
       <div class="w-kasten">
         <ul>
-          <li data-e="ap-v1"><strong>Anmeldung: Bitte&nbsp;</strong>bei der Flugleitung anmelden, telefonisch oder über Funk.</li>
-          <li data-e="ap-v2"><strong>Landegebühren:</strong>&nbsp;Bitte bei der Startleitung erfragen</li>
-          <li data-e="ap-v3"><strong>Treibstoff:</strong>&nbsp;Avgas und SuperPlus vorhanden</li>
-          <li data-e="ap-v4"><strong>Abstellen:&nbsp;</strong>Bei der&nbsp; Flugleitung erfragen.</li>
+          <li data-e="ap-v1"><strong>Anmeldung:</strong> Angabe folgt – zum Beispiel: bitte vorher telefonisch bei der Flugleitung anmelden.</li>
+          <li data-e="ap-v2"><strong>Landegebühren:</strong> Angabe folgt</li>
+          <li data-e="ap-v3"><strong>Treibstoff:</strong> Angabe folgt</li>
+          <li data-e="ap-v4"><strong>Abstellen:</strong> Angabe folgt – bitte nach Einweisung durch die Flugleitung.</li>
         </ul>
       </div>
     </div>
@@ -178,9 +196,8 @@
   const ticken = () => { uhr.textContent = new Date().toLocaleTimeString('de-DE', {hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Berlin'}); };
   ticken(); setInterval(ticken, 10000);
 })();
-</script><script src="../js/werben.js?v=4"></script>
+</script><script src="../js/werben.js?v=5"></script>
 <script src="../js/editor-loader.js"></script>
-
 
 
 
