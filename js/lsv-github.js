@@ -83,18 +83,29 @@ window.LSVGit = (() => {
       },
       /** Alle Dateipfade der Website (relativ zur Website-Wurzel) */
       async listFiles(){
+        return (await this.listTree()).map(e => e.path);
+      },
+      /** Wie listFiles, aber mit Kennung (sha) und Größe jeder Datei */
+      async listTree(){
         const ref = await gh('/git/ref/heads/' + encodeURIComponent(branch));
         const t = await gh('/git/trees/' + ref.object.sha + '?recursive=1');
-        return t.tree.filter(e => e.type === 'blob' && e.path.startsWith(prefix)).map(e => e.path.slice(prefix.length));
+        return t.tree.filter(e => e.type === 'blob' && e.path.startsWith(prefix)).map(e => ({path: e.path.slice(prefix.length), sha: e.sha, size: e.size}));
+      },
+      /** Datum der letzten Änderung einer Datei (Zeitpunkt des letzten Commits, ISO) oder null */
+      async lastCommitDate(path){
+        const l = await gh('/commits?path=' + encodeURIComponent(prefix + path) + '&sha=' + encodeURIComponent(branch) + '&per_page=1');
+        return l && l[0] ? l[0].commit.committer.date : null;
       },
       /** Mehrere Dateien in EINEM Commit speichern bzw. löschen.
-          files: [{path, text} | {path, bytes} | {path, remove: true}] */
+          files: [{path, text} | {path, bytes} | {path, sha} | {path, remove: true}]
+          {path, sha}: vorhandenen Dateiinhalt unter neuem Pfad ablegen (z. B. beim Verschieben) */
       async commit(files, message){
         const ref = await gh('/git/ref/heads/' + encodeURIComponent(branch));
         const parent = await gh('/git/commits/' + ref.object.sha);
         const tree = [];
         for (const f of files){
           if (f.remove){ tree.push({path: prefix + f.path, mode: '100644', type: 'blob', sha: null}); continue; }
+          if (f.sha){ tree.push({path: prefix + f.path, mode: '100644', type: 'blob', sha: f.sha}); continue; }
           const content = f.bytes ? bytesToB64(f.bytes) : textToB64(f.text);
           const blob = await gh('/git/blobs', {method: 'POST', body: JSON.stringify({content, encoding: 'base64'})});
           tree.push({path: prefix + f.path, mode: '100644', type: 'blob', sha: blob.sha});
