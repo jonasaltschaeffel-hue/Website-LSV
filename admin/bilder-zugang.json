@@ -1,0 +1,11 @@
+{
+  "owner": "jonasaltschaeffel-hue",
+  "repo": "Website-LSV",
+  "branch": "main",
+  "kdf": "PBKDF2-SHA256",
+  "iter": 600000,
+  "salt": "OVYVr4wq6qenqi58IjRJ+g==",
+  "iv": "vB6GBZrBZyv5SXN0",
+  "token": "cwgzwUER9Bko3BRKjsBNHfs5BG2eJa2Iwo386lvw33zKRlYdEuXwH7GqGpNYYmKHszilrfJCDSrvFVjwMTyWOJBYV+fZO5nxmZumE2RGUQdnR2lGIllVkKaNSiXwLUDAsW8w1XSdOatohmmikA==",
+  "art": "bilder"
+}
