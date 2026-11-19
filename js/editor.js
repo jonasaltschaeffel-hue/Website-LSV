@@ -298,7 +298,15 @@
       if (ops.length) src = applyOpsToSource(src);     // Formänderungen zuerst
       changes.forEach(ch => { src = applyChange(src, ch); });
       const files = [...pendingImgs, {path: rel, text: src}];
+      // Artikelseite: geänderter Titel/Datum auch auf die Übersichtskarten übernehmen (sortiert nach Datum)
+      const art = /^aktuelles\/([^/]+)\.html$/.exec(rel), aH1 = document.querySelector('main h1'), aDt = document.querySelector('main .date');
+      const sync = art && art[1] !== 'index' && [aH1, aDt].some(e => e && e.dataset.e && dirty.has(e.dataset.e))
+        ? {titel: aH1 ? aH1.textContent.trim() : undefined, datum: aDt ? aDt.textContent.trim() : ''} : null;
       await gh.commit(files, `Website bearbeitet: ${rel}`);
+      if (sync){
+        try { await LSVCms.articles.update(gh, art[1], sync); }
+        catch (err){ toast('Seite gespeichert, aber die Übersichtskarte nicht: ' + err.message, true); }
+      }
       dirty.forEach(el => original.set(el.dataset.e, snap(el)));
       dirty.clear(); ops.length = 0; pendingImgs.length = 0; updateSave();
       undoStack.length = 0; redoStack.length = 0; updateHist();   // nach dem Speichern beginnt der Verlauf neu
