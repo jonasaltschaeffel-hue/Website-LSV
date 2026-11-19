@@ -340,7 +340,26 @@ body.artikel .soon{background:rgba(10,35,80,.08);border-color:rgba(10,35,80,.25)
 .gs-produkt.gs-aktiv{border-color:var(--gs-blau);box-shadow:0 0 0 3px rgba(10,35,80,.12),0 20px 40px -18px rgba(6,28,58,.6)}
 .gs-produkt.gs-aktiv::after{content:"✓";position:absolute;top:10px;right:10px;width:28px;height:28px;border-radius:50%;display:grid;place-items:center;
   background:var(--gs-blau);color:#fff;font:700 15px/1 system-ui,sans-serif;box-shadow:0 4px 10px -3px rgba(0,0,0,.4)}
-.article .gs-bild{position:relative;aspect-ratio:16/10;margin:0;border:0;border-radius:0;box-shadow:none;overflow:hidden}
+/* Info-Knopf „!“ oben links + Sprechblase */
+.gs-info{position:absolute;top:10px;left:10px;z-index:6;width:28px;height:28px;padding:0;border-radius:50%;border:2px solid #fff;
+  background:#fff;color:var(--gs-blau);font:800 16px/1 "Barlow",system-ui,sans-serif;cursor:pointer;display:grid;place-items:center;
+  box-shadow:0 4px 10px -3px rgba(0,0,0,.45);transition:transform .2s,background .2s,color .2s}
+.gs-info:hover,.gs-info:focus-visible{transform:scale(1.12)}
+.gs-info:focus-visible{outline:3px solid #ffc27f;outline-offset:2px}
+.gs-produkt.gs-info-offen .gs-info{background:var(--gs-blau);color:#fff}
+/* Wertgutschein (dunkles Ticket): Knopf blau */
+.gs-wert .gs-info{background:var(--gs-blau);color:#fff}
+.gs-wert.gs-info-offen .gs-info{background:#fff;color:var(--gs-blau)}
+.gs-blase{position:absolute;top:48px;left:10px;right:10px;z-index:5;max-height:calc(100% - 60px);overflow:auto;
+  padding:12px 14px;border-radius:14px;background:#fff;color:#1d2b3e;box-shadow:0 14px 34px -10px rgba(6,28,58,.55);
+  border:1px solid rgba(10,35,80,.12);opacity:0;visibility:hidden;transform:translateY(-6px) scale(.97);transform-origin:12px -10px;
+  transition:opacity .2s,transform .2s,visibility 0s .2s}
+.gs-blase::before{content:"";position:absolute;top:-8px;left:9px;width:14px;height:14px;background:#fff;
+  border-left:1px solid rgba(10,35,80,.12);border-top:1px solid rgba(10,35,80,.12);transform:rotate(45deg)}
+.gs-blase p{margin:0;font:400 14.5px/1.45 "Barlow",sans-serif;position:relative}
+.gs-produkt.gs-info-offen .gs-blase{opacity:1;visibility:visible;transform:none;transition:opacity .2s,transform .2s}
+.gs-produkt.gs-info-offen:hover{transform:none}
+@media (prefers-reduced-motion:reduce){.gs-blase,.gs-info{transition:none}}.article .gs-bild{position:relative;aspect-ratio:16/10;margin:0;border:0;border-radius:0;box-shadow:none;overflow:hidden}
 .gs-bild img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .4s}
 .gs-produkt:hover .gs-bild img{transform:scale(1.05)}
 .gs-preis{position:absolute;left:10px;bottom:10px;padding:4px 12px;border-radius:999px;background:var(--gs-blau);color:#fff;
