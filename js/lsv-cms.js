@@ -124,6 +124,8 @@ window.LSVCms = (() => {
       if (f.datum) c.datum = dateDe(f.datum);
       if (f.kurztext !== undefined) c.kurz = esc(f.kurztext.trim());
       if (f.bild && f.bild.size){ const im = await prepareImage(f.bild); c.img = `img/aktuelles/${slug}-${Date.now().toString(36)}.${im.ext}`; files.push({path: c.img, bytes: im.bytes}); }
+      else if (f.bildPfad) c.img = encodeURI(f.bildPfad);          // Bild aus der Bildersammlung: nur verlinken
+      const neuesBild = !!((f.bild && f.bild.size) || f.bildPfad);
       const pagePath = `aktuelles/${slug}.html`;
       try {
         const src = await gh.getText(pagePath), d = parse(src);
@@ -131,7 +133,7 @@ window.LSVCms = (() => {
         const h1 = d.querySelector('main h1'); if (h1) h1.textContent = plain;
         const dt = d.querySelector('main .date'); if (dt) dt.textContent = c.datum;
         if (d.title) d.title = plain + ' – LSV Regensburg';
-        const im = d.querySelector('main .pic img'); if (im && f.bild && f.bild.size) im.setAttribute('src', '../' + c.img);
+        const im = d.querySelector('main .pic img'); if (im && neuesBild && f.seitenbild !== false) im.setAttribute('src', '../' + c.img);
         files.push({path: pagePath, text: serialize(d, src)});
       } catch (e) { /* Seite fehlt: nur die Karte ändern */ }
       files.push(...this.render(st, st.cards));
