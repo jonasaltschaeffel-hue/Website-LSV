@@ -25,6 +25,9 @@
   .nk-filter{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;margin-bottom:12px}
   .nk-filter label{font:500 15px 'Barlow',sans-serif;color:#b9cde3;display:flex;align-items:center;gap:8px}
   .nk-ebenen{display:flex;flex-wrap:wrap;gap:6px}
+  .nk-laender{display:flex;flex-wrap:wrap;align-items:center;gap:6px;flex-basis:100%}
+  .nk-laender-titel{font:600 13px 'Barlow',sans-serif;opacity:.8;margin-right:2px}
+  .nk-box .nk-chip.nk-chip-fehlt{border-style:dashed;opacity:.6}
   .nk-box .nk-chip{display:inline-flex;align-items:center;gap:7px;padding:7px 12px;font-size:14px}
   .nk-chip i{width:10px;height:10px;border-radius:50%;flex:none}
   .nk-chip small{font:600 12px 'Barlow',sans-serif;opacity:.75}
@@ -144,7 +147,7 @@
         <div class="nk-nav"><button type="button" class="nk-home">Oberhinkofen</button><button type="button" class="nk-de">Ganz Deutschland</button><button type="button" class="nk-neu" title="Neueste NOTAMs laden">↻ Aktualisieren</button></div>
       </div>
       <div class="nk-karte">
-        <div class="nk-map" aria-label="Karte mit NOTAMs und Lufträumen in Deutschland"></div>
+        <div class="nk-map" aria-label="Karte mit NOTAMs und Lufträumen in Deutschland und den Nachbarländern"></div>
         <div class="nk-leer">NOTAMs werden geladen …</div>
       </div>
       <div class="nk-legende"></div>
@@ -188,7 +191,7 @@
 
 <script src="../js/himmel.js"></script>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
-<script src="../js/notamkarte.js?v=2"></script>
+<script src="../js/notamkarte.js?v=3"></script>
 <script>
   const b = document.getElementById('menu-btn'), t = document.getElementById('tabs');
   b.addEventListener('click', () => b.setAttribute('aria-expanded', t.classList.toggle('open')));
