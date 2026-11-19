@@ -730,15 +730,22 @@
       if (k === 'rowEnd') doOp(info, {type: 'appendRow', path: info.path, html: row});
       if (k === 'tile') doOp(info,{type: 'insert', path: info.path, html: `<div class="tile"><h3 data-e="${id}-t">Neue Kachel</h3><p data-e="${id}-p">Text – hier klicken und schreiben.</p></div>`});
       if (k === 'img'){
-        const file = await pickImage(); if (!file) return;
+        const q = await bildQuelle(); if (!q) return;
         try {
-          const im = await prepareImage(file);
-          const path = `img/uploads/${rel.replace(/\.html$/, '').replace(/\//g, '-')}-${id}.${im.ext}`;
-          pendingImgs.push({path, bytes: im.bytes});
+          let speichernSrc, zeigeSrc;
+          if (q.pfad){                                        // aus der Bildersammlung: nur verlinken
+            speichernSrc = toRoot + encodeURI(q.pfad);
+            zeigeSrc = LSVBilder.vorschau(sess.cfg, q.pfad);
+          } else {
+            const im = await prepareImage(q.file);
+            const path = `img/uploads/${rel.replace(/\.html$/, '').replace(/\//g, '-')}-${id}.${im.ext}`;
+            pendingImgs.push({path, bytes: im.bytes});
+            speichernSrc = toRoot + path; zeigeSrc = im.url;
+          }
           const html = src => info.inGrid
             ? `<div class="tile bild-kachel"><div class="pic bild-block"><img data-e="${id}" src="${src}" alt=""></div><p data-e="${id}-c">Bildunterschrift</p></div>`
             : `<div class="pic bild-block"><img data-e="${id}" src="${src}" alt=""></div>`;
-          doOp(info, {type: 'insert', path: info.path, html: html(toRoot + path)}, {type: 'insert', path: info.path, html: html(im.url)});
+          doOp(info, {type: 'insert', path: info.path, html: html(speichernSrc)}, {type: 'insert', path: info.path, html: html(zeigeSrc)});
         } catch (err){ toast(err.message, true); }
       }
       if (k === 'file'){
@@ -834,6 +841,28 @@
     input.onchange = () => res(input.files[0] || null);
     input.click();
   });
+  // Woher kommt das Bild? Vom Computer oder aus der Bildersammlung (seiten/bilder.html)
+  // Ergebnis: {file} | {pfad: "bilder/…"} | null
+  const bildQuelle = () => new Promise(res => {
+    if (!window.LSVBilder){ pickImage().then(f => res(f ? {file: f} : null)); return; }
+    LSVBilder.cssLaden();
+    const m = document.createElement('div');
+    m.className = 'lsv-modal lsv-ui';
+    m.innerHTML = `<div class="lsv-dialog lsv-dialog-small">
+        <h2>Bild einfügen</h2>
+        <div class="bs-quelle">
+          <button type="button" data-q="pc"><span aria-hidden="true">💻</span>Vom Computer hochladen</button>
+          <button type="button" data-q="sammlung"><span aria-hidden="true">🗂</span>Aus der Bildersammlung</button>
+        </div>
+        <div class="lsv-dialog-btns"><button type="button" class="lsv-cancel">Abbrechen</button></div>
+      </div>`;
+    document.body.appendChild(m);
+    const zu = wert => { m.remove(); res(wert); };
+    m.querySelector('.lsv-cancel').onclick = () => zu(null);
+    m.addEventListener('click', e => { if (e.target === m) zu(null); });
+    m.querySelector('[data-q="pc"]').onclick = () => { const p = pickImage(); m.remove(); p.then(f => res(f ? {file: f} : null)); };
+    m.querySelector('[data-q="sammlung"]').onclick = () => { m.remove(); LSVBilder.waehlen(gh, sess.cfg).then(p => res(p ? {pfad: p} : null)); };
+  });
 
   document.querySelectorAll('main img[data-e]').forEach(img => {
     const holder = img.closest('.pic') || img.parentElement;
@@ -844,21 +873,28 @@
     (img.closest('.w-hero') || holder).appendChild(btn);
     btn.addEventListener('click', async ev => {
       ev.preventDefault(); ev.stopPropagation();
-      const file = await pickImage();
-      if (!file) return;
-      btn.textContent = 'Lade hoch …';
+      const q = await bildQuelle();
+      if (!q) return;
+      btn.textContent = q.pfad ? 'Speichere …' : 'Lade hoch …';
       try {
-        const im = await prepareImage(file);
-        const name = `${rel.replace(/\.html$/, '').replace(/\//g, '-')}-${img.dataset.e}-${Date.now().toString(36)}.${im.ext}`;
-        const imgPath = 'img/uploads/' + name;
+        let neuSrc, zeige, dateien = [];
+        if (q.pfad){                                         // aus der Bildersammlung: nur verlinken
+          neuSrc = toRoot + encodeURI(q.pfad);
+          zeige = LSVBilder.vorschau(sess.cfg, q.pfad);
+        } else {
+          const im = await prepareImage(q.file);
+          const imgPath = 'img/uploads/' + `${rel.replace(/\.html$/, '').replace(/\//g, '-')}-${img.dataset.e}-${Date.now().toString(36)}.${im.ext}`;
+          dateien.push({path: imgPath, bytes: im.bytes});
+          neuSrc = toRoot + imgPath; zeige = im.url;
+        }
         let src = await gh.getText(rel);
         const re = new RegExp('<img\\b[^>]*\\sdata-e="' + img.dataset.e + '"[^>]*>');
         const m = re.exec(src);
         if (!m) throw new Error('Bild wurde in der Datei nicht gefunden.');
-        const tag = m[0].replace(/\ssrc="[^"]*"/, ' src="' + toRoot + imgPath + '"');
+        const tag = m[0].replace(/\ssrc="[^"]*"/, ' src="' + neuSrc + '"');
         src = src.slice(0, m.index) + tag + src.slice(m.index + m[0].length);
-        await gh.commit([{path: imgPath, bytes: im.bytes}, {path: rel, text: src}], `Bild geändert: ${rel}`);
-        img.hidden = false; img.src = im.url;              // sofort anzeigen (online nach ca. 1 Minute)
+        await gh.commit([...dateien, {path: rel, text: src}], `Bild geändert: ${rel}`);
+        img.hidden = false; img.src = zeige;                 // sofort anzeigen (online nach ca. 1 Minute)
         holder.classList.remove('placeholder');
         toast('Bild gespeichert ✓ – in ca. 1 Minute online');
       } catch (err){ toast('Bild nicht gespeichert: ' + err.message, true); }
