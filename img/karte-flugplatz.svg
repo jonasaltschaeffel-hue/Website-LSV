@@ -47,7 +47,7 @@
   <g transform="translate(827.1,341.5)" filter="url(#schatten)">
     <rect x="-205" y="-112" width="410" height="96" rx="18" fill="#0a2350"/>
     <g transform="translate(-162,-64) scale(1.55)" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round">
-      <path d="M-16,0 H16 M-2,-2 L1,9 M-4,8 H6 M0,-4 V-10"/>
+      <path d="M-16,0 H16 M0,-10 V9 M-5,8 H5"/>
     </g>
     <text x="-125" y="-71" font-size="29" font-weight="700" fill="#fff">Flugplatz Oberhinkofen</text>
     <text x="-125" y="-39" font-size="19.5" font-weight="500" fill="#cfe3f5">Navi: Einthal, 93083 Obertraubling</text>
