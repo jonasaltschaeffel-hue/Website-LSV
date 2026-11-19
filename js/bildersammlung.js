@@ -18,12 +18,14 @@ window.LSVBilder = (() => {
 
   /** Alle Ordner und Bilder der Sammlung */
   async function liste(gh){
-    const alle = (await gh.listFiles()).filter(p => p.startsWith(WURZEL + '/'));
+    const eintraege = (gh.listTree ? await gh.listTree() : (await gh.listFiles()).map(path => ({path})))
+      .filter(e => e.path.startsWith(WURZEL + '/'));
+    const alle = eintraege.map(e => e.path);
     const ordner = new Set(['']), bilder = [];
-    for (const p of alle){
-      const teile = p.slice(WURZEL.length + 1).split('/');
+    for (const e of eintraege){
+      const p = e.path, teile = p.slice(WURZEL.length + 1).split('/');
       for (let i = 1; i < teile.length; i++) ordner.add(teile.slice(0, i).join('/'));
-      if (BILD.test(p)) bilder.push({pfad: p, ordner: teile.slice(0, -1).join('/'), name: teile[teile.length - 1]});
+      if (BILD.test(p)) bilder.push({pfad: p, ordner: teile.slice(0, -1).join('/'), name: teile[teile.length - 1], sha: e.sha, groesse: e.size});
     }
     bilder.sort((a, b) => b.name.localeCompare(a.name));
     return {ordner: [...ordner].sort((a, b) => a.localeCompare(b, 'de')), bilder, dateien: alle};
