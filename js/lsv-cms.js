@@ -67,13 +67,18 @@ window.LSVCms = (() => {
       `            <span class="date" data-e="${ids.cd || id + '-cd'}">${esc(c.datum)}</span>\n            <h3 data-e="${ids.ct || id + '-ct'}">${c.titel}</h3>\n` +
       `            <p data-e="${ids.ck || id + '-ck'}">${c.kurz}</p>\n            <span class="more">Weiterlesen →</span>\n          </div>\n        </a>\n`;
   }
+  // Neueste Meldung zuerst – nach dem Datum im Artikel (TT.MM.JJJJ), nicht nach dem Anlegen.
+  // Gleiches Datum: bisherige Reihenfolge bleibt; Karten ohne lesbares Datum kommen ans Ende.
+  const zeit = d => { const m = /^\s*(\d{1,2})\.\s*(\d{1,2})\.\s*(\d{4})\s*$/.exec(d || ''); return m ? Date.UTC(+m[3], m[2] - 1, +m[1]) : -1; };
+  const sortByDate = cards => cards.map((c, i) => ({c, i})).sort((a, b) => (zeit(b.c.datum) - zeit(a.c.datum)) || (a.i - b.i)).map(x => x.c);
   const articles = {
     async load(gh){
       const [archSrc, indexSrc] = await Promise.all([gh.getText(ARCH), gh.getText('index.html')]);
-      return {archSrc, indexSrc, cards: parseArticleCards(region(archSrc, 'ARCHIV').inner)};
+      return {archSrc, indexSrc, cards: sortByDate(parseArticleCards(region(archSrc, 'ARCHIV').inner))};
     },
     /** Archiv + Startseite (erste 3) aus der Liste neu schreiben */
     render(state, cards){
+      cards = sortByDate(cards);
       const arch = region(state.archSrc, 'ARCHIV').set(cards.map(c => articleCard(c, true)).join(''));
       const idx = region(state.indexSrc, 'NEWS').set(cards.slice(0, 3).map(c => articleCard(c, false)).join(''));
       return [{path: ARCH, text: arch}, {path: 'index.html', text: idx}];
