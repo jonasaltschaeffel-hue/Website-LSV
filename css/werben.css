@@ -124,12 +124,12 @@ body.artikel .w-hero .btn.ghost:hover{background:#fff;color:var(--w-blau)}
 
 /* ---------- Instagram ---------- */
 .w-insta{display:flex;align-items:center;gap:18px;margin:34px 0 0;padding:20px 22px;border-radius:22px;color:#fff;text-decoration:none;
-  background:radial-gradient(120% 140% at 0% 0%,#2a64b5 0%,var(--w-blau) 70%);box-shadow:0 20px 40px -24px rgba(6,28,58,.85)}
+  background:radial-gradient(circle at 12% 110%,#fdf497 0%,#fdf497 6%,#fd5949 40%,#d6249f 62%,#285aeb 100%);box-shadow:0 20px 40px -24px rgba(110,20,90,.75)}
 .w-insta svg{flex:none;width:52px;height:52px}
 .w-insta-text{flex:1}
 .article .w-insta h3{color:#fff;font-size:26px;margin:0}
 .article .w-insta p{color:#fff;font-size:15.5px;margin:2px 0 0;max-width:none;opacity:.95}
-body.artikel .w-insta .btn{background:#fff;border-color:#fff;color:var(--w-blau);flex:none}
+body.artikel .w-insta .btn{background:#fff;border-color:#fff;color:#c13584;flex:none}
 body.artikel .w-insta:hover .btn{background:transparent;color:#fff}
 @media (max-width:560px){ .w-insta{flex-wrap:wrap} .w-insta-text{flex-basis:calc(100% - 70px)} }
 
