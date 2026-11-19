@@ -1,0 +1,29 @@
+# Einmalig: Kopfzeile aller Seiten von „LSV Regensburg / Segelflug“ auf „LSV Regensburg e.V.“ umstellen.
+# Wird nach dem Lauf wieder gelöscht.
+name: Einmalig – Vereinsname in der Kopfzeile
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  ersetzen:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Ersetzen
+        run: |
+          grep -rlZ --include='*.html' 'LSV Regensburg<small>Segelflug</small>' . | xargs -0 -r sed -i 's#LSV Regensburg<small>Segelflug</small>#LSV Regensburg e.V.#g'
+          git status --short
+      - name: Speichern
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898283+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          if git diff --cached --quiet; then echo "Keine Änderungen"; exit 0; fi
+          git commit -m "Kopfzeile: LSV Regensburg e.V. statt Segelflug"
+          git pull --rebase
+          git push
