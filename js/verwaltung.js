@@ -73,15 +73,14 @@
   /* ---------------- Artikel ---------------- */
   async function renderArticles(panel){
     const st = await LSVCms.articles.load(gh);
-    panel.innerHTML = `<h2>Artikel</h2><p class="hint">Die ersten drei stehen auf der Startseite unter „Aktuelles“, alle im Archiv „Alle Meldungen“.</p>
+    panel.innerHTML = `<h2>Artikel</h2><p class="hint">Sortiert nach dem Datum im Artikel, neueste zuerst. Die ersten drei stehen auf der Startseite unter „Aktuelles“, alle im Archiv „Alle Meldungen“.</p>
       <p><button class="b main" id="new">+ Neuer Artikel</button></p><div id="list"></div>`;
     const list = $('#list', panel);
     st.cards.forEach((c, i) => {
       const r = document.createElement('div'); r.className = 'row';
       r.innerHTML = `<img src="${img(c.img)}" alt="" onerror="this.style.visibility='hidden'">
         <div class="info"><div class="t">${c.titel}${i < 3 ? '<span class="badge">Startseite</span>' : ''}</div><div class="s">${esc(c.datum)} · ${c.kurz}</div></div>
-        <div class="btns"><button class="b" data-a="up" ${i === 0 ? 'disabled' : ''} title="nach oben">↑</button><button class="b" data-a="down" ${i === st.cards.length - 1 ? 'disabled' : ''} title="nach unten">↓</button>
-        <button class="b" data-a="edit">Bearbeiten</button><a class="b" href="../aktuelles/${c.slug}.html" target="_blank">Öffnen</a><button class="b del" data-a="del">Löschen</button></div>`;
+        <div class="btns"><button class="b" data-a="edit">Bearbeiten</button><a class="b" href="../aktuelles/${c.slug}.html" target="_blank">Öffnen</a><button class="b del" data-a="del">Löschen</button></div>`;
       r.onclick = async ev => {
         const a = ev.target.closest('button') && ev.target.closest('button').dataset.a; if (!a) return;
         if (a === 'up' || a === 'down') run(() => LSVCms.articles.move(gh, c.slug, a === 'up' ? -1 : 1), 'Reihenfolge geändert');
