@@ -29,7 +29,7 @@
     if (!istStart) location.href = start;
   });
 
-  const startEditor = () => Promise.all([load('css/editor.css?v=2', true), window.LSVGit ? 0 : load('js/lsv-github.js?v=2'), window.LSVCms ? 0 : load('js/lsv-cms.js?v=2'), window.LSVBilder ? 0 : load('js/bildersammlung.js?v=2')]).then(() => load('js/editor.js?v=2'));
+  const startEditor = () => Promise.all([load('css/editor.css?v=2', true), window.LSVGit ? 0 : load('js/lsv-github.js?v=2'), window.LSVCms ? 0 : load('js/lsv-cms.js?v=3'), window.LSVBilder ? 0 : load('js/bildersammlung.js?v=2')]).then(() => load('js/editor.js?v=3'));
 
   // Fußzeile wie auf der Startseite auf allen Unterseiten (Impressum, Datenschutz, Bearbeiten).
   // Wird nur angezeigt, nicht in die Seiten gespeichert.
