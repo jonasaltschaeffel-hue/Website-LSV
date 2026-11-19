@@ -1,0 +1,82 @@
+/* Bildersammlung: Seite „Bilder“ und Auswahlfenster im Bearbeitungsmodus */
+.bs-app{margin-top:22px}
+.bs-app.bs-busy{cursor:progress}
+.bs-app.bs-busy .bs-raster{opacity:.6;pointer-events:none}
+
+/* Anmeldung */
+.bs-login{max-width:420px;margin:10px auto;display:flex;flex-direction:column;gap:12px;text-align:center}
+.bs-login h2{margin:0}
+.bs-login p{margin:0}
+.bs-login label{display:flex;flex-direction:column;gap:6px;text-align:left;font-weight:600}
+.bs-login input{font:inherit;padding:11px 14px;border-radius:12px;border:1.5px solid rgba(10,35,80,.25)}
+.bs-login .btn{align-self:center}
+.bs-schloss{font-size:38px;line-height:1}
+.bs-fehler{color:#c8102e;min-height:1.2em;font-weight:600}
+
+/* Leiste mit Ordnerpfad und Knöpfen */
+.bs-leiste{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;margin-bottom:6px}
+.bs-knoepfe{display:flex;flex-wrap:wrap;gap:10px}
+.bs-knoepfe .btn{cursor:pointer;margin:0}
+.bs-pfad{display:flex;flex-wrap:wrap;align-items:center;gap:4px;font:700 18px "Barlow Condensed",sans-serif}
+.bs-pfad button{font:inherit;border:0;background:none;color:var(--blue-text,#0a2350);padding:4px 6px;border-radius:8px;cursor:pointer}
+.bs-pfad button:hover{background:rgba(10,35,80,.08)}
+.bs-pfad button:last-child{text-decoration:underline;text-underline-offset:4px}
+.bs-pfad span{opacity:.5}
+.bs-status{min-height:1.4em;margin:4px 0 10px;font-weight:600;color:#1f7a3a}
+.bs-status.bs-rot{color:#c8102e}
+
+/* Raster */
+.bs-zone{position:relative;min-height:220px;border-radius:18px}
+.bs-drop{position:absolute;inset:0;display:none;place-items:center;border:3px dashed var(--blue-text,#0a2350);border-radius:18px;
+  background:rgba(255,255,255,.85);font:700 24px "Barlow Condensed",sans-serif;color:var(--blue-text,#0a2350);pointer-events:none}
+.bs-zone.bs-ueber .bs-drop{display:grid}
+.bs-raster{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:14px}
+.bs-kachel{position:relative;border-radius:14px;overflow:hidden;background:#fff;box-shadow:0 10px 24px -16px rgba(6,28,58,.55);transition:transform .2s}
+.bs-kachel:hover{transform:translateY(-3px)}
+.bs-bild,.bs-ordner{display:flex;flex-direction:column;width:100%;border:0;padding:0;background:none;color:inherit;text-decoration:none;cursor:pointer;font:inherit;text-align:left}
+.bs-bild img{display:block;width:100%;aspect-ratio:4/3;object-fit:cover;background:#e8eef6}
+.bs-bild span,.bs-ordner span:not(.bs-ico){padding:7px 10px 2px;font:600 13px/1.3 "Barlow",sans-serif;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bs-bild span{padding-bottom:9px}
+.bs-ordner{align-items:flex-start;aspect-ratio:auto;padding:18px 0 10px;background:linear-gradient(160deg,#eef4fb,#dce7f4)}
+.bs-ordner .bs-ico{font-size:46px;line-height:1;padding:0 12px}
+.bs-ordner span:not(.bs-ico){font-size:15px;padding-top:10px}
+.bs-ordner small{padding:0 10px;font-size:12px;opacity:.65}
+.bs-aktionen{position:absolute;top:8px;right:8px;display:flex;gap:6px;opacity:0;transition:opacity .2s}
+.bs-kachel:hover .bs-aktionen,.bs-kachel:focus-within .bs-aktionen{opacity:1}
+.bs-aktionen button{width:32px;height:32px;border-radius:50%;border:0;background:rgba(255,255,255,.95);cursor:pointer;font-size:15px;
+  box-shadow:0 4px 10px -4px rgba(0,0,0,.4)}
+.bs-aktionen button:hover{background:#fff;transform:scale(1.08)}
+@media (hover:none){.bs-aktionen{opacity:1}}
+.bs-leer{color:#3a5674}
+.bs-leer-gross{text-align:center;padding:40px 16px;border:2px dashed rgba(10,35,80,.2);border-radius:18px}
+.bs-leer-gross span{font-size:46px}
+.bs-leer-gross p{margin:6px 0}
+.bs-unten{display:flex;justify-content:flex-end;gap:18px;margin-top:22px}
+.bs-link{border:0;background:none;color:var(--blue-text,#0a2350);font:600 14px "Barlow",sans-serif;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+
+/* Fenster „Passwort festlegen“ */
+.bs-modal{position:fixed;inset:0;z-index:9300;display:grid;place-items:center;background:rgba(6,20,45,.55);padding:16px}
+.bs-dialog{width:min(460px,100%);display:flex;flex-direction:column;gap:12px;background:#fff}
+.bs-dialog h2,.bs-dialog p{margin:0}
+.bs-dialog label{display:flex;flex-direction:column;gap:6px;font-weight:600}
+.bs-dialog input{font:inherit;padding:10px 13px;border-radius:12px;border:1.5px solid rgba(10,35,80,.25)}
+.bs-dialog-knoepfe{display:flex;justify-content:flex-end;gap:10px}
+.bs-dialog-knoepfe .btn{margin:0;cursor:pointer}
+
+/* Auswahlfenster im Bearbeitungsmodus */
+.bs-waehler{width:min(860px,100%);display:flex;flex-direction:column;gap:10px}
+.bs-kopf{display:flex;justify-content:space-between;align-items:center}
+.bs-kopf h2{margin:0}
+.bs-x{border:0;background:#eef2f7;width:34px;height:34px;border-radius:50%;cursor:pointer;font-size:15px}
+.bs-waehler .bs-raster{grid-template-columns:repeat(auto-fill,minmax(130px,1fr))}
+.bs-waehler .bs-bild,.bs-waehler .bs-ordner{border-radius:12px;overflow:hidden;background:#f3f6fa;box-shadow:0 6px 16px -12px rgba(6,28,58,.6)}
+.bs-waehler .bs-ordner{background:linear-gradient(160deg,#eef4fb,#dce7f4)}
+.bs-waehler .bs-bild:hover,.bs-waehler .bs-ordner:hover{outline:3px solid #0a2350}
+
+/* Auswahl „Woher kommt das Bild?“ */
+.bs-quelle{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:10px}
+.bs-quelle button{display:flex;flex-direction:column;align-items:center;gap:6px;padding:20px 12px;border-radius:14px;border:2px solid #dce5f0;background:#f6f9fc;
+  color:#0a2350;font:600 15px system-ui,sans-serif;cursor:pointer}
+.bs-quelle button:hover{border-color:#0a2350;background:#fff}
+.bs-quelle span{font-size:34px}
+@media (max-width:520px){.bs-quelle{grid-template-columns:1fr}.bs-raster{grid-template-columns:repeat(auto-fill,minmax(130px,1fr))}}
