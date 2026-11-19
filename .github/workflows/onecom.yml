@@ -1,0 +1,108 @@
+# Überträgt die Website nach jeder Änderung per SFTP auf den Webspace bei one.com.
+# GitHub bleibt die „Hauptablage“: Bearbeitungsmodus, Bildersammlung, NOTAM-Karte und
+# Artikel-Abgleich speichern weiter hier – dieser Ablauf kopiert die Änderungen danach zu one.com.
+#
+# Einrichten (einmalig, im Repository unter Settings → Secrets and variables → Actions → „New repository secret“):
+#   ONECOM_HOST      SFTP-Server aus dem one.com-Kontrollpanel (z. B. ssh.luftsportverein-regensburg.de)
+#   ONECOM_USER      SFTP-Benutzername (meist der Domainname)
+#   ONECOM_PASSWORT  SFTP-Passwort
+#   ONECOM_ORDNER    Ordner der Website auf dem Server – der Ordner, in dem die index.html liegen soll
+# Solange diese Angaben fehlen, macht der Ablauf nichts.
+#
+# Übertragen werden nur geänderte Dateien (Stand steht in .lsv-stand auf dem Server).
+# Gelöscht werden nur Dateien, die hier im Repository gelöscht wurden – andere Dateien auf dem Server bleiben.
+# Alles neu übertragen: „Actions“ → „Auf one.com veröffentlichen“ → „Run workflow“ → „alles“ anhaken.
+name: Auf one.com veröffentlichen
+
+on:
+  push:
+    branches: [main]
+  workflow_run:
+    workflows: ['NOTAMs aktualisieren', 'Artikel abgleichen']
+    types: [completed]
+  workflow_dispatch:
+    inputs:
+      alles:
+        description: 'Alle Dateien neu übertragen'
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: onecom
+  cancel-in-progress: false
+
+jobs:
+  hochladen:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      ONECOM_HOST: ${{ secrets.ONECOM_HOST }}
+      ONECOM_USER: ${{ secrets.ONECOM_USER }}
+      LFTP_PASSWORD: ${{ secrets.ONECOM_PASSWORT }}
+      ONECOM_ORDNER: ${{ secrets.ONECOM_ORDNER }}
+      ALLES: ${{ inputs.alles }}
+    steps:
+      - name: Zugangsdaten vorhanden?
+        id: pruefen
+        run: |
+          if [ -z "$ONECOM_HOST" ] || [ -z "$ONECOM_USER" ] || [ -z "$LFTP_PASSWORD" ] || [ -z "$ONECOM_ORDNER" ]; then
+            echo "one.com ist noch nicht eingerichtet – nichts zu tun."; echo "los=nein" >> "$GITHUB_OUTPUT"
+          else echo "los=ja" >> "$GITHUB_OUTPUT"; fi
+      - uses: actions/checkout@v4
+        if: steps.pruefen.outputs.los == 'ja'
+        with:
+          ref: main
+          fetch-depth: 0
+      - name: lftp installieren
+        if: steps.pruefen.outputs.los == 'ja'
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq lftp
+      - name: Übertragen
+        if: steps.pruefen.outputs.los == 'ja'
+        run: |
+          set -euo pipefail
+          kopf() {
+            echo "set sftp:auto-confirm yes"
+            echo "set net:max-retries 3"
+            echo "set net:timeout 30"
+            echo "set cmd:fail-exit yes"
+            echo "open --env-password -u \"$ONECOM_USER\" sftp://$ONECOM_HOST"
+            echo "cd \"$ONECOM_ORDNER\""
+          }
+          # bisheriger Stand auf dem Server
+          { kopf; echo "set cmd:fail-exit no"; echo "get .lsv-stand -o /tmp/stand"; } > /tmp/holen.lftp
+          lftp -f /tmp/holen.lftp || true
+          ALT=$(cat /tmp/stand 2>/dev/null | tr -d '[:space:]' || true)
+          NEU=$(git rev-parse HEAD)
+          if [ "$ALT" = "$NEU" ] && [ "$ALLES" != "true" ]; then echo "Server ist schon aktuell ($NEU)."; exit 0; fi
+          if [ -n "$ALT" ] && [ "$ALLES" != "true" ] && git cat-file -e "$ALT^{commit}" 2>/dev/null; then
+            git diff --no-renames --name-only --diff-filter=ACMT "$ALT" HEAD > /tmp/neu
+            git diff --no-renames --name-only --diff-filter=D "$ALT" HEAD > /tmp/weg
+            echo "Änderungen seit $ALT:"
+          else
+            git ls-files > /tmp/neu; : > /tmp/weg
+            echo "Alles übertragen:"
+          fi
+          # nicht auf den Webspace: GitHub-Abläufe und Hilfsdateien
+          FILTER='^(\.github/|\.gitignore$|\.gitattributes$|README)'
+          grep -Ev "$FILTER" /tmp/neu > /tmp/neu2 || true
+          grep -Ev "$FILTER" /tmp/weg > /tmp/weg2 || true
+          echo "$(wc -l < /tmp/neu2) Dateien hochladen, $(wc -l < /tmp/weg2) löschen"
+          {
+            kopf
+            while IFS= read -r f; do
+              [ -f "$f" ] || continue
+              d=$(dirname "$f")
+              [ "$d" != "." ] && echo "mkdir -p -f \"$d\""
+              echo "put \"$f\" -o \"$f\""
+            done < /tmp/neu2
+            echo "set cmd:fail-exit no"
+            while IFS= read -r f; do echo "rm -f \"$f\""; done < /tmp/weg2
+            echo "set cmd:fail-exit yes"
+            echo "$NEU" > /tmp/stand-neu
+            echo "put /tmp/stand-neu -o .lsv-stand"
+          } > /tmp/senden.lftp
+          lftp -f /tmp/senden.lftp
+          echo "Fertig: $NEU ist auf one.com."
