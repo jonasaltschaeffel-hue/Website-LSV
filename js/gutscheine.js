@@ -91,6 +91,25 @@
     $('.gs-minus', el).addEventListener('click', () => setze(el, mengen.get(el) - 1));
   });
 
+  // Info-Sprechblasen: „!“ öffnet/schließt, Klick daneben oder Esc schließt
+  const infoZu = ausser => shop.querySelectorAll('.gs-info-offen').forEach(k => {
+    if (k === ausser) return;
+    k.classList.remove('gs-info-offen');
+    $('.gs-info', k).setAttribute('aria-expanded', 'false');
+  });
+  shop.querySelectorAll('.gs-info').forEach(knopf => {
+    const karte = knopf.closest('.gs-produkt');
+    knopf.addEventListener('click', e => {
+      e.preventDefault(); e.stopPropagation();
+      infoZu(karte);
+      const offen = karte.classList.toggle('gs-info-offen');
+      knopf.setAttribute('aria-expanded', String(offen));
+    });
+  });
+  document.addEventListener('click', e => { if (!e.target.closest('.gs-blase, .gs-info')) infoZu(); });
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape' && shop.querySelector('.gs-info-offen')){ e.preventDefault(); infoZu(); }
+  }, true);
   const betrag = $('.gs-wert input'), add = $('.gs-add');
   add.addEventListener('click', () => {
     const b = Math.round(parseFloat(betrag.value));
