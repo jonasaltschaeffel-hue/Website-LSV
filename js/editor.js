@@ -132,7 +132,6 @@
   // Artikelkarten (Startseite & Archiv) werden in der Verwaltung gepflegt – sonst liefen Startseite und Archiv auseinander
   const isArticleCard = el => !!el.closest('.news') && !el.closest('#fleet');
   const editables = [...document.querySelectorAll('main [data-e]:not(img)')].filter(el => !isArticleCard(el));
-  document.querySelectorAll('main .news:not(#fleet) a.news-card').forEach(a => a.title = 'Artikelkarten bearbeitest du unter ⚙ Verwaltung → Artikel');
   const snap = el => ({html: el.innerHTML, style: el.getAttribute('style') || '', href: el.getAttribute('href')});
   function restore(el, s){
     el.innerHTML = s.html;
@@ -939,6 +938,104 @@
     };
   });
 
+  /* ---------------- Übersichtskarte eines Artikels nachträglich bearbeiten ----------------
+     (Titel, Datum, Kurztext, Bild – Startseite, Archiv und Artikelseite werden gemeinsam angepasst) */
+  const klartext = h => { const d = document.createElement('div'); d.innerHTML = h; return d.textContent.trim(); };
+  const isoDatum = d => /^\d{2}\.\d{2}\.\d{4}$/.test(d) ? d.split('.').reverse().join('-') : '';
+  async function karteBearbeiten(slug){
+    if (unsaved() && !confirm('Es gibt ungespeicherte Änderungen auf dieser Seite. Bitte zuerst speichern – trotzdem fortfahren?')) return;
+    let c;
+    try { c = (await LSVCms.articles.load(gh)).cards.find(x => x.slug === slug); }
+    catch (err){ toast('Artikelliste nicht geladen: ' + err.message, true); return; }
+    if (!c){ toast('Dieser Artikel steht nicht in der Artikelliste (Archiv).', true); return; }
+    const esc = LSVCms.esc;
+    let bild = null;                                   // {file} | {pfad}
+    const m = document.createElement('div');
+    m.className = 'lsv-modal lsv-ui';
+    m.innerHTML = `
+      <form class="lsv-dialog">
+        <h2>Übersichtskarte bearbeiten</h2>
+        <p class="lsv-karte-info">So erscheint der Artikel auf der Startseite und unter „Alle Meldungen“. Titel und Datum werden auch auf der Artikelseite angepasst.</p>
+        <label>Titel<input name="titel" required maxlength="140" value="${esc(klartext(c.titel))}"></label>
+        <label>Datum<input name="datum" type="date" value="${isoDatum(c.datum)}"></label>
+        <label>Kurztext auf der Karte<small>ca. 2 Sätze</small><textarea name="kurztext" rows="4" maxlength="500">${esc(klartext(c.kurz))}</textarea></label>
+        <label>Bild</label>
+        <div class="lsv-karte-bild">
+          <img src="${esc(toRoot + c.img)}" alt="" onerror="this.style.visibility='hidden'">
+          <div><button type="button" class="lsv-cancel lsv-karte-wechsel">📷 Bild ändern</button>
+          <label class="lsv-karte-check" hidden><input type="checkbox" name="seitenbild" checked> Auch das Bild oben im Artikel ersetzen</label></div>
+        </div>
+        <div class="lsv-dialog-btns">
+          <button type="button" class="lsv-cancel lsv-zu">Abbrechen</button>
+          <button type="submit" class="lsv-ok">Speichern</button>
+        </div>
+      </form>`;
+    document.body.appendChild(m);
+    const zu = () => { m.remove(); removeEventListener('keydown', escZu, true); };
+    const escZu = ev => {
+      if (ev.key !== 'Escape') return;
+      const alle = document.querySelectorAll('.lsv-modal');
+      if (alle[alle.length - 1] === m){ ev.preventDefault(); ev.stopPropagation(); zu(); }   // nur wenn kein anderer Dialog darüber liegt
+    };
+    addEventListener('keydown', escZu, true);
+    m.querySelector('.lsv-zu').onclick = zu;
+    m.addEventListener('mousedown', ev => { if (ev.target === m) zu(); });
+    const vorschau = m.querySelector('.lsv-karte-bild img');
+    m.querySelector('.lsv-karte-wechsel').onclick = async () => {
+      const q = await bildQuelle(); if (!q) return;
+      bild = q;
+      vorschau.style.visibility = '';
+      vorschau.src = q.pfad ? LSVBilder.vorschau(sess.cfg, q.pfad) : URL.createObjectURL(q.file);
+      m.querySelector('.lsv-karte-check').hidden = false;
+    };
+    m.querySelector('input[name=titel]').focus();
+    m.querySelector('form').onsubmit = async ev => {
+      ev.preventDefault();
+      const f = ev.target, ok = m.querySelector('.lsv-ok');
+      ok.disabled = true; ok.textContent = 'Speichere …';
+      try {
+        await LSVCms.articles.update(gh, slug, {titel: f.titel.value, datum: f.datum.value, kurztext: f.kurztext.value,
+          bild: bild && bild.file, bildPfad: bild && bild.pfad, seitenbild: f.seitenbild.checked});
+        // sofort auf dieser Seite anzeigen
+        const titel = f.titel.value.trim(), datum = f.datum.value ? LSVCms.dateDe(f.datum.value) : c.datum, kurz = f.kurztext.value.trim();
+        document.querySelectorAll(`main .news:not(#fleet) a.news-card[href$="${slug}.html"]`).forEach(a => {
+          const s = (sel, v) => { const e = a.querySelector(sel); if (e) e.textContent = v; };
+          s('h3', titel); s('.date', datum); s('p', kurz);
+          if (bild){ const i = a.querySelector('img'); if (i){ i.hidden = false; i.src = vorschau.src; i.closest('.pic')?.classList.remove('placeholder'); } }
+        });
+        if (rel === `aktuelles/${slug}.html`){
+          const h1 = document.querySelector('main h1'), dt = document.querySelector('main .date');
+          if (h1) h1.textContent = titel; if (dt) dt.textContent = datum;
+          [h1, dt].forEach(e => { if (e && e.dataset.e && original.has(e.dataset.e)) original.set(e.dataset.e, snap(e)); });
+          const pi = document.querySelector('main .pic img');
+          if (bild && f.seitenbild.checked && pi){ pi.hidden = false; pi.src = vorschau.src; }
+        }
+        zu();
+        toast('Übersichtskarte gespeichert ✓ – in ca. 1 Minute online');
+      } catch (err){ toast('Nicht gespeichert: ' + err.message, true); ok.disabled = false; ok.textContent = 'Speichern'; }
+    };
+  }
+  // Knopf auf jeder Artikelkarte (Startseite, Archiv)
+  document.querySelectorAll('main .news:not(#fleet) a.news-card').forEach(a => {
+    const slug = (a.getAttribute('href') || '').split('/').pop().replace(/\.html$/, '');
+    if (!slug) return;
+    a.title = '';
+    a.style.position = 'relative';
+    const k = document.createElement('button');
+    k.type = 'button'; k.className = 'lsv-karte-btn lsv-ui'; k.textContent = '✎ Karte bearbeiten';
+    k.addEventListener('click', ev => { ev.preventDefault(); ev.stopPropagation(); karteBearbeiten(slug); });
+    a.appendChild(k);
+  });
+  // auf der Artikelseite selbst: Knopf in der Leiste
+  const artikelSeite = /^aktuelles\/([^/]+)\.html$/.exec(rel);
+  if (artikelSeite && artikelSeite[1] !== 'index'){
+    const k = document.createElement('button');
+    k.type = 'button'; k.className = 'lsv-new'; k.textContent = '🗂 Übersichtskarte';
+    k.title = 'Titel, Datum, Kurztext und Bild der Karte auf der Startseite und im Archiv bearbeiten';
+    k.onclick = () => karteBearbeiten(artikelSeite[1]);
+    bar.querySelector('.lsv-admin').before(k);
+  }
+
   // für Tests
-  window.__lsvEditor = {sanitize, applyChange, createArticle};
+  window.__lsvEditor = {sanitize, applyChange, createArticle, karteBearbeiten};
 })();
