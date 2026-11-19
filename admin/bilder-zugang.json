@@ -4,8 +4,8 @@
   "branch": "main",
   "kdf": "PBKDF2-SHA256",
   "iter": 600000,
-  "salt": "OVYVr4wq6qenqi58IjRJ+g==",
-  "iv": "vB6GBZrBZyv5SXN0",
-  "token": "cwgzwUER9Bko3BRKjsBNHfs5BG2eJa2Iwo386lvw33zKRlYdEuXwH7GqGpNYYmKHszilrfJCDSrvFVjwMTyWOJBYV+fZO5nxmZumE2RGUQdnR2lGIllVkKaNSiXwLUDAsW8w1XSdOatohmmikA==",
+  "salt": "dyWeaYpLPjYFIDvhNqA9lQ==",
+  "iv": "cQ2bvRZgFA2FxBgr",
+  "token": "2dnkEY/LYegoXWoFEuiUkqmvQt+aXuni+1gj8sqF0tGd7PVpfurv4g9lQG9h4+Iy8J/ev2cF7X+zxWDMAhzI/Tn+IktEAQ+RwVreSojm7h8fPa4Ky8vF64OdeoY4ULu6zdyKcW1nVDYmKXOrIQ==",
   "art": "bilder"
 }
