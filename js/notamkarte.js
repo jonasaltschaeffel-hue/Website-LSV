@@ -24,6 +24,16 @@
     O: {name: 'Sonstiger Luftraum',          farbe: '#868e96', strich: '3 4', fuell: .02},
   };
   const HOME = [48.9526, 12.1484];   // Flugplatz Oberhinkofen (48° 57' 09" N / 12° 08' 54" E)
+  // Länder (Dateien: notams.json bzw. <id>-notams.json). Für Tschechien, Polen und Luxemburg hat notaminfo.com keine Karte.
+  const LAENDER = [
+    {id: 'de', name: 'Deutschland'},
+    {id: 'at', name: 'Österreich'},
+    {id: 'ch', name: 'Schweiz'},
+    {id: 'fr', name: 'Frankreich', titel: 'Nord- und Ostfrankreich'},
+    {id: 'bx', name: 'Benelux', titel: 'Belgien und Niederlande'},
+    {id: 'dk', name: 'Dänemark'},
+  ];
+  const LSPEICHER = 'lsv-notam-laender';
 
   const $ = s => box.querySelector(s);
   const kartenEl = $('.nk-karte'), leerEl = $('.nk-leer'), standEl = $('.nk-stand');
@@ -58,7 +68,10 @@
     }).addTo(karte);
 
   const st = {zeit: 'heute', fl: 100, raum: true, gruppen: Object.fromEntries(Object.entries(GRUPPEN).map(([k, g]) => [k, g.an]))};
+  st.laender = new Set(['de', 'at', 'ch']);
+  try { const l = JSON.parse(localStorage.getItem(LSPEICHER)); if (Array.isArray(l)) st.laender = new Set(l.filter(id => LAENDER.some(x => x.id === id))); } catch {}
   let notams = [], raeume = [];
+  const cache = {};                  // Land -> {notams, raeume, stand} | {fehler}
 
   // ---------- Hilfen ----------
   const el = (tag, cls, txt) => { const e = document.createElement(tag); if (cls) e.className = cls; if (txt != null) e.textContent = txt; return e; };
@@ -74,13 +87,14 @@
   }
   // Linien über halb Deutschland (z. B. FIR-Grenzen) nicht zeichnen, nur den Punkt
   const klein = pts => { const la = pts.map(p => p[0]), lo = pts.map(p => p[1]); return Math.max(...la) - Math.min(...la) < 1.5 && Math.max(...lo) - Math.min(...lo) < 2.2; };
+  const landName = id => (LAENDER.find(x => x.id === id) || {}).name || id;
   const aktiv = (n, [a, b]) => (!n.von || Date.parse(n.von) < b) && (n.dauerhaft || !n.bis || Date.parse(n.bis) > a);
 
   function popupNotam(n){
     const g = GRUPPEN[n.gruppe] || GRUPPEN.sonstiges;
     const d = el('div', 'nk-pop');
     d.append(el('b', null, n.titel || 'NOTAM'));
-    d.append(el('div', 'nk-pop-meta', `${n.ref} · ${g.name}`));
+    d.append(el('div', 'nk-pop-meta', `${n.ref} · ${g.name}${n._land && n._land !== 'de' ? ' · ' + landName(n._land) : ''}`));
     const gilt = n.dauerhaft ? `ab ${zeit(n.von)}, dauerhaft` : `${zeit(n.von)} bis ${zeit(n.bis)}${n.geschaetzt ? ' (voraussichtlich)' : ''}`;
     d.append(el('div', 'nk-pop-zeile', 'Gültig: ' + gilt));
     if (n.zeitplan) d.append(el('div', 'nk-pop-zeile', 'Zeiten: ' + n.zeitplan));
@@ -91,7 +105,7 @@
   function popupRaum(r){
     const d = el('div', 'nk-pop');
     d.append(el('b', null, r.name));
-    d.append(el('div', 'nk-pop-meta', r.typ));
+    d.append(el('div', 'nk-pop-meta', r.typ + (r._land && r._land !== 'de' ? ' · ' + landName(r._land) : '')));
     d.append(el('div', 'nk-pop-zeile', `Höhe: ${r.unten} bis ${r.oben}`));
     return d;
   }
@@ -153,6 +167,29 @@
     for (const [k, g] of Object.entries(GRUPPEN)) chip(g.name, g.farbe, st.gruppen[k], () => st.gruppen[k] = !st.gruppen[k], k);
   }
   ebenen();
+
+  // Länderauswahl (eigene Reihe unter den Ebenen); Daten eines Landes werden erst beim Einschalten geladen
+  const laenderEl = el('div', 'nk-laender'); laenderEl.setAttribute('role', 'group'); laenderEl.setAttribute('aria-label', 'Länder ein- und ausblenden');
+  ebenenEl.after(laenderEl);
+  function laenderKnoepfe(){
+    laenderEl.innerHTML = '';
+    laenderEl.append(el('span', 'nk-laender-titel', 'Länder:'));
+    for (const l of LAENDER){
+      const b = el('button', 'nk-chip', l.name); b.type = 'button';
+      b.setAttribute('aria-pressed', String(st.laender.has(l.id)));
+      if (l.titel) b.title = l.titel;
+      if (cache[l.id] && cache[l.id].fehler && st.laender.has(l.id)) { b.classList.add('nk-chip-fehlt'); b.title = 'Für dieses Land liegen gerade keine Daten vor.'; }
+      b.onclick = async () => {
+        st.laender.has(l.id) ? st.laender.delete(l.id) : st.laender.add(l.id);
+        try { localStorage.setItem(LSPEICHER, JSON.stringify([...st.laender])); } catch {}
+        laenderKnoepfe();
+        if (st.laender.has(l.id) && (!cache[l.id] || cache[l.id].fehler)) { b.disabled = true; await landLaden(l.id, vonWebsite); }
+        mischen(); laenderKnoepfe();
+      };
+      laenderEl.append(b);
+    }
+  }
+  laenderKnoepfe();
   $('.nk-home').onclick = () => karte.setView(HOME, 9);
   $('.nk-de').onclick = () => karte.fitBounds([[47.2, 5.8], [55.1, 15.1]]);
 
@@ -168,16 +205,44 @@
   // ---------- Laden ----------
   // quelle: Funktion, die zu einem Dateinamen die Daten liefert (normal: von der Website)
   const vonWebsite = f => fetch(DATEN + f + '?t=' + Date.now(), {cache: 'no-store'}).then(x => { if (!x.ok) throw new Error(x.status); return x.json(); });
+  async function landLaden(id, quelle){
+    const vor = id === 'de' ? '' : id + '-';
+    try {
+      const [n, r] = await Promise.all([vor + 'notams.json', vor + 'luftraum.json'].map(quelle));
+      for (const x of n.notams || []) x._land = id;
+      for (const x of r.raeume || []) x._land = id;
+      cache[id] = {notams: n.notams || [], raeume: r.raeume || [], stand: n.stand || n.abgerufen};
+    } catch (err) {
+      cache[id] = {fehler: true};
+      if (id === 'de') throw err;
+    }
+  }
+  // Daten der eingeschalteten Länder zusammenführen; doppelte Einträge an den Grenzen nur einmal
+  function mischen(){
+    const nk = new Set(), rk = new Set();
+    notams = []; raeume = [];
+    for (const l of LAENDER){
+      const c = cache[l.id];
+      if (!st.laender.has(l.id) || !c || c.fehler) continue;
+      for (const n of c.notams){ const k = n.ref + '|' + n.lat + '|' + n.lng; if (!nk.has(k)){ nk.add(k); notams.push(n); } }
+      for (const r of c.raeume){
+        const p = r.kreis || r.pts[0];
+        const k = r.name + '|' + r.typ + '|' + Math.round(p[0] * 100) + '|' + Math.round(p[1] * 100);
+        if (!rk.has(k)){ rk.add(k); raeume.push(r); }
+      }
+    }
+    zeichnen();
+  }
   async function laden(quelle = vonWebsite){
-    const [n, r] = await Promise.all(['notams.json', 'luftraum.json'].map(quelle));
-    notams = n.notams || []; raeume = r.raeume || [];
-    const s = n.stand || n.abgerufen;
+    for (const id of Object.keys(cache)) delete cache[id];
+    await Promise.all([...new Set(['de', ...st.laender])].map(id => landLaden(id, quelle)));
+    const s = cache.de.stand;
     standEl.classList.remove('alt');
     standEl.textContent = s ? 'Stand: ' + zeit(s) : '';
     const alt = s && Date.now() - Date.parse(s) > 6 * 3600e3;
     if (alt) { standEl.textContent += ' – älter als 6 Stunden'; standEl.classList.add('alt'); }
     leerEl.hidden = true;
-    zeichnen();
+    mischen(); laenderKnoepfe();
     return s;
   }
   laden().catch(() => {
