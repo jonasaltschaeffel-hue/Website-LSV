@@ -1,8 +1,4 @@
 {
- "bilder/2a372abf-3dd1-483e-a91f-ea6d087a875a.jpg": {
-  "auf": "2026-03-25T14:54:29",
-  "hoch": "2026-11-19T21:13:57.755Z"
- },
  "bilder/2fd02d3a-a6fc-428f-bb7e-4ededdc933f1.jpg": {
   "auf": "2026-09-05T19:24:17",
   "hoch": "2026-11-19T21:13:57.755Z"
@@ -170,11 +166,23 @@
  "bilder/Winterarbeit/123.jpg": {
   "hoch": "2026-11-19T15:34:16Z"
  },
+ "bilder/Winterarbeit/2a372abf-3dd1-483e-a91f-ea6d087a875a.jpg": {
+  "auf": "2026-03-25T14:54:29",
+  "hoch": "2026-11-19T21:13:57.755Z"
+ },
  "bilder/Winterarbeit/5992ac1a-8813-4538-8fff-57b7b38274bc.jpg": {
   "hoch": "2026-11-19T16:39:43.093Z"
  },
  "bilder/Winterarbeit/861bffc1-4455-4348-bfde-e380ce72348b.jpg": {
   "hoch": "2026-11-19T16:39:43.093Z"
+ },
+ "bilder/Winterarbeit/d01ba626-ba51-45cc-bdc4-ae080b93327b.jpg": {
+  "auf": "2026-10-24T14:26:33",
+  "hoch": "2026-11-19T21:13:57.755Z"
+ },
+ "bilder/Winterarbeit/e25b9d7b-02fd-431b-be38-007cf886a0ab.jpg": {
+  "auf": "2026-10-17T15:46:07",
+  "hoch": "2026-11-19T21:13:57.755Z"
  },
  "bilder/Winterarbeit/img-4712.jpg": {
   "hoch": "2026-11-19T15:34:22Z"
@@ -191,14 +199,6 @@
  },
  "bilder/be33155b-6174-423e-87a4-4fcb79a32f82.jpg": {
   "auf": "2026-11-01T13:52:14",
-  "hoch": "2026-11-19T21:13:57.755Z"
- },
- "bilder/d01ba626-ba51-45cc-bdc4-ae080b93327b.jpg": {
-  "auf": "2026-10-24T14:26:33",
-  "hoch": "2026-11-19T21:13:57.755Z"
- },
- "bilder/e25b9d7b-02fd-431b-be38-007cf886a0ab.jpg": {
-  "auf": "2026-10-17T15:46:07",
   "hoch": "2026-11-19T21:13:57.755Z"
  },
  "bilder/img-1284.jpg": {
