@@ -50,6 +50,20 @@
 .news-card .lsv-go{position:absolute;top:10px;left:10px;margin:0;z-index:6}
 .more-btn + .lsv-go{margin-top:24px}
 
+/* Galerien: Leiste je Bild (bei Mauszeiger) und Leiste für die ganze Galerie */
+.lsv-gal{position:absolute;left:8px;top:8px;right:8px;z-index:6;display:none;flex-wrap:wrap;align-items:center;gap:4px;padding:6px 8px;border-radius:12px;
+  background:rgba(10,35,80,.92);color:#fff;font:600 12px system-ui,sans-serif;text-shadow:none;box-shadow:0 8px 20px -8px rgba(0,0,0,.6)}
+.w-galerie .pic:hover > .lsv-gal,.w-galerie .pic:focus-within > .lsv-gal{display:flex}
+.lsv-gal span{opacity:.75;margin-left:4px}
+.lsv-gal output{min-width:14px;text-align:center}
+.lsv-gal button,.lsv-gal-leiste button{font:700 13px system-ui,sans-serif;min-width:26px;height:26px;padding:0 7px;border:0;border-radius:8px;background:#fff;color:#0a2350;cursor:pointer}
+.lsv-gal button:hover,.lsv-gal-leiste button:hover{background:#ffd34d}
+.lsv-gal-leiste{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:14px 0 -6px;padding:7px 10px;border-radius:12px;border:2px dashed rgba(255,211,77,.9);
+  background:rgba(10,35,80,.06);color:#0a2350;font:600 13px system-ui,sans-serif;text-shadow:none}
+.lsv-gal-leiste span{margin-left:6px;opacity:.75}
+.lsv-gal-leiste output{min-width:18px;text-align:center}
+.lsv-gal-leiste small{flex-basis:100%;font-weight:400;opacity:.7}
+
 /* Artikelkarten: Übersichtskarte bearbeiten */
 .lsv-karte-btn{position:absolute;top:10px;right:10px;z-index:6;font:600 12.5px system-ui,sans-serif;padding:6px 11px;border-radius:999px;border:0;background:#0a2350;color:#fff;cursor:pointer;text-shadow:none;box-shadow:0 4px 12px -4px rgba(0,0,0,.5)}
 .lsv-karte-btn:hover{background:#163a78}
