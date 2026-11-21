@@ -83,12 +83,26 @@ body.artikel .w-hero .btn.ghost:hover{background:#fff;color:var(--w-blau)}
 @media (max-width:520px){ .w-karten,.w-karten.w-drei{grid-template-columns:1fr} }
 
 /* ---------- Galerie ---------- */
-.w-galerie{display:grid;grid-template-columns:2fr 1fr 1fr;grid-template-rows:auto auto;gap:12px;margin:18px 0 0}
-.article .w-galerie .pic{margin:0;aspect-ratio:4/3;border-radius:16px}
-.article .w-galerie .pic:first-child{grid-row:span 2;aspect-ratio:auto;min-height:100%}
+/* Raster aus gleich breiten Spalten und festen Zeilenhöhen; jedes Bild belegt 1–4 Spalten und 1–3 Zeilen.
+   Im Bearbeitungsmodus pro Bild einstellbar (Klassen g-b1…g-b4, g-h1…g-h3, g-oben/g-unten),
+   für die ganze Galerie: Spalten (g-sp2…g-sp5) und Zeilenhöhe (g-zh1…g-zh4).
+   Ohne Einstellung: erstes Bild groß (2×2), die übrigen klein. */
+.w-galerie{--sp:4;--zh:150px;display:grid;grid-template-columns:repeat(var(--sp),minmax(0,1fr));grid-auto-rows:var(--zh);grid-auto-flow:dense;gap:12px;margin:18px 0 0}
+.article .w-galerie .pic{margin:0;aspect-ratio:auto;border-radius:16px;height:100%;min-height:0;position:relative;overflow:hidden}
+.article .w-galerie .pic img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 50%}
+.article .w-galerie .pic:first-child:not([class*="g-b"]){grid-column:span 2}
+.article .w-galerie .pic:first-child:not([class*="g-h"]){grid-row:span 2}
+.w-galerie.g-sp2{--sp:2}.w-galerie.g-sp3{--sp:3}.w-galerie.g-sp5{--sp:5}
+.w-galerie.g-zh1{--zh:110px}.w-galerie.g-zh3{--zh:200px}.w-galerie.g-zh4{--zh:260px}
+.article .w-galerie .pic.g-b1{grid-column:span 1}.article .w-galerie .pic.g-b2{grid-column:span 2}
+.article .w-galerie .pic.g-b3{grid-column:span 3}.article .w-galerie .pic.g-b4{grid-column:span 4}
+.article .w-galerie.g-sp2 .pic.g-b3,.article .w-galerie.g-sp2 .pic.g-b4{grid-column:span 2}
+.article .w-galerie.g-sp3 .pic.g-b4{grid-column:span 3}
+.article .w-galerie .pic.g-h1{grid-row:span 1}.article .w-galerie .pic.g-h2{grid-row:span 2}.article .w-galerie .pic.g-h3{grid-row:span 3}
+.article .w-galerie .pic.g-oben img{object-position:50% 15%}.article .w-galerie .pic.g-unten img{object-position:50% 85%}
 @media (max-width:640px){
-  .w-galerie{grid-template-columns:1fr 1fr}
-  .article .w-galerie .pic:first-child{grid-column:span 2;grid-row:auto;aspect-ratio:16/10}
+  .w-galerie,.w-galerie[class*="g-sp"]{--sp:2;--zh:120px}
+  .article .w-galerie .pic.g-b3,.article .w-galerie .pic.g-b4{grid-column:span 2}
 }
 
 /* ---------- Hervorgehobenes Zitat ---------- */
