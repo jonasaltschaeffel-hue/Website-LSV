@@ -883,6 +883,23 @@
       const q = await bildQuelle();
       if (!q) return;
       btn.textContent = q.pfad ? 'Speichere …' : 'Lade hoch …';
+      // Artikelbild: Karte (Startseite/Archiv) und Titelbild der Artikelseite gehören zusammen –
+      // dann alles gemeinsam ändern, damit Übersicht und Artikel nie auseinanderlaufen.
+      const karte = img.closest('main .news:not(#fleet) a.news-card');
+      const artSeite = /^aktuelles\/([^/]+)\.html$/.exec(rel);
+      const artSlug = karte ? (karte.getAttribute('href') || '').split('/').pop().replace(/\.html$/, '')
+        : (artSeite && artSeite[1] !== 'index' && img === document.querySelector('main .pic img')) ? artSeite[1] : null;
+      if (artSlug){
+        try {
+          if (unsaved() && !confirm('Es gibt ungespeicherte Änderungen auf dieser Seite. Bitte zuerst speichern – trotzdem fortfahren?')) { btn.textContent = '📷 Bild ändern'; return; }
+          await LSVCms.articles.update(gh, artSlug, {bild: q.file, bildPfad: q.pfad, seitenbild: true});
+          img.hidden = false; img.src = q.pfad ? LSVBilder.vorschau(sess.cfg, q.pfad) : URL.createObjectURL(q.file);
+          holder.classList.remove('placeholder');
+          toast('Bild gespeichert ✓ – Übersicht und Artikel, in ca. 1 Minute online');
+        } catch (err){ toast('Bild nicht gespeichert: ' + err.message, true); }
+        btn.textContent = '📷 Bild ändern';
+        return;
+      }
       try {
         let neuSrc, zeige, dateien = [];
         if (q.pfad){                                         // aus der Bildersammlung: nur verlinken
