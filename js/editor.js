@@ -346,6 +346,7 @@
     else if (op.type === 'up'){ const p = sib(t, -1); if (p) p.before(t); }
     else if (op.type === 'down'){ const n = sib(t, 1); if (n) n.after(t); }
     else if (op.type === 'toggle') t.classList.toggle(op.cls);
+    else if (op.type === 'klassen'){ t.classList.remove(...op.weg); if (op.dazu) t.classList.add(op.dazu); if (!t.className) t.removeAttribute('class'); }
     else if (op.type === 'size'){ SIZES.forEach(c => t.classList.remove(c)); if (op.cls) t.classList.add(op.cls); }
     else if (op.type === 'join'){
       // Bild mit dem nächsten Bild nebeneinander stellen (Bildreihe)
@@ -460,6 +461,7 @@
         }
         else if (op.type === 'split'){ splitItems.forEach(i => SIZES.forEach(c => i.classList.remove(c))); splitItems[0].before(target); target.append(...splitItems); }
         else if (op.type === 'toggle') target.classList.toggle(op.cls);
+        else if (op.type === 'klassen') target.className = prevClass;
         else if (op.type === 'place'){
           pos.parent.insertBefore(target, pos.next);
           FLOATS.forEach(c => target.classList.remove(c)); if (prevFloat) target.classList.add(prevFloat);
@@ -923,6 +925,68 @@
         toast('Bild gespeichert ✓ – in ca. 1 Minute online');
       } catch (err){ toast('Bild nicht gespeichert: ' + err.message, true); }
       btn.textContent = '📷 Bild ändern';
+    });
+  });
+
+  /* ---------------- Galerien: Breite, Höhe, Ausschnitt und Reihenfolge jedes Bildes ----------------
+     Gespeichert werden nur Klassen (siehe css/werben.css „Galerie“), wie bei den anderen Form-Änderungen. */
+  const GAL = {b: ['g-b1', 'g-b2', 'g-b3', 'g-b4'], h: ['g-h1', 'g-h2', 'g-h3'], pos: ['g-oben', 'g-unten'],
+    sp: ['g-sp2', 'g-sp3', 'g-sp5'], zh: ['g-zh1', 'g-zh3', 'g-zh4']};
+  const pfadIn = el => {
+    const c = containers.find(k => k.contains(el)); if (!c) return null;
+    const path = []; for (let n = el; n !== c; n = n.parentElement) path.unshift(kids(n.parentElement).indexOf(n));
+    return path.includes(-1) ? null : {container: c, path};
+  };
+  const klasseSetzen = (el, gruppe, dazu) => { const info = pfadIn(el); if (info) doOp(info, {type: 'klassen', path: info.path, weg: GAL[gruppe], dazu: dazu || ''}); };
+  const nummer = (el, pre, def) => { const c = [...el.classList].find(k => k.startsWith(pre)); return c ? +c.slice(pre.length) : def; };
+  document.querySelectorAll('main .w-galerie').forEach(gal => {
+    const istErstes = p => kids(gal)[0] === p;
+    const breite = p => nummer(p, 'g-b', istErstes(p) ? 2 : 1), hoehe = p => nummer(p, 'g-h', istErstes(p) ? 2 : 1);
+    const spalten = () => nummer(gal, 'g-sp', 4), zeile = () => nummer(gal, 'g-zh', 2);
+    // Leiste für die ganze Galerie (über der Galerie)
+    const gl = document.createElement('div');
+    gl.className = 'lsv-gal-leiste lsv-ui';
+    gl.innerHTML = `<b>🖼 Galerie</b><span>Spalten</span><button type="button" data-g="sp-">−</button><output data-w="sp"></output><button type="button" data-g="sp+">+</button>
+      <span>Zeilenhöhe</span><button type="button" data-g="zh-">−</button><output data-w="zh"></output><button type="button" data-g="zh+">+</button>
+      <small>Bilder einzeln: mit der Maus auf ein Bild zeigen</small>`;
+    gal.before(gl);
+    const SPW = [2, 3, 4, 5], ZHW = ['klein', 'mittel', 'groß', 'sehr groß'];
+    const glZeigen = () => { gl.querySelector('[data-w=sp]').textContent = spalten(); gl.querySelector('[data-w=zh]').textContent = ZHW[zeile() - 1]; };
+    gl.addEventListener('click', ev => {
+      const b = ev.target.closest('button[data-g]'); if (!b) return;
+      ev.preventDefault(); ev.stopPropagation();
+      const g = b.dataset.g;
+      if (g.startsWith('sp')){ const i = SPW.indexOf(spalten()) + (g === 'sp+' ? 1 : -1); if (i < 0 || i >= SPW.length) return; const n = SPW[i]; klasseSetzen(gal, 'sp', n === 4 ? '' : 'g-sp' + n); }
+      else { const n = zeile() + (g === 'zh+' ? 1 : -1); if (n < 1 || n > 4) return; klasseSetzen(gal, 'zh', n === 2 ? '' : 'g-zh' + n); }
+      glZeigen();
+    });
+    gl.addEventListener('mouseenter', glZeigen); glZeigen();
+    // Leiste je Bild
+    kids(gal).filter(p => p.matches('.pic')).forEach(p => {
+      const l = document.createElement('div');
+      l.className = 'lsv-gal lsv-ui';
+      l.innerHTML = `<span>Breite</span><button type="button" data-g="b-" title="schmaler">−</button><output data-w="b"></output><button type="button" data-g="b+" title="breiter">+</button>
+        <span>Höhe</span><button type="button" data-g="h-" title="niedriger">−</button><output data-w="h"></output><button type="button" data-g="h+" title="höher">+</button>
+        <button type="button" data-g="pos" title="Welcher Teil des Fotos zu sehen ist"></button>
+        <button type="button" data-g="vor" title="eine Stelle nach vorne">◀</button><button type="button" data-g="zurueck" title="eine Stelle nach hinten">▶</button>`;
+      p.appendChild(l);
+      const POS = [['', '⬍ Mitte'], ['g-oben', '⬆ Oben'], ['g-unten', '⬇ Unten']];
+      const posJetzt = () => POS.findIndex(x => x[0] && p.classList.contains(x[0])) + 1 || 0;
+      const zeigen = () => {
+        l.querySelector('[data-w=b]').textContent = breite(p); l.querySelector('[data-w=h]').textContent = hoehe(p);
+        l.querySelector('[data-g=pos]').textContent = POS[posJetzt() % 3][1];
+      };
+      l.addEventListener('click', ev => {
+        const b = ev.target.closest('button[data-g]'); if (!b) return;
+        ev.preventDefault(); ev.stopPropagation();
+        const g = b.dataset.g;
+        if (g === 'b-' || g === 'b+'){ const n = breite(p) + (g === 'b+' ? 1 : -1); if (n >= 1 && n <= Math.min(4, spalten())) klasseSetzen(p, 'b', 'g-b' + n); }
+        else if (g === 'h-' || g === 'h+'){ const n = hoehe(p) + (g === 'h+' ? 1 : -1); if (n >= 1 && n <= 3) klasseSetzen(p, 'h', 'g-h' + n); }
+        else if (g === 'pos'){ const n = (posJetzt() + 1) % 3; klasseSetzen(p, 'pos', POS[n][0]); }
+        else { const info = pfadIn(p); const s = sib(p, g === 'vor' ? -1 : 1); if (info && s) doOp(info, {type: g === 'vor' ? 'up' : 'down', path: info.path}); }
+        kids(gal).forEach(x => x.querySelector(':scope > .lsv-gal')?.dispatchEvent(new Event('mouseenter')));
+      });
+      l.addEventListener('mouseenter', zeigen); p.addEventListener('mouseenter', zeigen); zeigen();
     });
   });
 
