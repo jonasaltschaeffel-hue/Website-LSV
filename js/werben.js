@@ -26,6 +26,7 @@
       if (!m) return;
       const ziel = parseInt(m[0].replace(/\./g, ''), 10);
       if (!ziel || ziel < 5) return;
+      if (/^(19|20)\d\d$/.test(text.trim())) return;        // Jahreszahlen (z. B. „1950“) nicht hochzählen
       const punkt = m[0].includes('.'), vor = text.slice(0, m.index), nach = text.slice(m.index + m[0].length);
       const t0 = performance.now(), dauer = 1200;
       const schritt = t => {
