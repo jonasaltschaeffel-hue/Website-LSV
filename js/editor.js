@@ -990,6 +990,44 @@
     });
   });
 
+  /* ---------------- Häufige Fragen (.w-fragen): Fragen hinzufügen, verschieben, entfernen ---------------- */
+  document.querySelectorAll('main .w-fragen').forEach(box => {
+    const leiste = d => {
+      if (d.querySelector(':scope > .lsv-frage-leiste')) return;
+      const l = document.createElement('div');
+      l.className = 'lsv-frage-leiste lsv-ui';
+      l.innerHTML = '<button type="button" data-f="hoch" title="nach oben">↑</button><button type="button" data-f="runter" title="nach unten">↓</button><button type="button" data-f="weg" class="lsv-frage-weg">🗑 Frage entfernen</button>';
+      l.addEventListener('click', ev => {
+        const b = ev.target.closest('button[data-f]'); if (!b) return;
+        ev.preventDefault(); ev.stopPropagation();
+        const info = pfadIn(d); if (!info) return;
+        if (b.dataset.f === 'weg'){
+          const frage = (d.querySelector('summary') || {}).textContent || '';
+          if (confirm(`Frage „${frage.trim()}“ entfernen?`)) doOp(info, {type: 'remove', path: info.path});
+        }
+        else if (sib(d, b.dataset.f === 'hoch' ? -1 : 1)) doOp(info, {type: b.dataset.f === 'hoch' ? 'up' : 'down', path: info.path});
+      });
+      d.appendChild(l);
+    };
+    kids(box).filter(d => d.tagName === 'DETAILS').forEach(leiste);
+    const neu = document.createElement('button');
+    neu.type = 'button'; neu.className = 'lsv-frage-neu lsv-ui'; neu.textContent = '+ Frage hinzufügen';
+    neu.addEventListener('click', ev => {
+      ev.preventDefault();
+      const info = pfadIn(box); if (!info) return;
+      const id = nid();
+      const html = offen => `<details${offen ? ' open' : ''}><summary data-e="${id}-q">Neue Frage</summary><p data-e="${id}-a">Hier steht die Antwort.</p></details>`;
+      doOp(info, {type: 'appendRow', path: info.path, html: '\n        ' + html(false) + '\n      '}, {type: 'appendRow', path: info.path, html: html(true)});
+      const d = kids(box).filter(x => x.tagName === 'DETAILS').pop();
+      if (d){ leiste(d); const s = d.querySelector('summary'); s.focus(); const r = document.createRange(); r.selectNodeContents(s); getSelection().removeAllRanges(); getSelection().addRange(r); }
+    });
+    box.after(neu);
+    // Leertaste in einer Frage: Leerzeichen schreiben statt die Frage auf-/zuzuklappen
+    box.addEventListener('keydown', ev => {
+      if (ev.key === ' ' && ev.target.matches && ev.target.matches('summary[contenteditable="true"]')){ ev.preventDefault(); document.execCommand('insertText', false, ' '); }
+    });
+  });
+
   /* ---------------- Neuer Artikel (gemeinsame Funktion aus js/lsv-cms.js) ---------------- */
   async function createArticle(fd){
     const o = {}; for (const [k, v] of fd.entries()) o[k] = v;
