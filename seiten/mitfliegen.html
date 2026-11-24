@@ -190,8 +190,9 @@
           <label class="gs-check"><input type="checkbox" name="ok" required=""> Ich bezahle per Überweisung. Den Gutschein bekomme ich nach Zahlungseingang.</label>
           <input type="text" name="_honey" class="gs-honig" tabindex="-1" autocomplete="off" aria-hidden="true">
           <p class="gs-fehler" role="alert"></p>
+          <p style="margin:2px 0 4px;font-size:14px">Alle Preise sind Endpreise, Versandkosten fallen nicht an. Mit dem Klick auf „Zahlungspflichtig bestellen“ gibst du eine verbindliche Bestellung beim Luftsportverein Regensburg e.&nbsp;V. ab. Infos zu deinem <a href="#widerruf">Widerrufsrecht</a> und zum <a href="datenschutz.html">Datenschutz</a>.</p>
           <button class="gs-senden" type="submit">
-            <span class="gs-senden-text">Jetzt bestellen</span>
+            <span class="gs-senden-text">Zahlungspflichtig bestellen</span>
             <span class="gs-senden-summe"></span>
             <svg class="gs-senden-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3.4 20.4 21 12 3.4 3.6 3.4 10l12.6 2-12.6 2z" fill="currentColor"></path></svg>
           </button>
@@ -214,12 +215,19 @@
       </div>
       <a class="gs-leiste" href="#gs-kasse" hidden=""><span class="gs-leiste-text"></span><span>Zur Kasse →</span></a>
       <p data-e="gs-hinweis" class="note">Flüge finden bei geeignetem Wetter von April bis Oktober statt – Termin bitte vorher absprechen.</p>
+      <div class="w-fragen" id="widerruf">
+        <details><summary data-e="wr-q">Widerrufsbelehrung</summary>
+          <p data-e="wr-p1"><strong>Widerrufsrecht:</strong> Du hast das Recht, binnen vierzehn Tagen ohne Angabe von Gründen diesen Vertrag zu widerrufen. Die Widerrufsfrist beträgt vierzehn Tage ab dem Tag des Vertragsabschlusses. Um dein Widerrufsrecht auszuüben, musst du uns (Luftsportverein Regensburg e.&nbsp;V., Flugplatz Oberhinkofen, Einthal, 93083 Obertraubling, Telefon 09453 7244, E-Mail <a href="mailto:info@luftsportverein-regensburg.de">info@luftsportverein-regensburg.de</a>) mittels einer eindeutigen Erklärung (z.&nbsp;B. ein mit der Post versandter Brief oder eine E-Mail) über deinen Entschluss, diesen Vertrag zu widerrufen, informieren. Du kannst dafür das unten stehende Muster-Widerrufsformular verwenden, das jedoch nicht vorgeschrieben ist. Zur Wahrung der Widerrufsfrist reicht es aus, dass du die Mitteilung über die Ausübung des Widerrufsrechts vor Ablauf der Widerrufsfrist absendest.</p>
+          <p data-e="wr-p2"><strong>Folgen des Widerrufs:</strong> Wenn du diesen Vertrag widerrufst, haben wir dir alle Zahlungen, die wir von dir erhalten haben, unverzüglich und spätestens binnen vierzehn Tagen ab dem Tag zurückzuzahlen, an dem die Mitteilung über deinen Widerruf dieses Vertrags bei uns eingegangen ist. Für diese Rückzahlung verwenden wir dasselbe Zahlungsmittel, das du bei der ursprünglichen Transaktion eingesetzt hast, es sei denn, mit dir wurde ausdrücklich etwas anderes vereinbart; in keinem Fall werden dir wegen dieser Rückzahlung Entgelte berechnet. Hast du verlangt, dass die Dienstleistung während der Widerrufsfrist beginnen soll, so hast du uns einen angemessenen Betrag zu zahlen, der dem Anteil der bis zu dem Zeitpunkt, zu dem du uns von der Ausübung des Widerrufsrechts hinsichtlich dieses Vertrags unterrichtest, bereits erbrachten Dienstleistungen im Vergleich zum Gesamtumfang der im Vertrag vorgesehenen Dienstleistungen entspricht.</p>
+          <p data-e="wr-p3"><strong>Muster-Widerrufsformular</strong> (Wenn du den Vertrag widerrufen willst, fülle bitte dieses Formular aus und sende es zurück.)<br>An Luftsportverein Regensburg e.&nbsp;V., Flugplatz Oberhinkofen, Einthal, 93083 Obertraubling, E-Mail info@luftsportverein-regensburg.de:<br>Hiermit widerrufe(n) ich/wir (*) den von mir/uns (*) abgeschlossenen Vertrag über den Kauf der folgenden Waren (*)/die Erbringung der folgenden Dienstleistung (*)<br>– Bestellt am (*)/erhalten am (*)<br>– Name des/der Verbraucher(s)<br>– Anschrift des/der Verbraucher(s)<br>– Unterschrift des/der Verbraucher(s) (nur bei Mitteilung auf Papier)<br>– Datum<br>(*) Unzutreffendes streichen.</p>
+        </details>
+      </div>
     </div>
   </article>
 </main>
 
 <script src="../js/himmel.js"></script>
-<script src="../js/gutscheine.js?v=12"></script>
+<script src="../js/gutscheine.js?v=13"></script>
 <script>
   const b = document.getElementById('menu-btn'), t = document.getElementById('tabs');
   b.addEventListener('click', () => b.setAttribute('aria-expanded', t.classList.toggle('open')));
