@@ -301,5 +301,46 @@ window.LSVCms = (() => {
     }
   };
 
-  return {esc, slugify, prepareImage, articles, fleet, site, dateDe};
+  /* =================================================================
+     FUNKTIONÄRE – die Namen stehen direkt in index.html und seiten/*.html,
+     erkannt an Amt + Name: <th>Amt</th><td>Name</td> oder .v-rolle/.v-name,
+     dazu Fließtext „Name, Amt“ (Impressum, Datenschutz).
+     Artikel unter aktuelles/ bleiben unverändert (Stand von damals).
+     ================================================================= */
+  const AMT_RE = /vorsitz|leiter|kassen|schatz|\bschrift|wart\b|referent|beauftragt/i;
+  const reEsc = s => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const pairRe = amt => new RegExp(`(<th\\b[^>]*>\\s*${amt}\\s*</th>\\s*<td\\b[^>]*>)([^<]*)(</td>)|(<span class="v-rolle"[^>]*>\\s*${amt}\\s*</span>\\s*<span class="v-name"[^>]*>)([^<]*)(</span>)`, 'g');
+  const people = {
+    async load(gh){
+      const paths = (await gh.listFiles()).filter(f => /^(index\.html|seiten\/[^/]+\.html)$/.test(f));
+      const files = await Promise.all(paths.map(async path => ({path, src: await gh.getText(path)})));
+      const map = new Map();
+      for (const f of files) for (const m of f.src.matchAll(pairRe('([^<]+?)'))){
+        const amt = m[1] ? m[2] : m[6], name = (m[1] ? m[3] : m[7]).trim();
+        if (m[1] && !AMT_RE.test(amt)) continue;   // andere Tabellenzeilen (Anschrift, E-Mail …)
+        const p = map.get(amt) || {amt, name, pages: []};
+        if (!p.pages.includes(f.path)) p.pages.push(f.path);
+        map.set(amt, p);
+      }
+      return {files, people: [...map.values()]};
+    },
+    /** changes: [{amt, name}] – setzt den neuen Namen auf allen Seiten, ein Commit */
+    async save(gh, changes){
+      const st = await this.load(gh), out = [];
+      for (const f of st.files){
+        let src = f.src;
+        for (const c of changes){
+          const neu = esc(c.name.trim()), old = (st.people.find(p => p.amt === c.amt) || {}).name;
+          src = src.replace(pairRe(reEsc(c.amt)), (m, a1, n1, b1, a2, n2, b2) => (a1 || a2) + neu + (b1 || b2));
+          if (old) src = src.split(old + ', ' + c.amt).join(neu + ', ' + c.amt);
+        }
+        if (src !== f.src) out.push({path: f.path, text: src});
+      }
+      if (!out.length) throw new Error('Keine Änderung gefunden.');
+      await gh.commit(out, 'Funktionäre geändert: ' + changes.map(c => c.amt + ' → ' + c.name.trim()).join(', '));
+      return out.map(f => f.path);
+    }
+  };
+
+  return {esc, slugify, prepareImage, articles, fleet, site, people, dateDe};
 })();

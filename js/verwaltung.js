@@ -58,7 +58,7 @@
   async function render(){
     app.innerHTML = `
       <nav class="tabs">
-        <button data-t="artikel">Artikel</button><button data-t="flotte">Flotte</button><button data-t="seiten">Seiten &amp; Reiter</button>
+        <button data-t="artikel">Artikel</button><button data-t="flotte">Flotte</button><button data-t="seiten">Seiten &amp; Reiter</button><button data-t="leute">Funktionäre</button>
       </nav>
       <main><div class="panel" id="panel"><p class="hint">Lade aktuellen Stand aus GitHub …</p></div></main>`;
     app.querySelectorAll('nav.tabs button').forEach(b => { b.classList.toggle('on', b.dataset.t === tab); b.onclick = () => { tab = b.dataset.t; render(); }; });
@@ -67,6 +67,7 @@
       if (tab === 'artikel') await renderArticles(panel);
       if (tab === 'flotte') await renderFleet(panel);
       if (tab === 'seiten') await renderSite(panel);
+      if (tab === 'leute') await renderPeople(panel);
     } catch (err){ panel.innerHTML = `<p class="err">${esc(err.message)}</p>`; }
   }
 
@@ -204,6 +205,24 @@
         <label>Kleine Zeile über dem Titel<input name="eyebrow" maxlength="80" placeholder="z. B. Jugend"></label>
         <label class="cb"><input type="checkbox" name="addTab" checked> Als Reiter in der Kopfleiste anzeigen</label>`, 'Seite anlegen');
       if (fd){ const o = fdObj(fd); o.addTab = fd.has('addTab'); run(() => LSVCms.site.createPage(gh, o), 'Seite angelegt'); }
+    };
+  }
+
+  /* ---------------- Funktionäre ---------------- */
+  async function renderPeople(panel){
+    const st = await LSVCms.people.load(gh);
+    panel.innerHTML = `<h2>Funktionäre</h2><p class="hint">Vorstand, Jugendleitung, Technischer Leiter … Ein neuer Name wird beim Speichern auf allen Seiten ersetzt, auf denen dieses Amt steht (auch „Name, Amt“ in Impressum und Datenschutz). Alte Artikel unter „Aktuelles“ bleiben unverändert.</p>
+      <form id="pf"></form>`;
+    const f = $('#pf', panel);
+    if (!st.people.length){ f.innerHTML = '<p class="hint">Keine Ämter auf den Seiten gefunden.</p>'; return; }
+    f.innerHTML = st.people.map((p, i) => `<div class="tabrow"><div class="info"><div class="t">${p.amt}</div><div class="s">${p.pages.map(esc).join(', ')}</div></div>
+      <input name="n${i}" required maxlength="100" value="${esc(plain(p.name))}" aria-label="${esc(plain(p.amt))}"></div>`).join('') +
+      `<p class="btns" style="margin-top:12px"><button class="b main">Funktionäre speichern</button></p>`;
+    f.onsubmit = ev => {
+      ev.preventDefault();
+      const changes = st.people.map((p, i) => ({amt: p.amt, name: f['n' + i].value.trim()})).filter((c, i) => c.name !== plain(st.people[i].name));
+      if (!changes.length) return toast('Nichts geändert.', true);
+      run(() => LSVCms.people.save(gh, changes), 'Funktionäre gespeichert');
     };
   }
 
