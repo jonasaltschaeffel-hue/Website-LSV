@@ -234,7 +234,7 @@
     } finally {
       clearTimeout(uhr);
       senden.disabled = false; senden.classList.remove('gs-laedt');
-      $('.gs-senden-text').textContent = 'Jetzt bestellen';
+      $('.gs-senden-text').textContent = 'Zahlungspflichtig bestellen';
     }
   });
 
