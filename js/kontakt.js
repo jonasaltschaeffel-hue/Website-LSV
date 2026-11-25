@@ -1,4 +1,4 @@
-/* Kontaktformulare (Startseite, Seite „Kontakt“): Versand über EmailJS – genauso wie bei den Gutscheinen.
+/* Kontaktformulare (Startseite, Seite „Kontakt“): Versand über EmailJS.
    1) Nachricht an MAIL (Antworten gehen direkt an den Absender)
    2) Eingangsbestätigung an den Absender
    Jedes <form data-kontakt> wird verknüpft. Felder: name, mail, (tel), (thema), msg, _honey (Spam-Falle).
